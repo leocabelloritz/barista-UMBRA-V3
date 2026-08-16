@@ -6,7 +6,6 @@ let ratioActual = 16;
 let pasoActual = 0;
 
 let temporizador = null;
-
 let temporizadorCorriendo = false;
 
 let segundosRestantes = 0;
@@ -19,17 +18,15 @@ let preparacionGuardadaActual = false;
 let registroActualId = null;
 let resultadoActual = "";
 
+let filtroJournalActual = "todas";
 
-// =====================================================
-// STORAGE
-// =====================================================
 
 const STORAGE_JOURNAL =
     "umbra_journal_v1";
 
 
 // =====================================================
-// VISTAS
+// DOM
 // =====================================================
 
 const vistaMetodos =
@@ -50,10 +47,6 @@ const vistaJournal =
 const vistaRegistro =
     document.getElementById("vista-registro");
 
-
-// =====================================================
-// DETALLE
-// =====================================================
 
 const listaMetodos =
     document.getElementById("lista-metodos");
@@ -92,10 +85,6 @@ const listaPasosPreview =
     document.getElementById("lista-pasos-preview");
 
 
-// =====================================================
-// GUÍA
-// =====================================================
-
 const guiaMetodo =
     document.getElementById("guia-metodo");
 
@@ -132,6 +121,7 @@ const objetivoPasoValor =
 const objetivoPasoEtiqueta =
     document.getElementById("objetivo-paso-etiqueta");
 
+
 const timerCircleControl =
     document.getElementById("timer-circle-control");
 
@@ -154,10 +144,6 @@ const timerRingProgress =
     document.getElementById("timer-ring-progress");
 
 
-// =====================================================
-// FINAL
-// =====================================================
-
 const resumenMetodo =
     document.getElementById("resumen-metodo");
 
@@ -173,19 +159,15 @@ const resumenRatio =
 const btnGuardarPreparacion =
     document.getElementById("btn-guardar-preparacion");
 
-const btnIrJournal =
-    document.getElementById("btn-ir-journal");
-
 const guardadoFeedback =
     document.getElementById("guardado-feedback");
 
 
-// =====================================================
-// JOURNAL
-// =====================================================
-
 const journalEmpty =
     document.getElementById("journal-empty");
+
+const journalFilterEmpty =
+    document.getElementById("journal-filter-empty");
 
 const journalList =
     document.getElementById("journal-list");
@@ -193,10 +175,24 @@ const journalList =
 const journalCount =
     document.getElementById("journal-count");
 
+const journalFilterCount =
+    document.getElementById("journal-filter-count");
 
-// =====================================================
-// REGISTRO
-// =====================================================
+const journalStatTotal =
+    document.getElementById("journal-stat-total");
+
+const journalStatMetodo =
+    document.getElementById("journal-stat-metodo");
+
+const journalStatRatio =
+    document.getElementById("journal-stat-ratio");
+
+const journalStatUltima =
+    document.getElementById("journal-stat-ultima");
+
+const journalFilters =
+    document.querySelectorAll(".journal-filter");
+
 
 const registroFecha =
     document.getElementById("registro-fecha");
@@ -226,10 +222,6 @@ const resultadoOptions =
     document.querySelectorAll(".resultado-option");
 
 
-// =====================================================
-// NAV
-// =====================================================
-
 const navMetodos =
     document.getElementById("nav-metodos");
 
@@ -250,31 +242,24 @@ function mostrarVista(vista) {
         .querySelectorAll(".vista")
         .forEach(elemento => {
 
-            elemento.classList.remove(
-                "activa"
-            );
+            elemento.classList.remove("activa");
 
         });
 
 
-    vista.classList.add(
-        "activa"
-    );
-
-
-    const esGuia =
-        vista === vistaGuia;
+    vista.classList.add("activa");
 
 
     document.body.classList.toggle(
+
         "modo-guia",
-        esGuia
+
+        vista === vistaGuia
+
     );
 
 
-    if (
-        vista === vistaJournal
-    ) {
+    if (vista === vistaJournal) {
 
         cargarJournal();
 
@@ -286,7 +271,7 @@ function mostrarVista(vista) {
         top: 0,
 
         behavior:
-            esGuia
+            vista === vistaGuia
                 ? "auto"
                 : "smooth"
 
@@ -301,43 +286,21 @@ function actualizarNav(nombre) {
         .querySelectorAll(".nav-item")
         .forEach(item => {
 
-            item.classList.remove(
-                "activo"
-            );
+            item.classList.remove("activo");
 
         });
 
 
-    if (
-        nombre === "metodos"
-    ) {
-
-        navMetodos.classList.add(
-            "activo"
-        );
-
+    if (nombre === "metodos") {
+        navMetodos.classList.add("activo");
     }
 
-
-    if (
-        nombre === "guia"
-    ) {
-
-        navGuia.classList.add(
-            "activo"
-        );
-
+    if (nombre === "guia") {
+        navGuia.classList.add("activo");
     }
 
-
-    if (
-        nombre === "journal"
-    ) {
-
-        navJournal.classList.add(
-            "activo"
-        );
-
+    if (nombre === "journal") {
+        navJournal.classList.add("activo");
     }
 
 }
@@ -349,8 +312,7 @@ function actualizarNav(nombre) {
 
 function cargarMetodos() {
 
-    listaMetodos.innerHTML =
-        "";
+    listaMetodos.innerHTML = "";
 
 
     Object
@@ -360,17 +322,13 @@ function cargarMetodos() {
 
             const agua =
                 Math.round(
-
                     metodo.cafeDefault *
                     metodo.ratioDefault
-
                 );
 
 
             const boton =
-                document.createElement(
-                    "button"
-                );
+                document.createElement("button");
 
 
             boton.type =
@@ -381,22 +339,22 @@ function cargarMetodos() {
                 "tarjeta-metodo";
 
 
+            const simbolo =
+                metodo.id === "v60"
+                    ? "▽"
+                    : metodo.id === "francesa"
+                    ? "▥"
+                    : metodo.id === "aeropress"
+                    ? "┃"
+                    : "◉";
+
+
             boton.innerHTML = `
 
                 <div class="metodo-grafico">
 
                     <span>
-
-                        ${
-                            metodo.id === "v60"
-                                ? "▽"
-                                : metodo.id === "francesa"
-                                ? "▥"
-                                : metodo.id === "aeropress"
-                                ? "┃"
-                                : "◉"
-                        }
-
+                        ${simbolo}
                     </span>
 
                 </div>
@@ -405,43 +363,30 @@ function cargarMetodos() {
                 <div class="metodo-info">
 
                     <span class="metodo-meta">
-
                         ${metodo.subtitulo} /
-
                     </span>
 
-
                     <strong>
-
                         ${metodo.nombre}
-
                     </strong>
 
-
                     <p>
-
                         ${metodo.descripcion}
-
                     </p>
 
-
                     <small>
-
                         1:${metodo.ratioDefault}
                         /
                         ${metodo.cafeDefault} g
                         /
                         ${agua} ml
-
                     </small>
 
                 </div>
 
 
                 <span class="metodo-flecha">
-
                     →
-
                 </span>
 
             `;
@@ -466,10 +411,6 @@ function cargarMetodos() {
 
 }
 
-
-// =====================================================
-// ABRIR MÉTODO
-// =====================================================
 
 function abrirMetodo(idMetodo) {
 
@@ -510,12 +451,8 @@ function abrirMetodo(idMetodo) {
 
 function actualizarDetalle() {
 
-    if (
-        !metodoActual
-    ) {
-
+    if (!metodoActual) {
         return;
-
     }
 
 
@@ -563,97 +500,72 @@ function actualizarDetalle() {
 
 function cargarRatios() {
 
-    opcionesIntensidad.innerHTML =
-        "";
+    opcionesIntensidad.innerHTML = "";
 
 
-    metodoActual.ratios.forEach(
-        opcion => {
+    metodoActual.ratios.forEach(opcion => {
 
 
-            const boton =
-                document.createElement(
-                    "button"
-                );
+        const boton =
+            document.createElement("button");
 
 
-            boton.type =
-                "button";
+        boton.type =
+            "button";
 
 
-            boton.className =
-                "boton-ratio";
+        boton.className =
+            "boton-ratio";
 
 
-            boton.innerHTML = `
+        boton.innerHTML = `
 
-                <strong>
-                    ${opcion.nombre}
-                </strong>
+            <strong>
+                ${opcion.nombre}
+            </strong>
 
-                <span>
-                    1:${opcion.ratio}
-                </span>
+            <span>
+                1:${opcion.ratio}
+            </span>
 
-            `;
+        `;
 
 
-            if (
-                opcion.ratio ===
-                ratioActual
-            ) {
+        if (
+            opcion.ratio === ratioActual
+        ) {
 
-                boton.classList.add(
-                    "activo"
-                );
+            boton.classList.add("activo");
+
+        }
+
+
+        boton.addEventListener(
+
+            "click",
+
+            () => {
+
+                ratioActual =
+                    opcion.ratio;
+
+
+                cargarRatios();
+
+                actualizarDetalle();
+
+                cargarPreviewPasos();
 
             }
 
-
-            boton.addEventListener(
-
-                "click",
-
-                () => {
+        );
 
 
-                    ratioActual =
-                        opcion.ratio;
+        opcionesIntensidad.appendChild(
+            boton
+        );
 
-
-                    document
-                        .querySelectorAll(
-                            ".boton-ratio"
-                        )
-                        .forEach(btn => {
-
-                            btn.classList.remove(
-                                "activo"
-                            );
-
-                        });
-
-
-                    boton.classList.add(
-                        "activo"
-                    );
-
-
-                    actualizarDetalle();
-
-                    cargarPreviewPasos();
-
-                }
-
-            );
-
-
-            opcionesIntensidad.appendChild(
-                boton
-            );
-
-        }
-    );
+    });
 
 }
 
@@ -664,8 +576,7 @@ function cargarRatios() {
 
 function cambiarCafe(cantidad) {
 
-    gramosCafe +=
-        cantidad;
+    gramosCafe += cantidad;
 
 
     gramosCafe =
@@ -692,10 +603,8 @@ function cambiarCafe(cantidad) {
 function obtenerAguaTotal() {
 
     return Math.round(
-
         gramosCafe *
         ratioActual
-
     );
 
 }
@@ -729,10 +638,8 @@ function obtenerObjetivoAcumulado(
 ) {
 
     return Math.round(
-
         obtenerAguaTotal() *
         porcentaje
-
     );
 
 }
@@ -742,8 +649,7 @@ function obtenerAguaAnterior(
     indicePaso
 ) {
 
-    let aguaAnterior =
-        0;
+    let aguaAnterior = 0;
 
 
     for (
@@ -756,9 +662,7 @@ function obtenerAguaAnterior(
             metodoActual.pasos[i];
 
 
-        if (
-            paso.agua === "bloom"
-        ) {
+        if (paso.agua === "bloom") {
 
             aguaAnterior =
                 obtenerAguaBloom();
@@ -766,9 +670,7 @@ function obtenerAguaAnterior(
         }
 
 
-        if (
-            paso.agua === "acumulado"
-        ) {
+        if (paso.agua === "acumulado") {
 
             aguaAnterior =
                 obtenerObjetivoAcumulado(
@@ -797,7 +699,7 @@ function obtenerAguaAnterior(
 
 
 // =====================================================
-// DATOS PASO
+// PASOS
 // =====================================================
 
 function obtenerDatosPaso(
@@ -805,9 +707,7 @@ function obtenerDatosPaso(
     indice
 ) {
 
-    if (
-        paso.agua === "bloom"
-    ) {
+    if (paso.agua === "bloom") {
 
         const cantidad =
             obtenerAguaBloom();
@@ -829,9 +729,7 @@ function obtenerDatosPaso(
     }
 
 
-    if (
-        paso.agua === "restante"
-    ) {
+    if (paso.agua === "restante") {
 
         const anterior =
             obtenerAguaAnterior(
@@ -841,12 +739,9 @@ function obtenerDatosPaso(
 
         const cantidad =
             Math.max(
-
                 obtenerAguaTotal() -
                 anterior,
-
                 0
-
             );
 
 
@@ -866,9 +761,7 @@ function obtenerDatosPaso(
     }
 
 
-    if (
-        paso.agua === "acumulado"
-    ) {
+    if (paso.agua === "acumulado") {
 
         const objetivo =
             obtenerObjetivoAcumulado(
@@ -884,12 +777,9 @@ function obtenerDatosPaso(
 
         const cantidad =
             Math.max(
-
                 objetivo -
                 anterior,
-
                 0
-
             );
 
 
@@ -909,9 +799,7 @@ function obtenerDatosPaso(
     }
 
 
-    if (
-        paso.agua === "total"
-    ) {
+    if (paso.agua === "total") {
 
         const total =
             obtenerAguaTotal();
@@ -949,14 +837,9 @@ function obtenerDatosPaso(
 }
 
 
-// =====================================================
-// PREVIEW PASOS
-// =====================================================
-
 function cargarPreviewPasos() {
 
-    listaPasosPreview.innerHTML =
-        "";
+    listaPasosPreview.innerHTML = "";
 
 
     metodoActual.pasos.forEach(
@@ -971,31 +854,17 @@ function cargarPreviewPasos() {
 
 
             const item =
-                document.createElement(
-                    "div"
-                );
+                document.createElement("div");
 
 
             item.className =
                 "paso-preview";
 
 
-            const numero =
-                String(
-                    indice + 1
-                ).padStart(
-                    2,
-                    "0"
-                );
+            let meta = "";
 
 
-            let meta =
-                "";
-
-
-            if (
-                paso.tipo === "timer"
-            ) {
+            if (paso.tipo === "timer") {
 
                 meta =
                     formatearTiempo(
@@ -1005,9 +874,7 @@ function cargarPreviewPasos() {
             }
 
 
-            if (
-                datos.valor
-            ) {
+            if (datos.valor) {
 
                 meta +=
                     meta
@@ -1020,8 +887,11 @@ function cargarPreviewPasos() {
             item.innerHTML = `
 
                 <span class="paso-numero">
-                    ${numero}
+
+                    ${String(indice + 1).padStart(2,"0")}
+
                 </span>
+
 
                 <div>
 
@@ -1053,25 +923,17 @@ function cargarPreviewPasos() {
 
 
 // =====================================================
-// INICIAR GUÍA
+// GUÍA
 // =====================================================
 
 function iniciarGuia() {
 
-    if (
-        !metodoActual
-    ) {
-
+    if (!metodoActual) {
         return;
-
     }
 
 
-    detenerTemporizador();
-
-
-    pasoActual =
-        0;
+    pasoActual = 0;
 
 
     guiaMetodo.textContent =
@@ -1091,67 +953,39 @@ function iniciarGuia() {
     );
 
 
-    actualizarNav(
-        "guia"
-    );
-
-
     cargarPaso();
-
 
     solicitarWakeLock();
 
 }
 
 
-// =====================================================
-// CARGAR PASO
-// =====================================================
-
 function cargarPaso() {
 
     detenerTemporizador();
 
 
-    const pasos =
-        metodoActual.pasos;
-
-
     const paso =
-        pasos[pasoActual];
-
-
-    const numero =
-        String(
-            pasoActual + 1
-        ).padStart(
-            2,
-            "0"
-        );
+        metodoActual.pasos[
+            pasoActual
+        ];
 
 
     const total =
-        String(
-            pasos.length
-        ).padStart(
-            2,
-            "0"
-        );
+        metodoActual.pasos.length;
 
 
     pasoIndicador.textContent =
-        `PASO ${numero} / ${total}`;
+        `PASO ${String(pasoActual + 1).padStart(2,"0")} / ${String(total).padStart(2,"0")}`;
 
 
     const porcentaje =
         Math.round(
-
             (
                 (pasoActual + 1) /
-                pasos.length
+                total
             ) *
             100
-
         );
 
 
@@ -1184,9 +1018,7 @@ function cargarPaso() {
         datos.instruccion;
 
 
-    if (
-        datos.valor
-    ) {
+    if (datos.valor) {
 
         objetivoPaso.style.display =
             "flex";
@@ -1209,9 +1041,7 @@ function cargarPaso() {
     }
 
 
-    if (
-        paso.tipo === "timer"
-    ) {
+    if (paso.tipo === "timer") {
 
         prepararPasoTemporizado(
             paso
@@ -1236,9 +1066,6 @@ function prepararPasoTemporizado(
     paso
 ) {
 
-    detenerTemporizador();
-
-
     segundosRestantes =
         Number(
             paso.tiempo
@@ -1249,46 +1076,29 @@ function prepararPasoTemporizado(
         segundosRestantes;
 
 
-    timerStatus.textContent =
-        "TIEMPO";
-
-
     actualizarDisplayTimer();
 
     resetearCirculoTimer();
 
-
-    mostrarAccionCentral(
-        "INICIAR"
-    );
+    mostrarAccionCentral("INICIAR");
 
 }
 
 
 function prepararPasoAccion() {
 
-    detenerTemporizador();
+    segundosRestantes = 0;
 
-
-    segundosRestantes =
-        0;
-
-
-    segundosInicialesPaso =
-        0;
+    segundosInicialesPaso = 0;
 
 
     resetearCirculoTimer();
 
 
-    const ultimoPaso =
-        pasoActual ===
-        metodoActual.pasos.length - 1;
-
-
     mostrarAccionCentral(
 
-        ultimoPaso
+        pasoActual ===
+        metodoActual.pasos.length - 1
             ? "TERMINAR"
             : "CONTINUAR"
 
@@ -1305,9 +1115,7 @@ function manejarControlCircular() {
         ];
 
 
-    if (
-        paso.tipo !== "timer"
-    ) {
+    if (paso.tipo !== "timer") {
 
         avanzarPaso();
 
@@ -1316,9 +1124,7 @@ function manejarControlCircular() {
     }
 
 
-    if (
-        segundosRestantes <= 0
-    ) {
+    if (segundosRestantes <= 0) {
 
         avanzarPaso();
 
@@ -1327,9 +1133,7 @@ function manejarControlCircular() {
     }
 
 
-    if (
-        temporizadorCorriendo
-    ) {
+    if (temporizadorCorriendo) {
 
         pausarTemporizador();
 
@@ -1355,8 +1159,7 @@ function iniciarTimerPaso() {
     }
 
 
-    temporizadorCorriendo =
-        true;
+    temporizadorCorriendo = true;
 
 
     mostrarTiempo();
@@ -1377,8 +1180,8 @@ function iniciarTimerPaso() {
 
                 segundosRestantes =
                     Math.max(
-                        segundosRestantes,
-                        0
+                        0,
+                        segundosRestantes
                     );
 
 
@@ -1408,7 +1211,6 @@ function pausarTemporizador() {
 
     detenerTemporizador();
 
-
     mostrarAccionCentral(
         "REANUDAR"
     );
@@ -1418,17 +1220,13 @@ function pausarTemporizador() {
 
 function detenerTemporizador() {
 
-    if (
-        temporizador
-    ) {
+    if (temporizador) {
 
         clearInterval(
             temporizador
         );
 
-
-        temporizador =
-            null;
+        temporizador = null;
 
     }
 
@@ -1444,8 +1242,7 @@ function finalizarPasoTimer() {
     detenerTemporizador();
 
 
-    segundosRestantes =
-        0;
+    segundosRestantes = 0;
 
 
     actualizarDisplayTimer();
@@ -1453,29 +1250,19 @@ function finalizarPasoTimer() {
     completarCirculoTimer();
 
 
-    if (
-        "vibrate" in navigator
-    ) {
+    if ("vibrate" in navigator) {
 
         navigator.vibrate(
-            [
-                300,
-                150,
-                300
-            ]
+            [300,150,300]
         );
 
     }
 
 
-    const ultimoPaso =
-        pasoActual ===
-        metodoActual.pasos.length - 1;
-
-
     mostrarAccionCentral(
 
-        ultimoPaso
+        pasoActual ===
+        metodoActual.pasos.length - 1
             ? "TERMINAR"
             : "CONTINUAR"
 
@@ -1484,15 +1271,10 @@ function finalizarPasoTimer() {
 }
 
 
-// =====================================================
-// TIMER UI
-// =====================================================
-
 function mostrarTiempo() {
 
     timerAction.style.display =
         "none";
-
 
     timerDisplay.style.display =
         "flex";
@@ -1507,10 +1289,8 @@ function mostrarAccionCentral(
     timerDisplay.style.display =
         "none";
 
-
     timerAction.style.display =
         "flex";
-
 
     timerActionLabel.textContent =
         texto;
@@ -1542,18 +1322,14 @@ function formatearTiempo(
 
 
     const minutos =
-        Math.floor(
-            total / 60
-        );
+        Math.floor(total / 60);
 
 
     const segundos =
         total % 60;
 
 
-    return (
-        `${String(minutos).padStart(2,"0")}:${String(segundos).padStart(2,"0")}`
-    );
+    return `${String(minutos).padStart(2,"0")}:${String(segundos).padStart(2,"0")}`;
 
 }
 
@@ -1569,30 +1345,21 @@ function actualizarCirculoTimer() {
     }
 
 
-    const longitud =
-        578;
+    const longitud = 578;
 
 
     const progreso =
         1 -
-        (
-            segundosRestantes /
-            segundosInicialesPaso
-        );
-
-
-    const offset =
-        longitud -
-        (
-            longitud *
-            progreso
-        );
+        segundosRestantes /
+        segundosInicialesPaso;
 
 
     timerRingProgress
         .style
         .strokeDashoffset =
-            offset;
+            longitud -
+            longitud *
+            progreso;
 
 }
 
@@ -1617,10 +1384,6 @@ function completarCirculoTimer() {
 }
 
 
-// =====================================================
-// SIGUIENTE
-// =====================================================
-
 function avanzarPaso() {
 
     detenerTemporizador();
@@ -1632,7 +1395,6 @@ function avanzarPaso() {
     ) {
 
         pasoActual++;
-
 
         cargarPaso();
 
@@ -1648,7 +1410,7 @@ function avanzarPaso() {
 
 
 // =====================================================
-// FINALIZAR
+// FINAL
 // =====================================================
 
 function finalizarPreparacion() {
@@ -1694,11 +1456,6 @@ function finalizarPreparacion() {
         vistaFinal
     );
 
-
-    actualizarNav(
-        "guia"
-    );
-
 }
 
 
@@ -1716,36 +1473,13 @@ function obtenerRegistrosJournal() {
             );
 
 
-        if (
-            !datos
-        ) {
-
-            return [];
-
-        }
-
-
-        const registros =
-            JSON.parse(
-                datos
-            );
-
-
-        return Array.isArray(
-            registros
-        )
-            ? registros
+        return datos
+            ? JSON.parse(datos)
             : [];
 
     }
 
-    catch (error) {
-
-        console.log(
-            "Error leyendo Journal:",
-            error
-        );
-
+    catch {
 
         return [];
 
@@ -1787,17 +1521,13 @@ function guardarPreparacion() {
     }
 
 
-    const ahora =
-        new Date();
-
-
     const registro = {
 
         id:
             `${Date.now()}-${Math.random().toString(16).slice(2)}`,
 
         timestamp:
-            ahora.toISOString(),
+            new Date().toISOString(),
 
         metodoId:
             metodoActual.id,
@@ -1864,8 +1594,121 @@ function guardarPreparacion() {
     btnGuardarPreparacion.style.opacity =
         "0.35";
 
+}
 
-    cargarJournal();
+
+// =====================================================
+// JOURNAL STATS
+// =====================================================
+
+function calcularEstadisticas(
+    registros
+) {
+
+    if (
+        registros.length === 0
+    ) {
+
+        return {
+
+            total:
+                0,
+
+            metodo:
+                "—",
+
+            ratio:
+                "—",
+
+            ultima:
+                "—"
+
+        };
+
+    }
+
+
+    const metodos =
+        {};
+
+
+    const ratios =
+        {};
+
+
+    registros.forEach(
+        registro => {
+
+
+            const metodo =
+                registro.metodo || "—";
+
+
+            metodos[metodo] =
+                (metodos[metodo] || 0) + 1;
+
+
+            const ratio =
+                registro.ratio;
+
+
+            if (ratio) {
+
+                ratios[ratio] =
+                    (ratios[ratio] || 0) + 1;
+
+            }
+
+        }
+    );
+
+
+    const metodoMasUsado =
+        Object
+            .entries(metodos)
+            .sort(
+                (a,b) =>
+                    b[1] - a[1]
+            )[0]?.[0]
+        || "—";
+
+
+    const ratioMasUsado =
+        Object
+            .entries(ratios)
+            .sort(
+                (a,b) =>
+                    b[1] - a[1]
+            )[0]?.[0];
+
+
+    const ultima =
+        registros[0];
+
+
+    const ultimaTexto =
+        ultima.cafeNombre
+            ? ultima.cafeNombre
+            : ultima.metodo;
+
+
+    return {
+
+        total:
+            registros.length,
+
+        metodo:
+            metodoMasUsado,
+
+        ratio:
+            ratioMasUsado
+                ? `1:${ratioMasUsado}`
+                : "—",
+
+        ultima:
+            ultimaTexto || "—"
+
+    };
 
 }
 
@@ -1880,8 +1723,26 @@ function cargarJournal() {
         obtenerRegistrosJournal();
 
 
-    journalList.innerHTML =
-        "";
+    const estadisticas =
+        calcularEstadisticas(
+            registros
+        );
+
+
+    journalStatTotal.textContent =
+        estadisticas.total;
+
+
+    journalStatMetodo.textContent =
+        estadisticas.metodo;
+
+
+    journalStatRatio.textContent =
+        estadisticas.ratio;
+
+
+    journalStatUltima.textContent =
+        estadisticas.ultima;
 
 
     journalCount.textContent =
@@ -1901,6 +1762,18 @@ function cargarJournal() {
             "flex";
 
 
+        journalFilterEmpty.hidden =
+            true;
+
+
+        journalList.innerHTML =
+            "";
+
+
+        journalFilterCount.textContent =
+            "0 REGISTROS";
+
+
         return;
 
     }
@@ -1910,7 +1783,57 @@ function cargarJournal() {
         "none";
 
 
-    registros.forEach(
+    let filtrados =
+        registros;
+
+
+    if (
+        filtroJournalActual !==
+        "todas"
+    ) {
+
+        filtrados =
+            registros.filter(
+
+                registro =>
+
+                    registro.metodoId ===
+                    filtroJournalActual
+
+            );
+
+    }
+
+
+    journalFilterCount.textContent =
+        `${filtrados.length} ${
+            filtrados.length === 1
+                ? "REGISTRO"
+                : "REGISTROS"
+        }`;
+
+
+    journalList.innerHTML =
+        "";
+
+
+    if (
+        filtrados.length === 0
+    ) {
+
+        journalFilterEmpty.hidden =
+            false;
+
+        return;
+
+    }
+
+
+    journalFilterEmpty.hidden =
+        true;
+
+
+    filtrados.forEach(
         registro => {
 
 
@@ -1928,20 +1851,6 @@ function cargarJournal() {
                 "journal-card";
 
 
-            const fecha =
-                formatearFechaRegistro(
-                    registro.timestamp
-                );
-
-
-            const nombreCafe =
-                registro.cafeNombre
-                    ? escapeHTML(
-                        registro.cafeNombre
-                    )
-                    : "";
-
-
             const resultado =
                 registro.resultado
                     ? registro.resultado.toUpperCase()
@@ -1952,7 +1861,9 @@ function cargarJournal() {
 
                 <div class="journal-card-date">
 
-                    ${fecha}
+                    ${formatearFechaRegistro(
+                        registro.timestamp
+                    )}
 
                 </div>
 
@@ -1963,18 +1874,26 @@ function cargarJournal() {
 
                         <h2 class="journal-card-title">
 
-                            ${escapeHTML(registro.metodo)}
+                            ${escapeHTML(
+                                registro.metodo
+                            )}
 
                         </h2>
 
 
                         ${
-                            nombreCafe
+                            registro.cafeNombre
+
                                 ? `
                                     <div class="journal-card-coffee">
-                                        ${nombreCafe}
+
+                                        ${escapeHTML(
+                                            registro.cafeNombre
+                                        )}
+
                                     </div>
                                 `
+
                                 : ""
                         }
 
@@ -1991,9 +1910,7 @@ function cargarJournal() {
 
 
                     <span class="journal-arrow">
-
                         →
-
                     </span>
 
                 </div>
@@ -2021,7 +1938,11 @@ function cargarJournal() {
                         </span>
 
                         <strong>
-                            ${escapeHTML(registro.temperatura || "—")}
+
+                            ${escapeHTML(
+                                registro.temperatura || "—"
+                            )}
+
                         </strong>
 
                     </div>
@@ -2034,7 +1955,11 @@ function cargarJournal() {
                         </span>
 
                         <strong>
-                            ${escapeHTML(registro.molienda || "—")}
+
+                            ${escapeHTML(
+                                registro.molienda || "—"
+                            )}
+
                         </strong>
 
                     </div>
@@ -2044,11 +1969,15 @@ function cargarJournal() {
 
                 ${
                     resultado
+
                         ? `
                             <div class="journal-result">
+
                                 RESULTADO / ${resultado}
+
                             </div>
                         `
+
                         : ""
                 }
 
@@ -2077,30 +2006,57 @@ function cargarJournal() {
 
 
 // =====================================================
-// ABRIR REGISTRO
+// FILTROS
+// =====================================================
+
+function seleccionarFiltroJournal(
+    filtro
+) {
+
+    filtroJournalActual =
+        filtro;
+
+
+    journalFilters.forEach(
+        boton => {
+
+
+            boton.classList.toggle(
+
+                "activo",
+
+                boton.dataset.filter ===
+                    filtro
+
+            );
+
+        }
+    );
+
+
+    cargarJournal();
+
+}
+
+
+// =====================================================
+// REGISTRO
 // =====================================================
 
 function abrirRegistro(
     id
 ) {
 
-    const registros =
-        obtenerRegistrosJournal();
-
-
     const registro =
-        registros.find(
-            item =>
-                item.id === id
-        );
+        obtenerRegistrosJournal()
+            .find(
+                item =>
+                    item.id === id
+            );
 
 
-    if (
-        !registro
-    ) {
-
+    if (!registro) {
         return;
-
     }
 
 
@@ -2119,7 +2075,7 @@ function abrirRegistro(
 
 
     registroMetodo.textContent =
-        registro.metodo || "—";
+        registro.metodo;
 
 
     registroReceta.textContent =
@@ -2142,11 +2098,11 @@ function abrirRegistro(
         registro.nota || "";
 
 
+    actualizarResultadoUI();
+
+
     registroFeedback.hidden =
         true;
-
-
-    actualizarResultadoUI();
 
 
     mostrarVista(
@@ -2161,29 +2117,14 @@ function abrirRegistro(
 }
 
 
-// =====================================================
-// RESULTADO
-// =====================================================
-
 function seleccionarResultado(
     valor
 ) {
 
-    if (
+    resultadoActual =
         resultadoActual === valor
-    ) {
-
-        resultadoActual =
-            "";
-
-    }
-
-    else {
-
-        resultadoActual =
-            valor;
-
-    }
+            ? ""
+            : valor;
 
 
     actualizarResultadoUI();
@@ -2212,20 +2153,7 @@ function actualizarResultadoUI() {
 }
 
 
-// =====================================================
-// GUARDAR CAMBIOS REGISTRO
-// =====================================================
-
 function guardarCambiosRegistro() {
-
-    if (
-        !registroActualId
-    ) {
-
-        return;
-
-    }
-
 
     const registros =
         obtenerRegistrosJournal();
@@ -2233,8 +2161,8 @@ function guardarCambiosRegistro() {
 
     const indice =
         registros.findIndex(
-            item =>
-                item.id ===
+            registro =>
+                registro.id ===
                 registroActualId
         );
 
@@ -2277,9 +2205,6 @@ function guardarCambiosRegistro() {
         false;
 
 
-    cargarJournal();
-
-
     setTimeout(
 
         () => {
@@ -2289,7 +2214,7 @@ function guardarCambiosRegistro() {
 
         },
 
-        1800
+        1700
 
     );
 
@@ -2297,38 +2222,22 @@ function guardarCambiosRegistro() {
 
 
 // =====================================================
-// REPETIR RECETA
+// REPETIR
 // =====================================================
 
 function repetirReceta() {
 
-    if (
-        !registroActualId
-    ) {
-
-        return;
-
-    }
-
-
-    const registros =
-        obtenerRegistrosJournal();
-
-
     const registro =
-        registros.find(
-            item =>
-                item.id ===
-                registroActualId
-        );
+        obtenerRegistrosJournal()
+            .find(
+                item =>
+                    item.id ===
+                    registroActualId
+            );
 
 
-    if (
-        !registro
-    ) {
-
+    if (!registro) {
         return;
-
     }
 
 
@@ -2338,12 +2247,8 @@ function repetirReceta() {
         ];
 
 
-    if (
-        !metodo
-    ) {
-
+    if (!metodo) {
         return;
-
     }
 
 
@@ -2354,13 +2259,15 @@ function repetirReceta() {
     gramosCafe =
         Number(
             registro.cafe
-        ) || metodo.cafeDefault;
+        ) ||
+        metodo.cafeDefault;
 
 
     ratioActual =
         Number(
             registro.ratio
-        ) || metodo.ratioDefault;
+        ) ||
+        metodo.ratioDefault;
 
 
     actualizarDetalle();
@@ -2383,7 +2290,7 @@ function repetirReceta() {
 
 
 // =====================================================
-// FECHA
+// UTILIDADES
 // =====================================================
 
 function formatearFechaRegistro(
@@ -2402,63 +2309,54 @@ function formatearFechaRegistro(
         )
     ) {
 
-        return "FECHA / —";
+        return "—";
 
     }
 
 
     const fechaTexto =
-        new Intl
-            .DateTimeFormat(
-                "es-CL",
-                {
-                    day:
-                        "2-digit",
+        new Intl.DateTimeFormat(
 
-                    month:
-                        "short"
-                }
-            )
-            .format(
-                fecha
-            )
-            .replace(
-                ".",
-                ""
-            )
-            .toUpperCase();
+            "es-CL",
+
+            {
+                day:
+                    "2-digit",
+
+                month:
+                    "short"
+            }
+
+        )
+        .format(fecha)
+        .replace(".","")
+        .toUpperCase();
 
 
-    const horaTexto =
-        new Intl
-            .DateTimeFormat(
-                "es-CL",
-                {
-                    hour:
-                        "2-digit",
+    const hora =
+        new Intl.DateTimeFormat(
 
-                    minute:
-                        "2-digit",
+            "es-CL",
 
-                    hour12:
-                        false
-                }
-            )
-            .format(
-                fecha
-            );
+            {
+                hour:
+                    "2-digit",
+
+                minute:
+                    "2-digit",
+
+                hour12:
+                    false
+            }
+
+        )
+        .format(fecha);
 
 
-    return (
-        `${fechaTexto} / ${horaTexto}`
-    );
+    return `${fechaTexto} / ${hora}`;
 
 }
 
-
-// =====================================================
-// SEGURIDAD TEXTO
-// =====================================================
 
 function escapeHTML(
     valor
@@ -2467,26 +2365,31 @@ function escapeHTML(
     return String(
         valor ?? ""
     )
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-        .replaceAll(
-            "'",
-            "&#039;"
-        );
+
+    .replaceAll(
+        "&",
+        "&amp;"
+    )
+
+    .replaceAll(
+        "<",
+        "&lt;"
+    )
+
+    .replaceAll(
+        ">",
+        "&gt;"
+    )
+
+    .replaceAll(
+        '"',
+        "&quot;"
+    )
+
+    .replaceAll(
+        "'",
+        "&#039;"
+    );
 
 }
 
@@ -2515,10 +2418,10 @@ async function solicitarWakeLock() {
 
     }
 
-    catch (error) {
+    catch(error) {
 
         console.log(
-            "Wake Lock no disponible:",
+            "Wake Lock:",
             error
         );
 
@@ -2531,25 +2434,19 @@ async function liberarWakeLock() {
 
     try {
 
-        if (
-            wakeLock
-        ) {
+        if (wakeLock) {
 
             await wakeLock.release();
 
-
-            wakeLock =
-                null;
+            wakeLock = null;
 
         }
 
     }
 
-    catch (error) {
+    catch(error) {
 
-        console.log(
-            error
-        );
+        console.log(error);
 
     }
 
@@ -2574,7 +2471,6 @@ document
                 vistaMetodos
             );
 
-
             actualizarNav(
                 "metodos"
             );
@@ -2592,9 +2488,7 @@ document
 
         "click",
 
-        () => cambiarCafe(
-            -1
-        )
+        () => cambiarCafe(-1)
 
     );
 
@@ -2607,9 +2501,7 @@ document
 
         "click",
 
-        () => cambiarCafe(
-            1
-        )
+        () => cambiarCafe(1)
 
     );
 
@@ -2641,14 +2533,8 @@ document
 
             liberarWakeLock();
 
-
             mostrarVista(
                 vistaDetalle
-            );
-
-
-            actualizarNav(
-                "metodos"
             );
 
         }
@@ -2676,7 +2562,10 @@ btnGuardarPreparacion
     );
 
 
-btnIrJournal
+document
+    .getElementById(
+        "btn-ir-journal"
+    )
     .addEventListener(
 
         "click",
@@ -2686,7 +2575,6 @@ btnIrJournal
             mostrarVista(
                 vistaJournal
             );
-
 
             actualizarNav(
                 "journal"
@@ -2711,7 +2599,6 @@ document
                 vistaMetodos
             );
 
-
             actualizarNav(
                 "metodos"
             );
@@ -2720,10 +2607,6 @@ document
 
     );
 
-
-// =====================================================
-// REGISTRO
-// =====================================================
 
 document
     .getElementById(
@@ -2739,7 +2622,6 @@ document
                 vistaJournal
             );
 
-
             actualizarNav(
                 "journal"
             );
@@ -2747,23 +2629,6 @@ document
         }
 
     );
-
-
-resultadoOptions.forEach(
-    boton => {
-
-        boton.addEventListener(
-
-            "click",
-
-            () => seleccionarResultado(
-                boton.dataset.resultado
-            )
-
-        );
-
-    }
-);
 
 
 document
@@ -2792,9 +2657,41 @@ document
     );
 
 
-// =====================================================
+resultadoOptions.forEach(
+    boton => {
+
+        boton.addEventListener(
+
+            "click",
+
+            () => seleccionarResultado(
+                boton.dataset.resultado
+            )
+
+        );
+
+    }
+);
+
+
+journalFilters.forEach(
+    boton => {
+
+        boton.addEventListener(
+
+            "click",
+
+            () => seleccionarFiltroJournal(
+                boton.dataset.filter
+            )
+
+        );
+
+    }
+);
+
+
 // NAV
-// =====================================================
 
 navMetodos.addEventListener(
 
@@ -2806,11 +2703,9 @@ navMetodos.addEventListener(
 
         liberarWakeLock();
 
-
         mostrarVista(
             vistaMetodos
         );
-
 
         actualizarNav(
             "metodos"
@@ -2832,14 +2727,11 @@ navGuia.addEventListener(
         liberarWakeLock();
 
 
-        if (
-            metodoActual
-        ) {
+        if (metodoActual) {
 
             mostrarVista(
                 vistaDetalle
             );
-
 
             actualizarNav(
                 "guia"
@@ -2851,11 +2743,6 @@ navGuia.addEventListener(
 
             mostrarVista(
                 vistaMetodos
-            );
-
-
-            actualizarNav(
-                "metodos"
             );
 
         }
@@ -2875,11 +2762,9 @@ navJournal.addEventListener(
 
         liberarWakeLock();
 
-
         mostrarVista(
             vistaJournal
         );
-
 
         actualizarNav(
             "journal"
@@ -2890,9 +2775,7 @@ navJournal.addEventListener(
 );
 
 
-// =====================================================
-// VISIBILIDAD
-// =====================================================
+// VISIBILITY
 
 document.addEventListener(
 
