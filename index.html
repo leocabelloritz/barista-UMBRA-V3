@@ -34,7 +34,7 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=10"
+        href="style.css?v=11"
     >
 
 </head>
@@ -44,10 +44,7 @@
 
 <div id="app-shell">
 
-
-    <!-- =====================================
-         HEADER
-    ====================================== -->
+    <!-- HEADER -->
 
     <header class="app-header">
 
@@ -70,9 +67,11 @@
             type="button"
             aria-label="Menú"
         >
+
             <span></span>
             <span></span>
             <span></span>
+
         </button>
 
     </header>
@@ -108,7 +107,6 @@
 
                 </header>
 
-
                 <div
                     id="lista-metodos"
                     class="lista-metodos"
@@ -120,7 +118,7 @@
 
 
         <!-- =====================================
-             DETALLE MÉTODO
+             DETALLE
         ====================================== -->
 
         <section
@@ -180,8 +178,6 @@
                 </section>
 
 
-                <!-- STATS -->
-
                 <section class="stats">
 
                     <div class="stat">
@@ -225,8 +221,6 @@
                 </section>
 
 
-                <!-- DATOS TÉCNICOS -->
-
                 <section class="technical-strip">
 
                     <div>
@@ -257,8 +251,6 @@
                 </section>
 
 
-                <!-- TABS -->
-
                 <div class="method-tabs">
 
                     <span class="active">
@@ -272,8 +264,6 @@
                 </div>
 
 
-                <!-- AJUSTES -->
-
                 <section class="compact-adjust">
 
                     <div class="compact-coffee">
@@ -281,7 +271,6 @@
                         <span class="micro-label">
                             CAFÉ /
                         </span>
-
 
                         <div class="cantidad">
 
@@ -291,7 +280,6 @@
                             >
                                 −
                             </button>
-
 
                             <strong>
 
@@ -304,7 +292,6 @@
                                 </small>
 
                             </strong>
-
 
                             <button
                                 id="btn-mas"
@@ -333,8 +320,6 @@
 
                 </section>
 
-
-                <!-- PASOS -->
 
                 <section class="steps-section">
 
@@ -378,7 +363,6 @@
 
             <div class="page guide-page">
 
-
                 <header class="guide-header">
 
                     <button
@@ -389,7 +373,6 @@
                         ‹ SALIR
                     </button>
 
-
                     <span
                         id="guia-metodo"
                         class="guide-method"
@@ -399,8 +382,6 @@
 
                 </header>
 
-
-                <!-- RESUMEN -->
 
                 <section class="guide-summary">
 
@@ -432,21 +413,17 @@
                 </section>
 
 
-                <!-- TIMER -->
-
                 <section class="timer-stage">
 
                     <button
                         id="timer-circle-control"
                         class="timer-circle"
                         type="button"
-                        aria-label="Control del temporizador"
                     >
 
                         <svg
                             class="timer-ring"
                             viewBox="0 0 200 200"
-                            aria-hidden="true"
                         >
 
                             <circle
@@ -455,7 +432,6 @@
                                 cy="100"
                                 r="92"
                             ></circle>
-
 
                             <circle
                                 id="timer-ring-progress"
@@ -532,8 +508,6 @@
 
                 </section>
 
-
-                <!-- PASO ACTUAL -->
 
                 <section class="current-step">
 
@@ -629,7 +603,6 @@
 
                     </div>
 
-
                     <div>
 
                         <span>
@@ -642,7 +615,6 @@
 
                     </div>
 
-
                     <div>
 
                         <span>
@@ -654,7 +626,6 @@
                         </strong>
 
                     </div>
-
 
                     <div>
 
@@ -730,12 +701,13 @@
 
             <div class="page">
 
+
                 <header class="journal-heading">
 
                     <div>
 
                         <p class="micro">
-                            JOURNAL / 02
+                            JOURNAL / 03
                         </p>
 
                         <h1>
@@ -759,6 +731,134 @@
                 </header>
 
 
+                <!-- ESTADÍSTICAS -->
+
+                <section
+                    id="journal-dashboard"
+                    class="journal-dashboard"
+                >
+
+                    <div class="journal-stat journal-stat-large">
+
+                        <span>
+                            PREPARACIONES /
+                        </span>
+
+                        <strong id="journal-stat-total">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="journal-stat">
+
+                        <span>
+                            MÁS USADO /
+                        </span>
+
+                        <strong id="journal-stat-metodo">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="journal-stat">
+
+                        <span>
+                            RATIO FRECUENTE /
+                        </span>
+
+                        <strong id="journal-stat-ratio">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="journal-stat journal-stat-last">
+
+                        <span>
+                            ÚLTIMA /
+                        </span>
+
+                        <strong id="journal-stat-ultima">
+                            —
+                        </strong>
+
+                    </div>
+
+                </section>
+
+
+                <!-- FILTROS -->
+
+                <section class="journal-filter-section">
+
+                    <div class="journal-filter-label">
+
+                        <span>
+                            FILTRAR /
+                        </span>
+
+                        <span id="journal-filter-count">
+                            0 REGISTROS
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="journal-filters"
+                        class="journal-filters"
+                    >
+
+                        <button
+                            class="journal-filter activo"
+                            data-filter="todas"
+                            type="button"
+                        >
+                            TODAS
+                        </button>
+
+                        <button
+                            class="journal-filter"
+                            data-filter="v60"
+                            type="button"
+                        >
+                            V60
+                        </button>
+
+                        <button
+                            class="journal-filter"
+                            data-filter="francesa"
+                            type="button"
+                        >
+                            FRANCESA
+                        </button>
+
+                        <button
+                            class="journal-filter"
+                            data-filter="aeropress"
+                            type="button"
+                        >
+                            AEROPRESS
+                        </button>
+
+                        <button
+                            class="journal-filter"
+                            data-filter="moka"
+                            type="button"
+                        >
+                            MOKA
+                        </button>
+
+                    </div>
+
+                </section>
+
+
                 <div
                     id="journal-empty"
                     class="journal-empty"
@@ -776,6 +876,23 @@
 
 
                 <div
+                    id="journal-filter-empty"
+                    class="journal-empty filter-empty"
+                    hidden
+                >
+
+                    <span>
+                        SIN RESULTADOS /
+                    </span>
+
+                    <p>
+                        Todavía no tienes preparaciones guardadas con este método.
+                    </p>
+
+                </div>
+
+
+                <div
                     id="journal-list"
                     class="journal-list"
                 ></div>
@@ -786,7 +903,7 @@
 
 
         <!-- =====================================
-             DETALLE DEL REGISTRO
+             REGISTRO
         ====================================== -->
 
         <section
@@ -795,7 +912,6 @@
         >
 
             <div class="page registro-page">
-
 
                 <button
                     id="btn-volver-journal"
@@ -812,14 +928,12 @@
                         id="registro-fecha"
                         class="micro"
                     >
-                        16 AGO / 14:30
+                        —
                     </p>
-
 
                     <h1 id="registro-metodo">
                         V60
                     </h1>
-
 
                     <p
                         id="registro-receta"
@@ -830,8 +944,6 @@
 
                 </header>
 
-
-                <!-- DATOS -->
 
                 <section class="registro-stats">
 
@@ -863,14 +975,11 @@
                 </section>
 
 
-                <!-- NOMBRE CAFÉ -->
-
                 <section class="registro-field">
 
                     <label for="registro-cafe-nombre">
                         CAFÉ /
                     </label>
-
 
                     <input
                         id="registro-cafe-nombre"
@@ -882,8 +991,6 @@
 
                 </section>
 
-
-                <!-- RESULTADO -->
 
                 <section class="registro-field">
 
@@ -902,8 +1009,11 @@
                             data-resultado="flojo"
                             type="button"
                         >
+
                             <span class="resultado-dot"></span>
+
                             FLOJO
+
                         </button>
 
 
@@ -912,8 +1022,11 @@
                             data-resultado="balanceado"
                             type="button"
                         >
+
                             <span class="resultado-dot"></span>
+
                             BALANCEADO
+
                         </button>
 
 
@@ -922,8 +1035,11 @@
                             data-resultado="intenso"
                             type="button"
                         >
+
                             <span class="resultado-dot"></span>
+
                             INTENSO
+
                         </button>
 
                     </div>
@@ -931,14 +1047,11 @@
                 </section>
 
 
-                <!-- NOTA -->
-
                 <section class="registro-field">
 
                     <label for="registro-nota">
                         NOTA /
                     </label>
-
 
                     <textarea
                         id="registro-nota"
@@ -999,9 +1112,7 @@
     </main>
 
 
-    <!-- =====================================
-         NAVEGACIÓN
-    ====================================== -->
+    <!-- NAV -->
 
     <nav class="bottom-nav">
 
@@ -1060,8 +1171,8 @@
 </div>
 
 
-<script src="data.js?v=10"></script>
-<script src="app.js?v=10"></script>
+<script src="data.js?v=11"></script>
+<script src="app.js?v=11"></script>
 
 </body>
 
