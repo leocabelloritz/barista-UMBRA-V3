@@ -12,9 +12,11 @@
     --line-strong:
         rgba(232, 229, 223, 0.22);
 
-    --max-width: 440px;
+    --max-width:
+        440px;
 
-    --bottom-nav-height: 66px;
+    --bottom-nav-height:
+        66px;
 
 }
 
@@ -78,10 +80,17 @@ body {
 }
 
 
-button {
+button,
+input,
+textarea {
 
     font:
         inherit;
+
+}
+
+
+button {
 
     color:
         inherit;
@@ -107,7 +116,9 @@ button {
 }
 
 
-button:focus {
+button:focus,
+input:focus,
+textarea:focus {
 
     outline:
         none;
@@ -326,8 +337,7 @@ body.modo-guia .guide-page {
         31px;
 
     border:
-        1.3px solid
-        rgba(232,229,223,0.9);
+        1.3px solid rgba(232,229,223,0.9);
 
     border-radius:
         50%;
@@ -459,7 +469,8 @@ body.modo-guia .guide-page {
 
 .page-heading h1,
 .final-page h1,
-.journal-heading h1 {
+.journal-heading h1,
+.registro-header h1 {
 
     margin:
         0;
@@ -514,8 +525,7 @@ body.modo-guia .guide-page {
 .lista-metodos {
 
     border:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -529,8 +539,7 @@ body.modo-guia .guide-page {
         110px;
 
     border-bottom:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
     display:
         grid;
@@ -558,8 +567,7 @@ body.modo-guia .guide-page {
 .metodo-grafico {
 
     border-right:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
     display:
         flex;
@@ -726,8 +734,7 @@ body.modo-guia .guide-page {
         22px;
 
     border-bottom:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -830,8 +837,7 @@ body.modo-guia .guide-page {
         47px;
 
     border:
-        1px solid
-        rgba(232,229,223,0.55);
+        1px solid rgba(232,229,223,0.55);
 
 }
 
@@ -854,12 +860,10 @@ body.modo-guia .guide-page {
         8px;
 
     border-top:
-        1px solid
-        rgba(232,229,223,0.55);
+        1px solid rgba(232,229,223,0.55);
 
     border-bottom:
-        1px solid
-        rgba(232,229,223,0.55);
+        1px solid rgba(232,229,223,0.55);
 
 }
 
@@ -900,8 +904,7 @@ body.modo-guia .guide-page {
         repeat(3,1fr);
 
     border-bottom:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -927,8 +930,7 @@ body.modo-guia .guide-page {
         7px;
 
     border-right:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -979,8 +981,7 @@ body.modo-guia .guide-page {
         1fr 1fr;
 
     border-bottom:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -1003,8 +1004,7 @@ body.modo-guia .guide-page {
         5px;
 
     border-right:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -1061,8 +1061,7 @@ body.modo-guia .guide-page {
         1fr 1fr;
 
     border-bottom:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -1137,8 +1136,7 @@ body.modo-guia .guide-page {
         20px 0 8px;
 
     border-bottom:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -1186,8 +1184,7 @@ body.modo-guia .guide-page {
         35px;
 
     border:
-        1px solid
-        var(--line-strong);
+        1px solid var(--line-strong);
 
     border-radius:
         50%;
@@ -1232,8 +1229,7 @@ body.modo-guia .guide-page {
         13px 0 11px;
 
     border-top:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -1258,8 +1254,7 @@ body.modo-guia .guide-page {
         48px;
 
     border-right:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
     color:
         var(--muted);
@@ -1330,8 +1325,7 @@ body.modo-guia .guide-page {
 .lista-pasos-preview {
 
     border-top:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -1351,8 +1345,7 @@ body.modo-guia .guide-page {
         14px 0;
 
     border-bottom:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -1366,8 +1359,7 @@ body.modo-guia .guide-page {
         31px;
 
     border:
-        1px solid
-        var(--line-strong);
+        1px solid var(--line-strong);
 
     border-radius:
         50%;
@@ -1448,8 +1440,7 @@ body.modo-guia .guide-page {
         0 16px;
 
     border:
-        1px solid
-        var(--line-strong);
+        1px solid var(--line-strong);
 
     display:
         flex;
@@ -1503,6 +1494,47 @@ body.modo-guia .guide-page {
 }
 
 
+.repeat-action {
+
+    width:
+        100%;
+
+    min-height:
+        58px;
+
+    margin-top:
+        10px;
+
+    padding:
+        0 17px;
+
+    background:
+        var(--text);
+
+    color:
+        var(--bg);
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    font-size:
+        0.61rem;
+
+    font-weight:
+        600;
+
+    letter-spacing:
+        0.14em;
+
+}
+
+
 .guardado-feedback {
 
     margin-top:
@@ -1512,12 +1544,10 @@ body.modo-guia .guide-page {
         13px 0;
 
     border-top:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
     border-bottom:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
     color:
         var(--muted);
@@ -1606,12 +1636,10 @@ body.modo-guia .app-header {
         20px;
 
     border-top:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
     border-bottom:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -1637,8 +1665,7 @@ body.modo-guia .app-header {
         5px;
 
     border-right:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -1741,8 +1768,7 @@ body.modo-guia .app-header {
         12px;
 
     border:
-        1px solid
-        rgba(232,229,223,0.035);
+        1px solid rgba(232,229,223,0.035);
 
     border-radius:
         50%;
@@ -2034,8 +2060,7 @@ body.modo-guia .app-header {
         max(17px,env(safe-area-inset-bottom));
 
     border-top:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
     background:
         rgba(8,9,9,0.97);
@@ -2209,8 +2234,7 @@ body.modo-guia .app-header {
         38px 0 0;
 
     border-top:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -2227,8 +2251,7 @@ body.modo-guia .app-header {
         space-between;
 
     border-bottom:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -2291,8 +2314,7 @@ body.modo-guia .app-header {
         44px;
 
     border:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
     display:
         flex;
@@ -2321,8 +2343,7 @@ body.modo-guia .app-header {
         300px;
 
     border:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
     display:
         flex;
@@ -2389,6 +2410,9 @@ body.modo-guia .app-header {
 
 .journal-card {
 
+    width:
+        100%;
+
     position:
         relative;
 
@@ -2396,8 +2420,13 @@ body.modo-guia .app-header {
         18px 0 17px;
 
     border-top:
-        1px solid
-        var(--line);
+        1px solid var(--line);
+
+    text-align:
+        left;
+
+    cursor:
+        pointer;
 
 }
 
@@ -2405,8 +2434,7 @@ body.modo-guia .app-header {
 .journal-card:last-child {
 
     border-bottom:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -2459,6 +2487,20 @@ body.modo-guia .app-header {
 }
 
 
+.journal-card-coffee {
+
+    margin-top:
+        5px;
+
+    color:
+        var(--text);
+
+    font-size:
+        0.68rem;
+
+}
+
+
 .journal-card-recipe {
 
     margin-top:
@@ -2496,8 +2538,7 @@ body.modo-guia .app-header {
         17px;
 
     border-top:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -2523,8 +2564,7 @@ body.modo-guia .app-header {
         5px;
 
     border-right:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
 }
 
@@ -2566,6 +2606,356 @@ body.modo-guia .app-header {
 
     font-weight:
         400;
+
+}
+
+
+.journal-result {
+
+    margin-top:
+        13px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.54rem;
+
+    letter-spacing:
+        0.11em;
+
+}
+
+
+/* =========================================
+   DETALLE REGISTRO
+========================================= */
+
+.registro-page {
+
+    padding-bottom:
+        60px;
+
+}
+
+
+.registro-header {
+
+    padding-bottom:
+        27px;
+
+    border-bottom:
+        1px solid var(--line);
+
+}
+
+
+.registro-header .micro {
+
+    margin-bottom:
+        11px;
+
+}
+
+
+.registro-receta {
+
+    margin:
+        12px 0 0;
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.79rem;
+
+}
+
+
+.registro-stats {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    border-bottom:
+        1px solid var(--line);
+
+}
+
+
+.registro-stats > div {
+
+    min-height:
+        72px;
+
+    padding:
+        14px 10px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    justify-content:
+        center;
+
+    gap:
+        6px;
+
+    border-right:
+        1px solid var(--line);
+
+}
+
+
+.registro-stats > div:first-child {
+
+    padding-left:
+        0;
+
+}
+
+
+.registro-stats > div:last-child {
+
+    border-right:
+        0;
+
+}
+
+
+.registro-stats span {
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.48rem;
+
+    letter-spacing:
+        0.11em;
+
+}
+
+
+.registro-stats strong {
+
+    font-size:
+        0.74rem;
+
+    font-weight:
+        400;
+
+}
+
+
+.registro-field {
+
+    padding:
+        22px 0;
+
+    border-bottom:
+        1px solid var(--line);
+
+}
+
+
+.registro-field label,
+.field-label {
+
+    display:
+        block;
+
+    margin-bottom:
+        12px;
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.52rem;
+
+    letter-spacing:
+        0.13em;
+
+}
+
+
+.registro-field input,
+.registro-field textarea {
+
+    width:
+        100%;
+
+    margin:
+        0;
+
+    padding:
+        0;
+
+    border:
+        0;
+
+    border-radius:
+        0;
+
+    background:
+        transparent;
+
+    color:
+        var(--text);
+
+    -webkit-appearance:
+        none;
+
+    appearance:
+        none;
+
+}
+
+
+.registro-field input {
+
+    height:
+        42px;
+
+    font-size:
+        1rem;
+
+    font-weight:
+        300;
+
+}
+
+
+.registro-field textarea {
+
+    min-height:
+        112px;
+
+    resize:
+        vertical;
+
+    font-size:
+        0.82rem;
+
+    line-height:
+        1.55;
+
+}
+
+
+.registro-field input::placeholder,
+.registro-field textarea::placeholder {
+
+    color:
+        var(--dim);
+
+    opacity:
+        1;
+
+}
+
+
+.resultado-options {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    border:
+        1px solid var(--line);
+
+}
+
+
+.resultado-option {
+
+    min-height:
+        66px;
+
+    padding:
+        10px 4px;
+
+    border-right:
+        1px solid var(--line);
+
+    color:
+        var(--dim);
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        8px;
+
+    font-size:
+        0.52rem;
+
+    letter-spacing:
+        0.08em;
+
+}
+
+
+.resultado-option:last-child {
+
+    border-right:
+        0;
+
+}
+
+
+.resultado-dot {
+
+    width:
+        8px;
+
+    height:
+        8px;
+
+    border:
+        1px solid var(--dim);
+
+    border-radius:
+        50%;
+
+}
+
+
+.resultado-option.activo {
+
+    color:
+        var(--text);
+
+    background:
+        rgba(232,229,223,0.035);
+
+}
+
+
+.resultado-option.activo .resultado-dot {
+
+    border-color:
+        var(--text);
+
+    background:
+        var(--text);
 
 }
 
@@ -2618,8 +3008,7 @@ body.modo-guia .app-header {
         repeat(3,1fr);
 
     border-top:
-        1px solid
-        var(--line);
+        1px solid var(--line);
 
     background:
         rgba(8,9,9,0.97);
@@ -2690,7 +3079,10 @@ body.modo-guia .app-header {
 .tarjeta-metodo:active,
 .guide-start:active,
 .boton-ratio:active,
-.secondary-action:active {
+.secondary-action:active,
+.journal-card:active,
+.resultado-option:active,
+.repeat-action:active {
 
     opacity:
         0.55;
@@ -2828,12 +3220,10 @@ body.modo-guia .app-header {
             0 auto;
 
         border-left:
-            1px solid
-            var(--line);
+            1px solid var(--line);
 
         border-right:
-            1px solid
-            var(--line);
+            1px solid var(--line);
 
     }
 
