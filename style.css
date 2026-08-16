@@ -7,10 +7,10 @@
     --dim: #55534f;
 
     --line:
-        rgba(232, 229, 223, 0.11);
+        rgba(232,229,223,0.11);
 
     --line-strong:
-        rgba(232, 229, 223, 0.22);
+        rgba(232,229,223,0.22);
 
     --max-width:
         440px;
@@ -21,39 +21,25 @@
 }
 
 
-/* =========================================
-   RESET
-========================================= */
+/* RESET */
 
 * {
-
-    box-sizing:
-        border-box;
-
+    box-sizing: border-box;
 }
 
 
 html {
-
-    background:
-        var(--bg);
-
-    scroll-behavior:
-        smooth;
-
+    background: var(--bg);
+    scroll-behavior: smooth;
 }
 
 
 body {
 
-    margin:
-        0;
+    margin: 0;
 
-    min-height:
-        100vh;
-
-    min-height:
-        100svh;
+    min-height: 100vh;
+    min-height: 100svh;
 
     background:
         radial-gradient(
@@ -63,8 +49,7 @@ body {
         ),
         var(--bg);
 
-    color:
-        var(--text);
+    color: var(--text);
 
     font-family:
         -apple-system,
@@ -83,32 +68,22 @@ body {
 button,
 input,
 textarea {
-
-    font:
-        inherit;
-
+    font: inherit;
 }
 
 
 button {
 
-    color:
-        inherit;
+    color: inherit;
 
-    border:
-        0;
+    border: 0;
 
-    padding:
-        0;
+    padding: 0;
 
-    background:
-        transparent;
+    background: transparent;
 
-    -webkit-appearance:
-        none;
-
-    appearance:
-        none;
+    -webkit-appearance: none;
+    appearance: none;
 
     -webkit-tap-highlight-color:
         transparent;
@@ -119,27 +94,18 @@ button {
 button:focus,
 input:focus,
 textarea:focus {
-
-    outline:
-        none;
-
+    outline: none;
 }
 
 
-/* =========================================
-   SHELL
-========================================= */
+/* SHELL */
 
 #app-shell {
 
-    width:
-        100%;
+    width: 100%;
 
-    min-height:
-        100vh;
-
-    min-height:
-        100svh;
+    min-height: 100vh;
+    min-height: 100svh;
 
     background:
         var(--bg);
@@ -159,25 +125,18 @@ textarea:focus {
 
 
 .vista {
-
-    display:
-        none;
-
+    display: none;
 }
 
 
 .vista.activa {
-
-    display:
-        block;
-
+    display: block;
 }
 
 
 .page {
 
-    width:
-        100%;
+    width: 100%;
 
     max-width:
         var(--max-width);
@@ -186,69 +145,33 @@ textarea:focus {
         0 auto;
 
     padding:
-        24px
-        22px
-        42px;
+        24px 22px 42px;
 
 }
 
 
-/* =========================================
-   MODO GUÍA
-========================================= */
-
-body.modo-guia {
-
-    overflow-x:
-        hidden;
-
-    background:
-        var(--bg);
-
-}
-
+/* GUIDE MODE */
 
 body.modo-guia #app {
-
-    padding-bottom:
-        0;
-
+    padding-bottom: 0;
 }
 
 
 body.modo-guia .bottom-nav {
-
-    display:
-        none;
-
-}
-
-
-body.modo-guia #vista-guia,
-body.modo-guia .guide-page {
-
-    background:
-        var(--bg);
-
+    display: none;
 }
 
 
 #app-shell:has(#vista-guia.activa) .bottom-nav {
-
-    display:
-        none;
-
+    display: none;
 }
 
 
-/* =========================================
-   HEADER
-========================================= */
+/* HEADER */
 
 .app-header {
 
-    width:
-        100%;
+    width: 100%;
 
     max-width:
         var(--max-width);
@@ -279,8 +202,7 @@ body.modo-guia .guide-page {
     position:
         sticky;
 
-    top:
-        0;
+    top: 0;
 
     z-index:
         50;
@@ -337,7 +259,8 @@ body.modo-guia .guide-page {
         31px;
 
     border:
-        1.3px solid rgba(232,229,223,0.9);
+        1.3px solid
+        rgba(232,229,223,0.9);
 
     border-radius:
         50%;
@@ -352,9 +275,6 @@ body.modo-guia .guide-page {
 
 
 .umbra-mark span {
-
-    display:
-        block;
 
     position:
         absolute;
@@ -428,24 +348,16 @@ body.modo-guia .guide-page {
 
 .header-menu span:nth-child(1),
 .header-menu span:nth-child(3) {
-
-    width:
-        20px;
-
+    width: 20px;
 }
 
 
 .header-menu span:nth-child(2) {
-
-    width:
-        13px;
-
+    width: 13px;
 }
 
 
-/* =========================================
-   TYPOGRAPHY
-========================================= */
+/* TYPOGRAPHY */
 
 .micro {
 
@@ -511,22 +423,14 @@ body.modo-guia .guide-page {
 
 
 .page-heading {
-
-    margin-bottom:
-        28px;
-
+    margin-bottom: 28px;
 }
 
 
-/* =========================================
-   MÉTODOS
-========================================= */
+/* MÉTODOS */
 
 .lista-metodos {
-
-    border:
-        1px solid var(--line);
-
+    border: 1px solid var(--line);
 }
 
 
@@ -550,17 +454,11 @@ body.modo-guia .guide-page {
     text-align:
         left;
 
-    cursor:
-        pointer;
-
 }
 
 
 .tarjeta-metodo:last-child {
-
-    border-bottom:
-        0;
-
+    border-bottom: 0;
 }
 
 
@@ -572,10 +470,10 @@ body.modo-guia .guide-page {
     display:
         flex;
 
-    justify-content:
+    align-items:
         center;
 
-    align-items:
+    justify-content:
         center;
 
 }
@@ -583,14 +481,14 @@ body.modo-guia .guide-page {
 
 .metodo-grafico span {
 
+    color:
+        #b2aea8;
+
     font-size:
         2.1rem;
 
     font-weight:
         200;
-
-    color:
-        #b2aea8;
 
 }
 
@@ -623,11 +521,11 @@ body.modo-guia .guide-page {
     font-size:
         0.56rem;
 
-    text-transform:
-        uppercase;
-
     letter-spacing:
         0.13em;
+
+    text-transform:
+        uppercase;
 
 }
 
@@ -688,9 +586,7 @@ body.modo-guia .guide-page {
 }
 
 
-/* =========================================
-   BACK
-========================================= */
+/* BACK */
 
 .back-link {
 
@@ -706,15 +602,10 @@ body.modo-guia .guide-page {
     letter-spacing:
         0.11em;
 
-    cursor:
-        pointer;
-
 }
 
 
-/* =========================================
-   METHOD HERO
-========================================= */
+/* HERO */
 
 .method-hero {
 
@@ -740,10 +631,7 @@ body.modo-guia .guide-page {
 
 
 .method-copy {
-
-    align-self:
-        center;
-
+    align-self: center;
 }
 
 
@@ -760,12 +648,6 @@ body.modo-guia .guide-page {
 
     font-weight:
         300;
-
-    line-height:
-        1.05;
-
-    letter-spacing:
-        -0.035em;
 
 }
 
@@ -787,19 +669,15 @@ body.modo-guia .guide-page {
 }
 
 
-/* =========================================
-   METHOD DRAWING
-========================================= */
-
 .method-illustration {
 
     display:
         flex;
 
-    justify-content:
+    align-items:
         center;
 
-    align-items:
+    justify-content:
         center;
 
 }
@@ -891,9 +769,7 @@ body.modo-guia .guide-page {
 }
 
 
-/* =========================================
-   STATS
-========================================= */
+/* STATS */
 
 .stats {
 
@@ -936,10 +812,7 @@ body.modo-guia .guide-page {
 
 
 .stat:last-child {
-
-    border-right:
-        0;
-
+    border-right: 0;
 }
 
 
@@ -968,9 +841,7 @@ body.modo-guia .guide-page {
 }
 
 
-/* =========================================
-   TECHNICAL
-========================================= */
+/* TECH */
 
 .technical-strip {
 
@@ -1010,10 +881,7 @@ body.modo-guia .guide-page {
 
 
 .technical-strip > div:last-child {
-
-    border-right:
-        0;
-
+    border-right: 0;
 }
 
 
@@ -1024,9 +892,6 @@ body.modo-guia .guide-page {
 
     font-size:
         0.5rem;
-
-    letter-spacing:
-        0.1em;
 
 }
 
@@ -1042,9 +907,7 @@ body.modo-guia .guide-page {
 }
 
 
-/* =========================================
-   TABS
-========================================= */
+/* TABS */
 
 .method-tabs {
 
@@ -1071,14 +934,11 @@ body.modo-guia .guide-page {
     display:
         flex;
 
-    justify-content:
-        center;
-
     align-items:
         center;
 
-    position:
-        relative;
+    justify-content:
+        center;
 
     color:
         var(--dim);
@@ -1086,49 +946,15 @@ body.modo-guia .guide-page {
     font-size:
         0.59rem;
 
-    letter-spacing:
-        0.14em;
-
 }
 
 
 .method-tabs span.active {
-
-    color:
-        var(--text);
-
+    color: var(--text);
 }
 
 
-.method-tabs span.active::after {
-
-    content:
-        "";
-
-    position:
-        absolute;
-
-    left:
-        12px;
-
-    right:
-        12px;
-
-    bottom:
-        -1px;
-
-    height:
-        1px;
-
-    background:
-        var(--text);
-
-}
-
-
-/* =========================================
-   AJUSTES
-========================================= */
+/* AJUSTE */
 
 .compact-adjust {
 
@@ -1149,9 +975,6 @@ body.modo-guia .guide-page {
     font-size:
         0.53rem;
 
-    letter-spacing:
-        0.12em;
-
 }
 
 
@@ -1169,9 +992,6 @@ body.modo-guia .guide-page {
     align-items:
         center;
 
-    margin-top:
-        7px;
-
 }
 
 
@@ -1188,9 +1008,6 @@ body.modo-guia .guide-page {
 
     border-radius:
         50%;
-
-    font-size:
-        1rem;
 
 }
 
@@ -1210,9 +1027,6 @@ body.modo-guia .guide-page {
 
 
 .cantidad small {
-
-    margin-left:
-        3px;
 
     color:
         var(--muted);
@@ -1259,51 +1073,11 @@ body.modo-guia .guide-page {
     color:
         var(--muted);
 
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    gap:
-        2px;
-
 }
 
 
 .boton-ratio:last-child {
-
-    border-right:
-        0;
-
-}
-
-
-.boton-ratio strong {
-
-    font-size:
-        0.66rem;
-
-    font-weight:
-        400;
-
-}
-
-
-.boton-ratio span {
-
-    color:
-        var(--dim);
-
-    font-size:
-        0.57rem;
-
+    border-right: 0;
 }
 
 
@@ -1318,9 +1092,7 @@ body.modo-guia .guide-page {
 }
 
 
-/* =========================================
-   PREVIEW PASOS
-========================================= */
+/* PASOS */
 
 .lista-pasos-preview {
 
@@ -1404,9 +1176,6 @@ body.modo-guia .guide-page {
     font-size:
         0.67rem;
 
-    line-height:
-        1.45;
-
 }
 
 
@@ -1421,9 +1190,7 @@ body.modo-guia .guide-page {
 }
 
 
-/* =========================================
-   ACTIONS
-========================================= */
+/* BUTTONS */
 
 .guide-start {
 
@@ -1460,14 +1227,6 @@ body.modo-guia .guide-page {
 }
 
 
-.primary-action {
-
-    margin-top:
-        24px;
-
-}
-
-
 .secondary-action {
 
     width:
@@ -1484,12 +1243,6 @@ body.modo-guia .guide-page {
 
     font-size:
         0.57rem;
-
-    letter-spacing:
-        0.12em;
-
-    text-align:
-        center;
 
 }
 
@@ -1529,9 +1282,6 @@ body.modo-guia .guide-page {
     font-weight:
         600;
 
-    letter-spacing:
-        0.14em;
-
 }
 
 
@@ -1555,15 +1305,10 @@ body.modo-guia .guide-page {
     font-size:
         0.57rem;
 
-    letter-spacing:
-        0.13em;
-
 }
 
 
-/* =========================================
-   GUIDE
-========================================= */
+/* GUIDE */
 
 .guide-page {
 
@@ -1576,32 +1321,13 @@ body.modo-guia .guide-page {
 }
 
 
-body.modo-guia .app-header {
-
-    position:
-        relative;
-
-}
-
-
 .guide-header {
 
     display:
         flex;
 
-    align-items:
-        center;
-
     justify-content:
         space-between;
-
-}
-
-
-.guide-header .back-link {
-
-    margin:
-        0;
 
 }
 
@@ -1614,15 +1340,8 @@ body.modo-guia .app-header {
     font-size:
         0.54rem;
 
-    letter-spacing:
-        0.1em;
-
 }
 
-
-/* =========================================
-   GUIDE SUMMARY
-========================================= */
 
 .guide-summary {
 
@@ -1661,9 +1380,6 @@ body.modo-guia .app-header {
     justify-content:
         center;
 
-    gap:
-        5px;
-
     border-right:
         1px solid var(--line);
 
@@ -1671,41 +1387,9 @@ body.modo-guia .app-header {
 
 
 .guide-summary > div:last-child {
-
-    border-right:
-        0;
-
+    border-right: 0;
 }
 
-
-.guide-summary strong {
-
-    font-size:
-        0.77rem;
-
-    font-weight:
-        300;
-
-}
-
-
-.guide-summary span {
-
-    color:
-        var(--dim);
-
-    font-size:
-        0.48rem;
-
-    letter-spacing:
-        0.12em;
-
-}
-
-
-/* =========================================
-   TIMER
-========================================= */
 
 .timer-stage {
 
@@ -1723,20 +1407,11 @@ body.modo-guia .app-header {
     height:
         min(62vw,250px);
 
-    aspect-ratio:
-        1 / 1;
-
     margin:
         0 auto;
 
     border-radius:
         50%;
-
-    background:
-        transparent !important;
-
-    color:
-        var(--text);
 
     position:
         relative;
@@ -1746,43 +1421,6 @@ body.modo-guia .app-header {
 
     overflow:
         hidden;
-
-    cursor:
-        pointer;
-
-    box-shadow:
-        none;
-
-}
-
-
-.timer-circle::after {
-
-    content:
-        "";
-
-    position:
-        absolute;
-
-    inset:
-        12px;
-
-    border:
-        1px solid rgba(232,229,223,0.035);
-
-    border-radius:
-        50%;
-
-    pointer-events:
-        none;
-
-}
-
-
-.timer-circle:active {
-
-    transform:
-        scale(0.985);
 
 }
 
@@ -1800,9 +1438,6 @@ body.modo-guia .app-header {
 
     height:
         100%;
-
-    pointer-events:
-        none;
 
     transform:
         rotate(-90deg);
@@ -1835,17 +1470,11 @@ body.modo-guia .app-header {
     stroke:
         rgba(232,229,223,0.92);
 
-    stroke-linecap:
-        round;
-
     stroke-dasharray:
         578;
 
     stroke-dashoffset:
         578;
-
-    transition:
-        stroke-dashoffset 0.45s linear;
 
 }
 
@@ -1858,20 +1487,14 @@ body.modo-guia .app-header {
     inset:
         0;
 
-    z-index:
-        2;
-
     display:
         flex;
-
-    justify-content:
-        center;
 
     align-items:
         center;
 
-    pointer-events:
-        none;
+    justify-content:
+        center;
 
 }
 
@@ -1887,9 +1510,6 @@ body.modo-guia .app-header {
     align-items:
         center;
 
-    gap:
-        9px;
-
 }
 
 
@@ -1900,29 +1520,6 @@ body.modo-guia .app-header {
 
     font-weight:
         200;
-
-    line-height:
-        1;
-
-    letter-spacing:
-        -0.065em;
-
-    font-variant-numeric:
-        tabular-nums;
-
-}
-
-
-.timer-display span {
-
-    color:
-        var(--muted);
-
-    font-size:
-        0.49rem;
-
-    letter-spacing:
-        0.15em;
 
 }
 
@@ -1938,40 +1535,8 @@ body.modo-guia .app-header {
     align-items:
         center;
 
-    gap:
-        12px;
-
 }
 
-
-.timer-action strong {
-
-    font-size:
-        0.72rem;
-
-    font-weight:
-        500;
-
-    letter-spacing:
-        0.17em;
-
-}
-
-
-.timer-action span {
-
-    color:
-        var(--muted);
-
-    font-size:
-        1.25rem;
-
-}
-
-
-/* =========================================
-   PROGRESO
-========================================= */
 
 .guide-step-meta {
 
@@ -1989,9 +1554,6 @@ body.modo-guia .app-header {
 
     font-size:
         0.52rem;
-
-    letter-spacing:
-        0.11em;
 
 }
 
@@ -2012,24 +1574,16 @@ body.modo-guia .app-header {
 
 #barra-progreso-activa {
 
-    width:
-        0;
-
     height:
         100%;
 
     background:
         var(--text);
 
-    transition:
-        width 0.35s ease;
-
 }
 
 
-/* =========================================
-   PASO ACTUAL
-========================================= */
+/* CURRENT STEP */
 
 .current-step {
 
@@ -2055,8 +1609,7 @@ body.modo-guia .app-header {
         142px;
 
     padding:
-        15px
-        22px
+        15px 22px
         max(17px,env(safe-area-inset-bottom));
 
     border-top:
@@ -2065,67 +1618,20 @@ body.modo-guia .app-header {
     background:
         rgba(8,9,9,0.97);
 
-    backdrop-filter:
-        blur(22px);
-
-    -webkit-backdrop-filter:
-        blur(22px);
-
     z-index:
         120;
 
 }
 
 
-.current-step-top {
-
-    display:
-        flex;
-
-    justify-content:
-        space-between;
-
-    margin-bottom:
-        7px;
-
-}
-
-
-.current-step-top .micro {
-
-    margin:
-        0;
-
-}
-
-
-.step-type {
-
-    color:
-        var(--dim);
-
-    font-size:
-        0.48rem;
-
-    letter-spacing:
-        0.12em;
-
-}
-
-
+.current-step-top,
 .current-step-row {
 
     display:
         flex;
 
-    align-items:
-        flex-end;
-
     justify-content:
         space-between;
-
-    gap:
-        20px;
 
 }
 
@@ -2155,41 +1661,10 @@ body.modo-guia .app-header {
     align-items:
         flex-end;
 
-    text-align:
-        right;
-
-}
-
-
-.objetivo-paso strong {
-
-    font-size:
-        0.94rem;
-
-    font-weight:
-        300;
-
-}
-
-
-.objetivo-paso span {
-
-    margin-top:
-        3px;
-
-    color:
-        var(--dim);
-
-    font-size:
-        0.51rem;
-
 }
 
 
 .paso-instruccion {
-
-    max-width:
-        340px;
 
     margin:
         9px 0 0;
@@ -2200,33 +1675,10 @@ body.modo-guia .app-header {
     font-size:
         0.69rem;
 
-    line-height:
-        1.42;
-
 }
 
 
-/* =========================================
-   FINAL
-========================================= */
-
-.final-page {
-
-    min-height:
-        calc(
-            100vh -
-            116px -
-            var(--bottom-nav-height)
-        );
-
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-}
-
+/* FINAL */
 
 .final-summary {
 
@@ -2256,34 +1708,7 @@ body.modo-guia .app-header {
 }
 
 
-.final-summary span {
-
-    color:
-        var(--muted);
-
-    font-size:
-        0.57rem;
-
-    letter-spacing:
-        0.1em;
-
-}
-
-
-.final-summary strong {
-
-    font-size:
-        0.78rem;
-
-    font-weight:
-        400;
-
-}
-
-
-/* =========================================
-   JOURNAL
-========================================= */
+/* JOURNAL HEADER */
 
 .journal-heading {
 
@@ -2300,14 +1725,14 @@ body.modo-guia .app-header {
         20px;
 
     margin-bottom:
-        30px;
+        28px;
 
 }
 
 
 .journal-count {
 
-    min-width:
+    width:
         44px;
 
     height:
@@ -2331,16 +1756,216 @@ body.modo-guia .app-header {
     font-size:
         0.63rem;
 
-    letter-spacing:
-        0.1em;
+}
+
+
+/* JOURNAL DASHBOARD */
+
+.journal-dashboard {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    border-top:
+        1px solid var(--line);
+
+    border-left:
+        1px solid var(--line);
+
+    margin-bottom:
+        26px;
 
 }
 
 
+.journal-stat {
+
+    min-height:
+        94px;
+
+    padding:
+        15px;
+
+    border-right:
+        1px solid var(--line);
+
+    border-bottom:
+        1px solid var(--line);
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    justify-content:
+        space-between;
+
+}
+
+
+.journal-stat-large {
+
+    grid-row:
+        span 2;
+
+    min-height:
+        188px;
+
+}
+
+
+.journal-stat-last {
+
+    grid-column:
+        1 / -1;
+
+    min-height:
+        74px;
+
+}
+
+
+.journal-stat span {
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.49rem;
+
+    letter-spacing:
+        0.12em;
+
+}
+
+
+.journal-stat strong {
+
+    font-size:
+        1.05rem;
+
+    font-weight:
+        300;
+
+}
+
+
+.journal-stat-large strong {
+
+    font-size:
+        3.2rem;
+
+    font-weight:
+        200;
+
+    letter-spacing:
+        -0.05em;
+
+}
+
+
+/* FILTERS */
+
+.journal-filter-section {
+
+    margin-bottom:
+        25px;
+
+}
+
+
+.journal-filter-label {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    margin-bottom:
+        10px;
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.49rem;
+
+}
+
+
+.journal-filters {
+
+    display:
+        flex;
+
+    overflow-x:
+        auto;
+
+    border-top:
+        1px solid var(--line);
+
+    border-bottom:
+        1px solid var(--line);
+
+    scrollbar-width:
+        none;
+
+}
+
+
+.journal-filters::-webkit-scrollbar {
+    display: none;
+}
+
+
+.journal-filter {
+
+    flex:
+        0 0 auto;
+
+    min-height:
+        45px;
+
+    padding:
+        0 16px;
+
+    border-right:
+        1px solid var(--line);
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.52rem;
+
+    letter-spacing:
+        0.08em;
+
+}
+
+
+.journal-filter.activo {
+
+    color:
+        var(--text);
+
+    background:
+        rgba(232,229,223,0.045);
+
+}
+
+
+/* JOURNAL LIST */
+
 .journal-empty {
 
     min-height:
-        300px;
+        250px;
 
     border:
         1px solid var(--line);
@@ -2363,6 +1988,11 @@ body.modo-guia .app-header {
 }
 
 
+.filter-empty {
+    min-height: 190px;
+}
+
+
 .journal-empty span {
 
     color:
@@ -2370,9 +2000,6 @@ body.modo-guia .app-header {
 
     font-size:
         0.58rem;
-
-    letter-spacing:
-        0.13em;
 
 }
 
@@ -2382,28 +2009,11 @@ body.modo-guia .app-header {
     max-width:
         230px;
 
-    margin:
-        12px 0 0;
-
     color:
         var(--muted);
 
     font-size:
         0.73rem;
-
-    line-height:
-        1.45;
-
-}
-
-
-.journal-list {
-
-    display:
-        flex;
-
-    flex-direction:
-        column;
 
 }
 
@@ -2413,20 +2023,14 @@ body.modo-guia .app-header {
     width:
         100%;
 
-    position:
-        relative;
-
     padding:
-        18px 0 17px;
+        18px 0;
 
     border-top:
         1px solid var(--line);
 
     text-align:
         left;
-
-    cursor:
-        pointer;
 
 }
 
@@ -2441,17 +2045,14 @@ body.modo-guia .app-header {
 
 .journal-card-date {
 
-    margin-bottom:
-        12px;
-
     color:
         var(--dim);
 
     font-size:
         0.52rem;
 
-    letter-spacing:
-        0.12em;
+    margin-bottom:
+        12px;
 
 }
 
@@ -2463,12 +2064,6 @@ body.modo-guia .app-header {
 
     justify-content:
         space-between;
-
-    align-items:
-        flex-start;
-
-    gap:
-        20px;
 
 }
 
@@ -2492,9 +2087,6 @@ body.modo-guia .app-header {
     margin-top:
         5px;
 
-    color:
-        var(--text);
-
     font-size:
         0.68rem;
 
@@ -2511,17 +2103,6 @@ body.modo-guia .app-header {
 
     font-size:
         0.68rem;
-
-}
-
-
-.journal-arrow {
-
-    color:
-        var(--muted);
-
-    font-size:
-        1rem;
 
 }
 
@@ -2551,41 +2132,21 @@ body.modo-guia .app-header {
     padding:
         10px 8px;
 
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    justify-content:
-        center;
-
-    gap:
-        5px;
-
     border-right:
         1px solid var(--line);
 
 }
 
 
-.journal-data-item:first-child {
-
-    padding-left:
-        0;
-
-}
-
-
 .journal-data-item:last-child {
-
-    border-right:
-        0;
-
+    border-right: 0;
 }
 
 
 .journal-data-item span {
+
+    display:
+        block;
 
     color:
         var(--dim);
@@ -2593,13 +2154,16 @@ body.modo-guia .app-header {
     font-size:
         0.46rem;
 
-    letter-spacing:
-        0.1em;
-
 }
 
 
 .journal-data-item strong {
+
+    display:
+        block;
+
+    margin-top:
+        5px;
 
     font-size:
         0.67rem;
@@ -2621,23 +2185,10 @@ body.modo-guia .app-header {
     font-size:
         0.54rem;
 
-    letter-spacing:
-        0.11em;
-
 }
 
 
-/* =========================================
-   DETALLE REGISTRO
-========================================= */
-
-.registro-page {
-
-    padding-bottom:
-        60px;
-
-}
-
+/* REGISTRO */
 
 .registro-header {
 
@@ -2650,24 +2201,10 @@ body.modo-guia .app-header {
 }
 
 
-.registro-header .micro {
-
-    margin-bottom:
-        11px;
-
-}
-
-
 .registro-receta {
-
-    margin:
-        12px 0 0;
 
     color:
         var(--muted);
-
-    font-size:
-        0.79rem;
 
 }
 
@@ -2694,62 +2231,14 @@ body.modo-guia .app-header {
     padding:
         14px 10px;
 
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    justify-content:
-        center;
-
-    gap:
-        6px;
-
     border-right:
         1px solid var(--line);
 
 }
 
 
-.registro-stats > div:first-child {
-
-    padding-left:
-        0;
-
-}
-
-
 .registro-stats > div:last-child {
-
-    border-right:
-        0;
-
-}
-
-
-.registro-stats span {
-
-    color:
-        var(--dim);
-
-    font-size:
-        0.48rem;
-
-    letter-spacing:
-        0.11em;
-
-}
-
-
-.registro-stats strong {
-
-    font-size:
-        0.74rem;
-
-    font-weight:
-        400;
-
+    border-right: 0;
 }
 
 
@@ -2779,9 +2268,6 @@ body.modo-guia .app-header {
     font-size:
         0.52rem;
 
-    letter-spacing:
-        0.13em;
-
 }
 
 
@@ -2791,16 +2277,7 @@ body.modo-guia .app-header {
     width:
         100%;
 
-    margin:
-        0;
-
-    padding:
-        0;
-
     border:
-        0;
-
-    border-radius:
         0;
 
     background:
@@ -2809,55 +2286,11 @@ body.modo-guia .app-header {
     color:
         var(--text);
 
-    -webkit-appearance:
-        none;
-
-    appearance:
-        none;
-
-}
-
-
-.registro-field input {
-
-    height:
-        42px;
-
-    font-size:
-        1rem;
-
-    font-weight:
-        300;
-
 }
 
 
 .registro-field textarea {
-
-    min-height:
-        112px;
-
-    resize:
-        vertical;
-
-    font-size:
-        0.82rem;
-
-    line-height:
-        1.55;
-
-}
-
-
-.registro-field input::placeholder,
-.registro-field textarea::placeholder {
-
-    color:
-        var(--dim);
-
-    opacity:
-        1;
-
+    min-height: 112px;
 }
 
 
@@ -2880,61 +2313,17 @@ body.modo-guia .app-header {
     min-height:
         66px;
 
-    padding:
-        10px 4px;
-
     border-right:
         1px solid var(--line);
 
     color:
         var(--dim);
 
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    gap:
-        8px;
-
-    font-size:
-        0.52rem;
-
-    letter-spacing:
-        0.08em;
-
 }
 
 
 .resultado-option:last-child {
-
-    border-right:
-        0;
-
-}
-
-
-.resultado-dot {
-
-    width:
-        8px;
-
-    height:
-        8px;
-
-    border:
-        1px solid var(--dim);
-
-    border-radius:
-        50%;
-
+    border-right: 0;
 }
 
 
@@ -2944,25 +2333,12 @@ body.modo-guia .app-header {
         var(--text);
 
     background:
-        rgba(232,229,223,0.035);
+        rgba(232,229,223,0.04);
 
 }
 
 
-.resultado-option.activo .resultado-dot {
-
-    border-color:
-        var(--text);
-
-    background:
-        var(--text);
-
-}
-
-
-/* =========================================
-   NAV
-========================================= */
+/* NAV */
 
 .bottom-nav {
 
@@ -2978,14 +2354,6 @@ body.modo-guia .app-header {
             env(safe-area-inset-bottom)
         );
 
-    margin:
-        0 auto;
-
-    padding:
-        4px
-        10px
-        env(safe-area-inset-bottom);
-
     position:
         fixed;
 
@@ -2997,9 +2365,6 @@ body.modo-guia .app-header {
 
     transform:
         translateX(-50%);
-
-    z-index:
-        100;
 
     display:
         grid;
@@ -3013,11 +2378,8 @@ body.modo-guia .app-header {
     background:
         rgba(8,9,9,0.97);
 
-    backdrop-filter:
-        blur(18px);
-
-    -webkit-backdrop-filter:
-        blur(18px);
+    z-index:
+        100;
 
 }
 
@@ -3045,97 +2407,17 @@ body.modo-guia .app-header {
 }
 
 
-.nav-symbol {
-
-    font-size:
-        0.9rem;
-
-}
-
-
-.nav-item > span:last-child {
-
-    font-size:
-        0.48rem;
-
-    letter-spacing:
-        0.1em;
-
-}
-
-
 .nav-item.activo {
-
-    color:
-        var(--text);
-
+    color: var(--text);
 }
 
 
-/* =========================================
-   TOUCH
-========================================= */
-
-.tarjeta-metodo:active,
-.guide-start:active,
-.boton-ratio:active,
-.secondary-action:active,
-.journal-card:active,
-.resultado-option:active,
-.repeat-action:active {
-
-    opacity:
-        0.55;
-
-}
-
-
-/* =========================================
-   PANTALLAS BAJAS
-========================================= */
+/* MOBILE LOW HEIGHT */
 
 @media (max-height:760px) {
 
     .app-header {
-
-        height:
-            96px;
-
-    }
-
-
-    body.modo-guia .app-header {
-
-        height:
-            82px;
-
-    }
-
-
-    .guide-page {
-
-        min-height:
-            calc(100svh - 82px);
-
-        padding-top:
-            16px;
-
-    }
-
-
-    .guide-summary {
-
-        margin-top:
-            14px;
-
-    }
-
-
-    .timer-stage {
-
-        padding:
-            15px 0 12px;
-
+        height: 96px;
     }
 
 
@@ -3149,65 +2431,15 @@ body.modo-guia .app-header {
 
     }
 
-
-    .timer-guiado {
-
-        font-size:
-            3.25rem;
-
-    }
-
 }
 
 
-@media (max-height:670px) {
-
-    body.modo-guia .app-header {
-
-        display:
-            none;
-
-    }
-
-
-    .guide-page {
-
-        min-height:
-            100svh;
-
-        padding-top:
-            max(
-                18px,
-                env(safe-area-inset-top)
-            );
-
-    }
-
-
-    .timer-circle {
-
-        width:
-            min(48vw,185px);
-
-        height:
-            min(48vw,185px);
-
-    }
-
-}
-
-
-/* =========================================
-   DESKTOP
-========================================= */
+/* DESKTOP */
 
 @media (min-width:700px) {
 
     body {
-
-        background:
-            #030404;
-
+        background: #030404;
     }
 
 
