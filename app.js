@@ -16,6 +16,9 @@ let wakeLock = null;
 
 let preparacionGuardadaActual = false;
 
+let registroActualId = null;
+let resultadoActual = "";
+
 
 // =====================================================
 // STORAGE
@@ -43,6 +46,9 @@ const vistaFinal =
 
 const vistaJournal =
     document.getElementById("vista-journal");
+
+const vistaRegistro =
+    document.getElementById("vista-registro");
 
 
 // =====================================================
@@ -186,6 +192,38 @@ const journalList =
 
 const journalCount =
     document.getElementById("journal-count");
+
+
+// =====================================================
+// REGISTRO
+// =====================================================
+
+const registroFecha =
+    document.getElementById("registro-fecha");
+
+const registroMetodo =
+    document.getElementById("registro-metodo");
+
+const registroReceta =
+    document.getElementById("registro-receta");
+
+const registroTemperatura =
+    document.getElementById("registro-temperatura");
+
+const registroMolienda =
+    document.getElementById("registro-molienda");
+
+const registroCafeNombre =
+    document.getElementById("registro-cafe-nombre");
+
+const registroNota =
+    document.getElementById("registro-nota");
+
+const registroFeedback =
+    document.getElementById("registro-feedback");
+
+const resultadoOptions =
+    document.querySelectorAll(".resultado-option");
 
 
 // =====================================================
@@ -982,11 +1020,8 @@ function cargarPreviewPasos() {
             item.innerHTML = `
 
                 <span class="paso-numero">
-
                     ${numero}
-
                 </span>
-
 
                 <div>
 
@@ -994,11 +1029,9 @@ function cargarPreviewPasos() {
                         ${paso.nombre}
                     </strong>
 
-
                     <p>
                         ${datos.instruccion}
                     </p>
-
 
                     <small>
                         ${meta}
@@ -1267,10 +1300,9 @@ function prepararPasoAccion() {
 function manejarControlCircular() {
 
     const paso =
-        metodoActual
-            .pasos[
-                pasoActual
-            ];
+        metodoActual.pasos[
+            pasoActual
+        ];
 
 
     if (
@@ -1671,7 +1703,7 @@ function finalizarPreparacion() {
 
 
 // =====================================================
-// JOURNAL / STORAGE
+// STORAGE
 // =====================================================
 
 function obtenerRegistrosJournal() {
@@ -1739,6 +1771,10 @@ function escribirRegistrosJournal(
 }
 
 
+// =====================================================
+// GUARDAR PREPARACIÓN
+// =====================================================
+
 function guardarPreparacion() {
 
     if (
@@ -1785,7 +1821,16 @@ function guardarPreparacion() {
             metodoActual.temperatura,
 
         molienda:
-            metodoActual.molienda
+            metodoActual.molienda,
+
+        cafeNombre:
+            "",
+
+        resultado:
+            "",
+
+        nota:
+            ""
 
     };
 
@@ -1824,6 +1869,10 @@ function guardarPreparacion() {
 
 }
 
+
+// =====================================================
+// JOURNAL
+// =====================================================
 
 function cargarJournal() {
 
@@ -1867,8 +1916,12 @@ function cargarJournal() {
 
             const tarjeta =
                 document.createElement(
-                    "article"
+                    "button"
                 );
+
+
+            tarjeta.type =
+                "button";
 
 
             tarjeta.className =
@@ -1879,6 +1932,20 @@ function cargarJournal() {
                 formatearFechaRegistro(
                     registro.timestamp
                 );
+
+
+            const nombreCafe =
+                registro.cafeNombre
+                    ? escapeHTML(
+                        registro.cafeNombre
+                    )
+                    : "";
+
+
+            const resultado =
+                registro.resultado
+                    ? registro.resultado.toUpperCase()
+                    : "";
 
 
             tarjeta.innerHTML = `
@@ -1896,9 +1963,20 @@ function cargarJournal() {
 
                         <h2 class="journal-card-title">
 
-                            ${registro.metodo}
+                            ${escapeHTML(registro.metodo)}
 
                         </h2>
+
+
+                        ${
+                            nombreCafe
+                                ? `
+                                    <div class="journal-card-coffee">
+                                        ${nombreCafe}
+                                    </div>
+                                `
+                                : ""
+                        }
 
 
                         <div class="journal-card-recipe">
@@ -1943,7 +2021,7 @@ function cargarJournal() {
                         </span>
 
                         <strong>
-                            ${registro.temperatura}
+                            ${escapeHTML(registro.temperatura || "—")}
                         </strong>
 
                     </div>
@@ -1956,14 +2034,36 @@ function cargarJournal() {
                         </span>
 
                         <strong>
-                            ${registro.molienda}
+                            ${escapeHTML(registro.molienda || "—")}
                         </strong>
 
                     </div>
 
                 </div>
 
+
+                ${
+                    resultado
+                        ? `
+                            <div class="journal-result">
+                                RESULTADO / ${resultado}
+                            </div>
+                        `
+                        : ""
+                }
+
             `;
+
+
+            tarjeta.addEventListener(
+
+                "click",
+
+                () => abrirRegistro(
+                    registro.id
+                )
+
+            );
 
 
             journalList.appendChild(
@@ -1976,6 +2076,316 @@ function cargarJournal() {
 }
 
 
+// =====================================================
+// ABRIR REGISTRO
+// =====================================================
+
+function abrirRegistro(
+    id
+) {
+
+    const registros =
+        obtenerRegistrosJournal();
+
+
+    const registro =
+        registros.find(
+            item =>
+                item.id === id
+        );
+
+
+    if (
+        !registro
+    ) {
+
+        return;
+
+    }
+
+
+    registroActualId =
+        id;
+
+
+    resultadoActual =
+        registro.resultado || "";
+
+
+    registroFecha.textContent =
+        formatearFechaRegistro(
+            registro.timestamp
+        );
+
+
+    registroMetodo.textContent =
+        registro.metodo || "—";
+
+
+    registroReceta.textContent =
+        `${registro.cafe} g / ${registro.agua} ml / 1:${registro.ratio}`;
+
+
+    registroTemperatura.textContent =
+        registro.temperatura || "—";
+
+
+    registroMolienda.textContent =
+        registro.molienda || "—";
+
+
+    registroCafeNombre.value =
+        registro.cafeNombre || "";
+
+
+    registroNota.value =
+        registro.nota || "";
+
+
+    registroFeedback.hidden =
+        true;
+
+
+    actualizarResultadoUI();
+
+
+    mostrarVista(
+        vistaRegistro
+    );
+
+
+    actualizarNav(
+        "journal"
+    );
+
+}
+
+
+// =====================================================
+// RESULTADO
+// =====================================================
+
+function seleccionarResultado(
+    valor
+) {
+
+    if (
+        resultadoActual === valor
+    ) {
+
+        resultadoActual =
+            "";
+
+    }
+
+    else {
+
+        resultadoActual =
+            valor;
+
+    }
+
+
+    actualizarResultadoUI();
+
+}
+
+
+function actualizarResultadoUI() {
+
+    resultadoOptions.forEach(
+        boton => {
+
+
+            boton.classList.toggle(
+
+                "activo",
+
+                boton.dataset.resultado ===
+                    resultadoActual
+
+            );
+
+        }
+    );
+
+}
+
+
+// =====================================================
+// GUARDAR CAMBIOS REGISTRO
+// =====================================================
+
+function guardarCambiosRegistro() {
+
+    if (
+        !registroActualId
+    ) {
+
+        return;
+
+    }
+
+
+    const registros =
+        obtenerRegistrosJournal();
+
+
+    const indice =
+        registros.findIndex(
+            item =>
+                item.id ===
+                registroActualId
+        );
+
+
+    if (
+        indice === -1
+    ) {
+
+        return;
+
+    }
+
+
+    registros[indice] = {
+
+        ...registros[indice],
+
+        cafeNombre:
+            registroCafeNombre
+                .value
+                .trim(),
+
+        resultado:
+            resultadoActual,
+
+        nota:
+            registroNota
+                .value
+                .trim()
+
+    };
+
+
+    escribirRegistrosJournal(
+        registros
+    );
+
+
+    registroFeedback.hidden =
+        false;
+
+
+    cargarJournal();
+
+
+    setTimeout(
+
+        () => {
+
+            registroFeedback.hidden =
+                true;
+
+        },
+
+        1800
+
+    );
+
+}
+
+
+// =====================================================
+// REPETIR RECETA
+// =====================================================
+
+function repetirReceta() {
+
+    if (
+        !registroActualId
+    ) {
+
+        return;
+
+    }
+
+
+    const registros =
+        obtenerRegistrosJournal();
+
+
+    const registro =
+        registros.find(
+            item =>
+                item.id ===
+                registroActualId
+        );
+
+
+    if (
+        !registro
+    ) {
+
+        return;
+
+    }
+
+
+    const metodo =
+        METODOS[
+            registro.metodoId
+        ];
+
+
+    if (
+        !metodo
+    ) {
+
+        return;
+
+    }
+
+
+    metodoActual =
+        metodo;
+
+
+    gramosCafe =
+        Number(
+            registro.cafe
+        ) || metodo.cafeDefault;
+
+
+    ratioActual =
+        Number(
+            registro.ratio
+        ) || metodo.ratioDefault;
+
+
+    actualizarDetalle();
+
+    cargarRatios();
+
+    cargarPreviewPasos();
+
+
+    mostrarVista(
+        vistaDetalle
+    );
+
+
+    actualizarNav(
+        "metodos"
+    );
+
+}
+
+
+// =====================================================
+// FECHA
+// =====================================================
+
 function formatearFechaRegistro(
     timestamp
 ) {
@@ -1984,6 +2394,17 @@ function formatearFechaRegistro(
         new Date(
             timestamp
         );
+
+
+    if (
+        Number.isNaN(
+            fecha.getTime()
+        )
+    ) {
+
+        return "FECHA / —";
+
+    }
 
 
     const fechaTexto =
@@ -2031,6 +2452,41 @@ function formatearFechaRegistro(
     return (
         `${fechaTexto} / ${horaTexto}`
     );
+
+}
+
+
+// =====================================================
+// SEGURIDAD TEXTO
+// =====================================================
+
+function escapeHTML(
+    valor
+) {
+
+    return String(
+        valor ?? ""
+    )
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
 
 }
 
@@ -2266,7 +2722,78 @@ document
 
 
 // =====================================================
-// NAV INFERIOR
+// REGISTRO
+// =====================================================
+
+document
+    .getElementById(
+        "btn-volver-journal"
+    )
+    .addEventListener(
+
+        "click",
+
+        () => {
+
+            mostrarVista(
+                vistaJournal
+            );
+
+
+            actualizarNav(
+                "journal"
+            );
+
+        }
+
+    );
+
+
+resultadoOptions.forEach(
+    boton => {
+
+        boton.addEventListener(
+
+            "click",
+
+            () => seleccionarResultado(
+                boton.dataset.resultado
+            )
+
+        );
+
+    }
+);
+
+
+document
+    .getElementById(
+        "btn-guardar-registro"
+    )
+    .addEventListener(
+
+        "click",
+
+        guardarCambiosRegistro
+
+    );
+
+
+document
+    .getElementById(
+        "btn-repetir-receta"
+    )
+    .addEventListener(
+
+        "click",
+
+        repetirReceta
+
+    );
+
+
+// =====================================================
+// NAV
 // =====================================================
 
 navMetodos.addEventListener(
