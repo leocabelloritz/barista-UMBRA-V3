@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&display=swap');
+
 :root {
 
     --bg: #080909;
@@ -2459,4 +2461,295 @@ body.modo-guia .bottom-nav {
 
     }
 
+}
+
+
+/* =====================================================
+   UMBRA V3 / REFINAMIENTO VISUAL FINAL
+   ===================================================== */
+
+:root {
+    --text: #e6ddcf;
+    --muted: #aaa39a;
+    --dim: #7a746c;
+    --line: rgba(230,221,207,0.12);
+    --line-strong: rgba(230,221,207,0.24);
+    --cream: #e6ddcf;
+    --cream-soft: #c9bfb1;
+    --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+}
+
+html,
+body,
+#app-shell {
+    background: var(--bg);
+}
+
+body {
+    position: relative;
+    background:
+        radial-gradient(
+            circle at 50% -16%,
+            rgba(230,221,207,0.045),
+            transparent 38%
+        ),
+        radial-gradient(
+            circle at 18% 38%,
+            rgba(255,255,255,0.018),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 84% 74%,
+            rgba(230,221,207,0.014),
+            transparent 28%
+        ),
+        #080909;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.28;
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255,255,255,0.012) 0,
+            rgba(255,255,255,0.012) 1px,
+            transparent 1px,
+            transparent 3px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(255,255,255,0.007) 0,
+            rgba(255,255,255,0.007) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+    mix-blend-mode: soft-light;
+}
+
+#app-shell {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+}
+
+.app-header {
+    background: rgba(8,9,9,0.90);
+}
+
+.micro {
+    color: var(--muted);
+    font-size: 0.70rem;
+    line-height: 1.3;
+}
+
+.lead {
+    color: var(--muted);
+    font-size: 0.96rem;
+    line-height: 1.6;
+}
+
+.metodo-meta {
+    color: var(--dim);
+    font-size: 0.64rem;
+}
+
+.metodo-info strong {
+    font-size: 1.05rem;
+}
+
+.metodo-info p {
+    color: var(--muted);
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+
+.metodo-info small {
+    color: var(--dim);
+    font-size: 0.68rem;
+}
+
+.back-link {
+    color: var(--muted);
+    font-size: 0.68rem;
+}
+
+.method-description {
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+.micro-label {
+    color: var(--muted);
+    font-size: 0.68rem;
+}
+
+.stat strong,
+.guide-summary strong,
+.objetivo-paso strong,
+.final-summary strong,
+.registro-stats strong,
+.journal-stat strong,
+.registro-receta,
+.journal-count {
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.stat span,
+.technical-strip span,
+.guide-summary span,
+.objetivo-paso span,
+.final-summary span,
+.journal-stat span,
+.registro-stats span,
+.field-label,
+.registro-field label,
+.journal-filter-label,
+.guide-step-meta,
+.step-type,
+.guide-method {
+    color: var(--muted);
+}
+
+.timer-guiado {
+    color: var(--cream);
+    font-family: var(--mono);
+    font-size: clamp(3.15rem, 14vw, 4.45rem);
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.055em;
+    font-variant-numeric: tabular-nums;
+}
+
+#timer-status {
+    margin-top: 9px;
+    color: var(--muted);
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+}
+
+.timer-action strong {
+    font-size: 0.76rem;
+    letter-spacing: 0.14em;
+}
+
+.ring-track {
+    stroke: rgba(230,221,207,0.16);
+}
+
+.ring-progress {
+    stroke: rgba(230,221,207,0.94);
+}
+
+.guide-method {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+}
+
+/* ICONOGRAFÍA DE MÉTODOS */
+
+.method-icon {
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.35;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+
+.metodo-grafico {
+    color: var(--cream-soft);
+}
+
+.method-icon--card {
+    width: 39px;
+    height: 39px;
+}
+
+.method-illustration {
+    color: var(--cream-soft);
+}
+
+.method-icon--hero {
+    width: 68px;
+    height: 68px;
+    opacity: 0.9;
+}
+
+.method-icon--guide {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    color: var(--cream-soft);
+    opacity: 0.82;
+}
+
+.final-method-icon {
+    width: 100%;
+    min-height: 94px;
+    margin: 12px 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    color: var(--cream-soft);
+}
+
+.method-icon--final {
+    width: 62px;
+    height: 62px;
+    opacity: 0.82;
+}
+
+/* Oculta el dibujo estático antiguo cuando JS aún no terminó de pintar */
+.method-wire {
+    display: none;
+}
+
+/* MÁS LEGIBLE SIN PERDER LA JERARQUÍA */
+
+.guide-step-meta,
+.step-type,
+.technical-strip,
+.opciones-intensidad,
+.journal-filter,
+.resultado-option,
+.bottom-nav .nav-item > span:last-child {
+    font-size: 0.68rem;
+}
+
+.paso-instruccion,
+.registro-field input,
+.registro-field textarea,
+.journal-empty p {
+    font-size: 0.88rem;
+    line-height: 1.55;
+}
+
+.current-step h1 {
+    font-size: clamp(1.9rem, 8vw, 2.35rem);
+}
+
+@media (max-width: 360px) {
+    .page {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .metodo-info p {
+        font-size: 0.75rem;
+    }
+
+    .timer-guiado {
+        font-size: clamp(3rem, 14vw, 4rem);
+    }
 }
