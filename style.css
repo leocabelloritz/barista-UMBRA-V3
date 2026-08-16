@@ -1,1 +1,2840 @@
-//
+:root {
+
+    --bg: #080909;
+    --surface: #0d0e0f;
+    --text: #e8e5df;
+    --muted: #8c8984;
+    --dim: #55534f;
+
+    --line:
+        rgba(232, 229, 223, 0.11);
+
+    --line-strong:
+        rgba(232, 229, 223, 0.22);
+
+    --max-width: 440px;
+
+    --bottom-nav-height: 66px;
+
+}
+
+
+/* =========================================
+   RESET
+========================================= */
+
+* {
+
+    box-sizing:
+        border-box;
+
+}
+
+
+html {
+
+    background:
+        var(--bg);
+
+    scroll-behavior:
+        smooth;
+
+}
+
+
+body {
+
+    margin:
+        0;
+
+    min-height:
+        100vh;
+
+    min-height:
+        100svh;
+
+    background:
+        radial-gradient(
+            circle at 50% -20%,
+            rgba(255,255,255,0.035),
+            transparent 40%
+        ),
+        var(--bg);
+
+    color:
+        var(--text);
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Helvetica,
+        Arial,
+        sans-serif;
+
+    -webkit-font-smoothing:
+        antialiased;
+
+}
+
+
+button {
+
+    font:
+        inherit;
+
+    color:
+        inherit;
+
+    border:
+        0;
+
+    padding:
+        0;
+
+    background:
+        transparent;
+
+    -webkit-appearance:
+        none;
+
+    appearance:
+        none;
+
+    -webkit-tap-highlight-color:
+        transparent;
+
+}
+
+
+button:focus {
+
+    outline:
+        none;
+
+}
+
+
+/* =========================================
+   SHELL
+========================================= */
+
+#app-shell {
+
+    width:
+        100%;
+
+    min-height:
+        100vh;
+
+    min-height:
+        100svh;
+
+    background:
+        var(--bg);
+
+}
+
+
+#app {
+
+    padding-bottom:
+        calc(
+            var(--bottom-nav-height) +
+            env(safe-area-inset-bottom)
+        );
+
+}
+
+
+.vista {
+
+    display:
+        none;
+
+}
+
+
+.vista.activa {
+
+    display:
+        block;
+
+}
+
+
+.page {
+
+    width:
+        100%;
+
+    max-width:
+        var(--max-width);
+
+    margin:
+        0 auto;
+
+    padding:
+        24px
+        22px
+        42px;
+
+}
+
+
+/* =========================================
+   MODO GUÍA
+========================================= */
+
+body.modo-guia {
+
+    overflow-x:
+        hidden;
+
+    background:
+        var(--bg);
+
+}
+
+
+body.modo-guia #app {
+
+    padding-bottom:
+        0;
+
+}
+
+
+body.modo-guia .bottom-nav {
+
+    display:
+        none;
+
+}
+
+
+body.modo-guia #vista-guia,
+body.modo-guia .guide-page {
+
+    background:
+        var(--bg);
+
+}
+
+
+#app-shell:has(#vista-guia.activa) .bottom-nav {
+
+    display:
+        none;
+
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.app-header {
+
+    width:
+        100%;
+
+    max-width:
+        var(--max-width);
+
+    height:
+        116px;
+
+    margin:
+        0 auto;
+
+    padding:
+        max(
+            20px,
+            env(safe-area-inset-top)
+        )
+        22px
+        14px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    position:
+        sticky;
+
+    top:
+        0;
+
+    z-index:
+        50;
+
+    background:
+        rgba(8,9,9,0.96);
+
+    backdrop-filter:
+        blur(18px);
+
+    -webkit-backdrop-filter:
+        blur(18px);
+
+}
+
+
+.umbra-logo {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    gap:
+        7px;
+
+}
+
+
+.umbra-logo strong {
+
+    font-size:
+        0.66rem;
+
+    font-weight:
+        500;
+
+    letter-spacing:
+        0.31em;
+
+}
+
+
+.umbra-mark {
+
+    width:
+        31px;
+
+    height:
+        31px;
+
+    border:
+        1.3px solid
+        rgba(232,229,223,0.9);
+
+    border-radius:
+        50%;
+
+    position:
+        relative;
+
+    overflow:
+        hidden;
+
+}
+
+
+.umbra-mark span {
+
+    display:
+        block;
+
+    position:
+        absolute;
+
+    left:
+        -2px;
+
+    bottom:
+        -1px;
+
+    width:
+        35px;
+
+    height:
+        15px;
+
+    background:
+        var(--bg);
+
+}
+
+
+.header-menu {
+
+    position:
+        absolute;
+
+    right:
+        22px;
+
+    bottom:
+        29px;
+
+    width:
+        28px;
+
+    height:
+        28px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    justify-content:
+        center;
+
+    align-items:
+        flex-end;
+
+    gap:
+        5px;
+
+}
+
+
+.header-menu span {
+
+    display:
+        block;
+
+    height:
+        1px;
+
+    background:
+        var(--muted);
+
+}
+
+
+.header-menu span:nth-child(1),
+.header-menu span:nth-child(3) {
+
+    width:
+        20px;
+
+}
+
+
+.header-menu span:nth-child(2) {
+
+    width:
+        13px;
+
+}
+
+
+/* =========================================
+   TYPOGRAPHY
+========================================= */
+
+.micro {
+
+    margin:
+        0 0 13px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.62rem;
+
+    font-weight:
+        500;
+
+    letter-spacing:
+        0.15em;
+
+}
+
+
+.page-heading h1,
+.final-page h1,
+.journal-heading h1 {
+
+    margin:
+        0;
+
+    font-size:
+        2rem;
+
+    line-height:
+        1.05;
+
+    font-weight:
+        300;
+
+    letter-spacing:
+        -0.03em;
+
+}
+
+
+.lead {
+
+    max-width:
+        310px;
+
+    margin:
+        14px 0 0;
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.91rem;
+
+    line-height:
+        1.55;
+
+}
+
+
+.page-heading {
+
+    margin-bottom:
+        28px;
+
+}
+
+
+/* =========================================
+   MÉTODOS
+========================================= */
+
+.lista-metodos {
+
+    border:
+        1px solid
+        var(--line);
+
+}
+
+
+.tarjeta-metodo {
+
+    width:
+        100%;
+
+    min-height:
+        110px;
+
+    border-bottom:
+        1px solid
+        var(--line);
+
+    display:
+        grid;
+
+    grid-template-columns:
+        84px minmax(0,1fr) 34px;
+
+    text-align:
+        left;
+
+    cursor:
+        pointer;
+
+}
+
+
+.tarjeta-metodo:last-child {
+
+    border-bottom:
+        0;
+
+}
+
+
+.metodo-grafico {
+
+    border-right:
+        1px solid
+        var(--line);
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    align-items:
+        center;
+
+}
+
+
+.metodo-grafico span {
+
+    font-size:
+        2.1rem;
+
+    font-weight:
+        200;
+
+    color:
+        #b2aea8;
+
+}
+
+
+.metodo-info {
+
+    padding:
+        17px 14px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    justify-content:
+        center;
+
+}
+
+
+.metodo-meta {
+
+    margin-bottom:
+        4px;
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.56rem;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        0.13em;
+
+}
+
+
+.metodo-info strong {
+
+    font-size:
+        1rem;
+
+    font-weight:
+        400;
+
+}
+
+
+.metodo-info p {
+
+    margin:
+        5px 0 8px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.7rem;
+
+    line-height:
+        1.45;
+
+}
+
+
+.metodo-info small {
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.61rem;
+
+}
+
+
+.metodo-flecha {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    color:
+        var(--muted);
+
+}
+
+
+/* =========================================
+   BACK
+========================================= */
+
+.back-link {
+
+    margin:
+        0 0 22px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.61rem;
+
+    letter-spacing:
+        0.11em;
+
+    cursor:
+        pointer;
+
+}
+
+
+/* =========================================
+   METHOD HERO
+========================================= */
+
+.method-hero {
+
+    min-height:
+        156px;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        minmax(0,1fr) 84px;
+
+    gap:
+        12px;
+
+    padding-bottom:
+        22px;
+
+    border-bottom:
+        1px solid
+        var(--line);
+
+}
+
+
+.method-copy {
+
+    align-self:
+        center;
+
+}
+
+
+.method-copy h1 {
+
+    margin:
+        0;
+
+    max-width:
+        265px;
+
+    font-size:
+        1.85rem;
+
+    font-weight:
+        300;
+
+    line-height:
+        1.05;
+
+    letter-spacing:
+        -0.035em;
+
+}
+
+
+.method-description {
+
+    margin:
+        13px 0 0;
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.82rem;
+
+    line-height:
+        1.55;
+
+}
+
+
+/* =========================================
+   METHOD DRAWING
+========================================= */
+
+.method-illustration {
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    align-items:
+        center;
+
+}
+
+
+.method-wire {
+
+    width:
+        58px;
+
+    height:
+        70px;
+
+    position:
+        relative;
+
+}
+
+
+.wire-body {
+
+    position:
+        absolute;
+
+    left:
+        10px;
+
+    top:
+        13px;
+
+    width:
+        38px;
+
+    height:
+        47px;
+
+    border:
+        1px solid
+        rgba(232,229,223,0.55);
+
+}
+
+
+.wire-top {
+
+    position:
+        absolute;
+
+    top:
+        6px;
+
+    left:
+        7px;
+
+    width:
+        44px;
+
+    height:
+        8px;
+
+    border-top:
+        1px solid
+        rgba(232,229,223,0.55);
+
+    border-bottom:
+        1px solid
+        rgba(232,229,223,0.55);
+
+}
+
+
+.wire-line {
+
+    position:
+        absolute;
+
+    width:
+        1px;
+
+    height:
+        57px;
+
+    left:
+        29px;
+
+    top:
+        3px;
+
+    background:
+        rgba(232,229,223,0.45);
+
+}
+
+
+/* =========================================
+   STATS
+========================================= */
+
+.stats {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    border-bottom:
+        1px solid
+        var(--line);
+
+}
+
+
+.stat {
+
+    min-height:
+        82px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        7px;
+
+    border-right:
+        1px solid
+        var(--line);
+
+}
+
+
+.stat:last-child {
+
+    border-right:
+        0;
+
+}
+
+
+.stat strong {
+
+    font-size:
+        0.93rem;
+
+    font-weight:
+        300;
+
+}
+
+
+.stat span {
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.52rem;
+
+    letter-spacing:
+        0.13em;
+
+}
+
+
+/* =========================================
+   TECHNICAL
+========================================= */
+
+.technical-strip {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    border-bottom:
+        1px solid
+        var(--line);
+
+}
+
+
+.technical-strip > div {
+
+    min-height:
+        54px;
+
+    padding:
+        13px 9px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        5px;
+
+    border-right:
+        1px solid
+        var(--line);
+
+}
+
+
+.technical-strip > div:last-child {
+
+    border-right:
+        0;
+
+}
+
+
+.technical-strip span {
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.5rem;
+
+    letter-spacing:
+        0.1em;
+
+}
+
+
+.technical-strip strong {
+
+    font-size:
+        0.75rem;
+
+    font-weight:
+        400;
+
+}
+
+
+/* =========================================
+   TABS
+========================================= */
+
+.method-tabs {
+
+    height:
+        54px;
+
+    margin-top:
+        4px;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    border-bottom:
+        1px solid
+        var(--line);
+
+}
+
+
+.method-tabs span {
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    align-items:
+        center;
+
+    position:
+        relative;
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.59rem;
+
+    letter-spacing:
+        0.14em;
+
+}
+
+
+.method-tabs span.active {
+
+    color:
+        var(--text);
+
+}
+
+
+.method-tabs span.active::after {
+
+    content:
+        "";
+
+    position:
+        absolute;
+
+    left:
+        12px;
+
+    right:
+        12px;
+
+    bottom:
+        -1px;
+
+    height:
+        1px;
+
+    background:
+        var(--text);
+
+}
+
+
+/* =========================================
+   AJUSTES
+========================================= */
+
+.compact-adjust {
+
+    padding:
+        20px 0 8px;
+
+    border-bottom:
+        1px solid
+        var(--line);
+
+}
+
+
+.micro-label {
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.53rem;
+
+    letter-spacing:
+        0.12em;
+
+}
+
+
+.cantidad {
+
+    height:
+        64px;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        42px 1fr 42px;
+
+    align-items:
+        center;
+
+    margin-top:
+        7px;
+
+}
+
+
+.cantidad button {
+
+    width:
+        35px;
+
+    height:
+        35px;
+
+    border:
+        1px solid
+        var(--line-strong);
+
+    border-radius:
+        50%;
+
+    font-size:
+        1rem;
+
+}
+
+
+.cantidad strong {
+
+    text-align:
+        center;
+
+    font-size:
+        1.65rem;
+
+    font-weight:
+        300;
+
+}
+
+
+.cantidad small {
+
+    margin-left:
+        3px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.68rem;
+
+}
+
+
+.compact-ratio {
+
+    padding:
+        13px 0 11px;
+
+    border-top:
+        1px solid
+        var(--line);
+
+}
+
+
+.opciones-intensidad {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    margin-top:
+        8px;
+
+}
+
+
+.boton-ratio {
+
+    min-height:
+        48px;
+
+    border-right:
+        1px solid
+        var(--line);
+
+    color:
+        var(--muted);
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        2px;
+
+}
+
+
+.boton-ratio:last-child {
+
+    border-right:
+        0;
+
+}
+
+
+.boton-ratio strong {
+
+    font-size:
+        0.66rem;
+
+    font-weight:
+        400;
+
+}
+
+
+.boton-ratio span {
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.57rem;
+
+}
+
+
+.boton-ratio.activo {
+
+    color:
+        var(--text);
+
+    background:
+        rgba(232,229,223,0.045);
+
+}
+
+
+/* =========================================
+   PREVIEW PASOS
+========================================= */
+
+.lista-pasos-preview {
+
+    border-top:
+        1px solid
+        var(--line);
+
+}
+
+
+.paso-preview {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        42px 1fr;
+
+    gap:
+        10px;
+
+    padding:
+        14px 0;
+
+    border-bottom:
+        1px solid
+        var(--line);
+
+}
+
+
+.paso-numero {
+
+    width:
+        31px;
+
+    height:
+        31px;
+
+    border:
+        1px solid
+        var(--line-strong);
+
+    border-radius:
+        50%;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.62rem;
+
+}
+
+
+.paso-preview strong {
+
+    font-size:
+        0.78rem;
+
+    font-weight:
+        400;
+
+}
+
+
+.paso-preview p {
+
+    margin:
+        4px 0 7px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.67rem;
+
+    line-height:
+        1.45;
+
+}
+
+
+.paso-preview small {
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.58rem;
+
+}
+
+
+/* =========================================
+   ACTIONS
+========================================= */
+
+.guide-start {
+
+    width:
+        100%;
+
+    height:
+        54px;
+
+    margin-top:
+        16px;
+
+    padding:
+        0 16px;
+
+    border:
+        1px solid
+        var(--line-strong);
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    font-size:
+        0.61rem;
+
+    letter-spacing:
+        0.15em;
+
+}
+
+
+.primary-action {
+
+    margin-top:
+        24px;
+
+}
+
+
+.secondary-action {
+
+    width:
+        100%;
+
+    min-height:
+        46px;
+
+    margin-top:
+        8px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.57rem;
+
+    letter-spacing:
+        0.12em;
+
+    text-align:
+        center;
+
+}
+
+
+.guardado-feedback {
+
+    margin-top:
+        24px;
+
+    padding:
+        13px 0;
+
+    border-top:
+        1px solid
+        var(--line);
+
+    border-bottom:
+        1px solid
+        var(--line);
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.57rem;
+
+    letter-spacing:
+        0.13em;
+
+}
+
+
+/* =========================================
+   GUIDE
+========================================= */
+
+.guide-page {
+
+    min-height:
+        calc(100svh - 116px);
+
+    padding-bottom:
+        168px;
+
+}
+
+
+body.modo-guia .app-header {
+
+    position:
+        relative;
+
+}
+
+
+.guide-header {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+}
+
+
+.guide-header .back-link {
+
+    margin:
+        0;
+
+}
+
+
+.guide-method {
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.54rem;
+
+    letter-spacing:
+        0.1em;
+
+}
+
+
+/* =========================================
+   GUIDE SUMMARY
+========================================= */
+
+.guide-summary {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        2fr 1fr;
+
+    margin-top:
+        20px;
+
+    border-top:
+        1px solid
+        var(--line);
+
+    border-bottom:
+        1px solid
+        var(--line);
+
+}
+
+
+.guide-summary > div {
+
+    min-height:
+        58px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        5px;
+
+    border-right:
+        1px solid
+        var(--line);
+
+}
+
+
+.guide-summary > div:last-child {
+
+    border-right:
+        0;
+
+}
+
+
+.guide-summary strong {
+
+    font-size:
+        0.77rem;
+
+    font-weight:
+        300;
+
+}
+
+
+.guide-summary span {
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.48rem;
+
+    letter-spacing:
+        0.12em;
+
+}
+
+
+/* =========================================
+   TIMER
+========================================= */
+
+.timer-stage {
+
+    padding:
+        26px 0 18px;
+
+}
+
+
+.timer-circle {
+
+    width:
+        min(62vw,250px);
+
+    height:
+        min(62vw,250px);
+
+    aspect-ratio:
+        1 / 1;
+
+    margin:
+        0 auto;
+
+    border-radius:
+        50%;
+
+    background:
+        transparent !important;
+
+    color:
+        var(--text);
+
+    position:
+        relative;
+
+    display:
+        block;
+
+    overflow:
+        hidden;
+
+    cursor:
+        pointer;
+
+    box-shadow:
+        none;
+
+}
+
+
+.timer-circle::after {
+
+    content:
+        "";
+
+    position:
+        absolute;
+
+    inset:
+        12px;
+
+    border:
+        1px solid
+        rgba(232,229,223,0.035);
+
+    border-radius:
+        50%;
+
+    pointer-events:
+        none;
+
+}
+
+
+.timer-circle:active {
+
+    transform:
+        scale(0.985);
+
+}
+
+
+.timer-ring {
+
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    width:
+        100%;
+
+    height:
+        100%;
+
+    pointer-events:
+        none;
+
+    transform:
+        rotate(-90deg);
+
+}
+
+
+.ring-track,
+.ring-progress {
+
+    fill:
+        none;
+
+    stroke-width:
+        1;
+
+}
+
+
+.ring-track {
+
+    stroke:
+        rgba(232,229,223,0.15);
+
+}
+
+
+.ring-progress {
+
+    stroke:
+        rgba(232,229,223,0.92);
+
+    stroke-linecap:
+        round;
+
+    stroke-dasharray:
+        578;
+
+    stroke-dashoffset:
+        578;
+
+    transition:
+        stroke-dashoffset 0.45s linear;
+
+}
+
+
+.timer-center {
+
+    position:
+        absolute;
+
+    inset:
+        0;
+
+    z-index:
+        2;
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    align-items:
+        center;
+
+    pointer-events:
+        none;
+
+}
+
+
+.timer-display {
+
+    display:
+        none;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    gap:
+        9px;
+
+}
+
+
+.timer-guiado {
+
+    font-size:
+        clamp(3.3rem,15vw,4.65rem);
+
+    font-weight:
+        200;
+
+    line-height:
+        1;
+
+    letter-spacing:
+        -0.065em;
+
+    font-variant-numeric:
+        tabular-nums;
+
+}
+
+
+.timer-display span {
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.49rem;
+
+    letter-spacing:
+        0.15em;
+
+}
+
+
+.timer-action {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
+}
+
+
+.timer-action strong {
+
+    font-size:
+        0.72rem;
+
+    font-weight:
+        500;
+
+    letter-spacing:
+        0.17em;
+
+}
+
+
+.timer-action span {
+
+    color:
+        var(--muted);
+
+    font-size:
+        1.25rem;
+
+}
+
+
+/* =========================================
+   PROGRESO
+========================================= */
+
+.guide-step-meta {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    margin-top:
+        17px;
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.52rem;
+
+    letter-spacing:
+        0.11em;
+
+}
+
+
+.barra-progreso {
+
+    height:
+        1px;
+
+    margin-top:
+        9px;
+
+    background:
+        var(--line);
+
+}
+
+
+#barra-progreso-activa {
+
+    width:
+        0;
+
+    height:
+        100%;
+
+    background:
+        var(--text);
+
+    transition:
+        width 0.35s ease;
+
+}
+
+
+/* =========================================
+   PASO ACTUAL
+========================================= */
+
+.current-step {
+
+    position:
+        fixed;
+
+    left:
+        50%;
+
+    bottom:
+        0;
+
+    transform:
+        translateX(-50%);
+
+    width:
+        100%;
+
+    max-width:
+        var(--max-width);
+
+    min-height:
+        142px;
+
+    padding:
+        15px
+        22px
+        max(17px,env(safe-area-inset-bottom));
+
+    border-top:
+        1px solid
+        var(--line);
+
+    background:
+        rgba(8,9,9,0.97);
+
+    backdrop-filter:
+        blur(22px);
+
+    -webkit-backdrop-filter:
+        blur(22px);
+
+    z-index:
+        120;
+
+}
+
+
+.current-step-top {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    margin-bottom:
+        7px;
+
+}
+
+
+.current-step-top .micro {
+
+    margin:
+        0;
+
+}
+
+
+.step-type {
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.48rem;
+
+    letter-spacing:
+        0.12em;
+
+}
+
+
+.current-step-row {
+
+    display:
+        flex;
+
+    align-items:
+        flex-end;
+
+    justify-content:
+        space-between;
+
+    gap:
+        20px;
+
+}
+
+
+.current-step h1 {
+
+    margin:
+        0;
+
+    font-size:
+        1.32rem;
+
+    font-weight:
+        300;
+
+}
+
+
+.objetivo-paso {
+
+    display:
+        none;
+
+    flex-direction:
+        column;
+
+    align-items:
+        flex-end;
+
+    text-align:
+        right;
+
+}
+
+
+.objetivo-paso strong {
+
+    font-size:
+        0.94rem;
+
+    font-weight:
+        300;
+
+}
+
+
+.objetivo-paso span {
+
+    margin-top:
+        3px;
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.51rem;
+
+}
+
+
+.paso-instruccion {
+
+    max-width:
+        340px;
+
+    margin:
+        9px 0 0;
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.69rem;
+
+    line-height:
+        1.42;
+
+}
+
+
+/* =========================================
+   FINAL
+========================================= */
+
+.final-page {
+
+    min-height:
+        calc(
+            100vh -
+            116px -
+            var(--bottom-nav-height)
+        );
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+}
+
+
+.final-summary {
+
+    margin:
+        38px 0 0;
+
+    border-top:
+        1px solid
+        var(--line);
+
+}
+
+
+.final-summary > div {
+
+    padding:
+        15px 0;
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    border-bottom:
+        1px solid
+        var(--line);
+
+}
+
+
+.final-summary span {
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.57rem;
+
+    letter-spacing:
+        0.1em;
+
+}
+
+
+.final-summary strong {
+
+    font-size:
+        0.78rem;
+
+    font-weight:
+        400;
+
+}
+
+
+/* =========================================
+   JOURNAL
+========================================= */
+
+.journal-heading {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        flex-start;
+
+    gap:
+        20px;
+
+    margin-bottom:
+        30px;
+
+}
+
+
+.journal-count {
+
+    min-width:
+        44px;
+
+    height:
+        44px;
+
+    border:
+        1px solid
+        var(--line);
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.63rem;
+
+    letter-spacing:
+        0.1em;
+
+}
+
+
+.journal-empty {
+
+    min-height:
+        300px;
+
+    border:
+        1px solid
+        var(--line);
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    text-align:
+        center;
+
+}
+
+
+.journal-empty span {
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.58rem;
+
+    letter-spacing:
+        0.13em;
+
+}
+
+
+.journal-empty p {
+
+    max-width:
+        230px;
+
+    margin:
+        12px 0 0;
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.73rem;
+
+    line-height:
+        1.45;
+
+}
+
+
+.journal-list {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+}
+
+
+.journal-card {
+
+    position:
+        relative;
+
+    padding:
+        18px 0 17px;
+
+    border-top:
+        1px solid
+        var(--line);
+
+}
+
+
+.journal-card:last-child {
+
+    border-bottom:
+        1px solid
+        var(--line);
+
+}
+
+
+.journal-card-date {
+
+    margin-bottom:
+        12px;
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.52rem;
+
+    letter-spacing:
+        0.12em;
+
+}
+
+
+.journal-card-main {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        flex-start;
+
+    gap:
+        20px;
+
+}
+
+
+.journal-card-title {
+
+    margin:
+        0;
+
+    font-size:
+        1.15rem;
+
+    font-weight:
+        300;
+
+}
+
+
+.journal-card-recipe {
+
+    margin-top:
+        6px;
+
+    color:
+        var(--muted);
+
+    font-size:
+        0.68rem;
+
+}
+
+
+.journal-arrow {
+
+    color:
+        var(--muted);
+
+    font-size:
+        1rem;
+
+}
+
+
+.journal-card-data {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    margin-top:
+        17px;
+
+    border-top:
+        1px solid
+        var(--line);
+
+}
+
+
+.journal-data-item {
+
+    min-height:
+        55px;
+
+    padding:
+        10px 8px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    justify-content:
+        center;
+
+    gap:
+        5px;
+
+    border-right:
+        1px solid
+        var(--line);
+
+}
+
+
+.journal-data-item:first-child {
+
+    padding-left:
+        0;
+
+}
+
+
+.journal-data-item:last-child {
+
+    border-right:
+        0;
+
+}
+
+
+.journal-data-item span {
+
+    color:
+        var(--dim);
+
+    font-size:
+        0.46rem;
+
+    letter-spacing:
+        0.1em;
+
+}
+
+
+.journal-data-item strong {
+
+    font-size:
+        0.67rem;
+
+    font-weight:
+        400;
+
+}
+
+
+/* =========================================
+   NAV
+========================================= */
+
+.bottom-nav {
+
+    width:
+        100%;
+
+    max-width:
+        var(--max-width);
+
+    height:
+        calc(
+            var(--bottom-nav-height) +
+            env(safe-area-inset-bottom)
+        );
+
+    margin:
+        0 auto;
+
+    padding:
+        4px
+        10px
+        env(safe-area-inset-bottom);
+
+    position:
+        fixed;
+
+    left:
+        50%;
+
+    bottom:
+        0;
+
+    transform:
+        translateX(-50%);
+
+    z-index:
+        100;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    border-top:
+        1px solid
+        var(--line);
+
+    background:
+        rgba(8,9,9,0.97);
+
+    backdrop-filter:
+        blur(18px);
+
+    -webkit-backdrop-filter:
+        blur(18px);
+
+}
+
+
+.nav-item {
+
+    color:
+        var(--dim);
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        4px;
+
+}
+
+
+.nav-symbol {
+
+    font-size:
+        0.9rem;
+
+}
+
+
+.nav-item > span:last-child {
+
+    font-size:
+        0.48rem;
+
+    letter-spacing:
+        0.1em;
+
+}
+
+
+.nav-item.activo {
+
+    color:
+        var(--text);
+
+}
+
+
+/* =========================================
+   TOUCH
+========================================= */
+
+.tarjeta-metodo:active,
+.guide-start:active,
+.boton-ratio:active,
+.secondary-action:active {
+
+    opacity:
+        0.55;
+
+}
+
+
+/* =========================================
+   PANTALLAS BAJAS
+========================================= */
+
+@media (max-height:760px) {
+
+    .app-header {
+
+        height:
+            96px;
+
+    }
+
+
+    body.modo-guia .app-header {
+
+        height:
+            82px;
+
+    }
+
+
+    .guide-page {
+
+        min-height:
+            calc(100svh - 82px);
+
+        padding-top:
+            16px;
+
+    }
+
+
+    .guide-summary {
+
+        margin-top:
+            14px;
+
+    }
+
+
+    .timer-stage {
+
+        padding:
+            15px 0 12px;
+
+    }
+
+
+    .timer-circle {
+
+        width:
+            min(53vw,210px);
+
+        height:
+            min(53vw,210px);
+
+    }
+
+
+    .timer-guiado {
+
+        font-size:
+            3.25rem;
+
+    }
+
+}
+
+
+@media (max-height:670px) {
+
+    body.modo-guia .app-header {
+
+        display:
+            none;
+
+    }
+
+
+    .guide-page {
+
+        min-height:
+            100svh;
+
+        padding-top:
+            max(
+                18px,
+                env(safe-area-inset-top)
+            );
+
+    }
+
+
+    .timer-circle {
+
+        width:
+            min(48vw,185px);
+
+        height:
+            min(48vw,185px);
+
+    }
+
+}
+
+
+/* =========================================
+   DESKTOP
+========================================= */
+
+@media (min-width:700px) {
+
+    body {
+
+        background:
+            #030404;
+
+    }
+
+
+    #app-shell {
+
+        width:
+            var(--max-width);
+
+        margin:
+            0 auto;
+
+        border-left:
+            1px solid
+            var(--line);
+
+        border-right:
+            1px solid
+            var(--line);
+
+    }
+
+}
