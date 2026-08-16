@@ -307,6 +307,128 @@ function actualizarNav(nombre) {
 
 
 // =====================================================
+// ICONOS DE MÉTODO
+// =====================================================
+
+function obtenerIconoMetodo(idMetodo, clase = "") {
+
+    const claseExtra = clase
+        ? ` ${clase}`
+        : "";
+
+    const iconos = {
+
+        v60: `
+            <svg class="method-icon${claseExtra}" viewBox="0 0 64 64" aria-hidden="true">
+                <path d="M13 15h38L39 43H25L13 15Z"></path>
+                <path d="M25 43v6h14v-6"></path>
+                <path d="M20 22h24"></path>
+                <path d="M28 49h8"></path>
+            </svg>
+        `,
+
+        francesa: `
+            <svg class="method-icon${claseExtra}" viewBox="0 0 64 64" aria-hidden="true">
+                <rect x="18" y="18" width="28" height="33" rx="2"></rect>
+                <path d="M15 15h34"></path>
+                <path d="M32 9v34"></path>
+                <path d="M27 9h10"></path>
+                <path d="M46 26h5v17h-5"></path>
+                <path d="M23 44h18"></path>
+            </svg>
+        `,
+
+        aeropress: `
+            <svg class="method-icon${claseExtra}" viewBox="0 0 64 64" aria-hidden="true">
+                <path d="M24 11h16"></path>
+                <path d="M27 11v11"></path>
+                <path d="M37 11v11"></path>
+                <rect x="22" y="22" width="20" height="27" rx="2"></rect>
+                <path d="M18 49h28"></path>
+                <path d="M25 54h14"></path>
+                <path d="M32 22v-7"></path>
+            </svg>
+        `,
+
+        moka: `
+            <svg class="method-icon${claseExtra}" viewBox="0 0 64 64" aria-hidden="true">
+                <path d="M22 12h20l3 8-5 8 5 20H19l5-20-5-8 3-8Z"></path>
+                <path d="M24 28h16"></path>
+                <path d="M20 20h24"></path>
+                <path d="M45 24h7l4 5-7 8h-6"></path>
+                <path d="M26 8h12"></path>
+            </svg>
+        `
+
+    };
+
+    return iconos[idMetodo] || iconos.francesa;
+
+}
+
+
+function actualizarIconografiaMetodo() {
+
+    if (!metodoActual) {
+        return;
+    }
+
+    const ilustracionDetalle =
+        document.querySelector(".method-illustration");
+
+    if (ilustracionDetalle) {
+        ilustracionDetalle.innerHTML =
+            obtenerIconoMetodo(
+                metodoActual.id,
+                "method-icon--hero"
+            );
+    }
+
+}
+
+
+function actualizarIconoFinal() {
+
+    if (!metodoActual) {
+        return;
+    }
+
+    const finalPage =
+        document.querySelector(".final-page");
+
+    if (!finalPage) {
+        return;
+    }
+
+    let contenedor =
+        finalPage.querySelector(".final-method-icon");
+
+    if (!contenedor) {
+        contenedor =
+            document.createElement("div");
+
+        contenedor.className =
+            "final-method-icon";
+
+        const finalSummary =
+            finalPage.querySelector(".final-summary");
+
+        finalPage.insertBefore(
+            contenedor,
+            finalSummary
+        );
+    }
+
+    contenedor.innerHTML =
+        obtenerIconoMetodo(
+            metodoActual.id,
+            "method-icon--final"
+        );
+
+}
+
+
+// =====================================================
 // MÉTODOS
 // =====================================================
 
@@ -339,24 +461,10 @@ function cargarMetodos() {
                 "tarjeta-metodo";
 
 
-            const simbolo =
-                metodo.id === "v60"
-                    ? "▽"
-                    : metodo.id === "francesa"
-                    ? "▥"
-                    : metodo.id === "aeropress"
-                    ? "┃"
-                    : "◉";
-
-
             boton.innerHTML = `
 
                 <div class="metodo-grafico">
-
-                    <span>
-                        ${simbolo}
-                    </span>
-
+                    ${obtenerIconoMetodo(metodo.id, "method-icon--card")}
                 </div>
 
 
@@ -490,6 +598,9 @@ function actualizarDetalle() {
 
     cantidadCafe.textContent =
         gramosCafe;
+
+
+    actualizarIconografiaMetodo();
 
 }
 
@@ -936,8 +1047,8 @@ function iniciarGuia() {
     pasoActual = 0;
 
 
-    guiaMetodo.textContent =
-        `${metodoActual.nombre.toUpperCase()} / ${metodoActual.subtitulo.toUpperCase()}`;
+    guiaMetodo.innerHTML =
+        `${obtenerIconoMetodo(metodoActual.id, "method-icon--guide")}<span>${metodoActual.nombre.toUpperCase()} / ${metodoActual.subtitulo.toUpperCase()}</span>`;
 
 
     guideSummaryMain.textContent =
@@ -1450,6 +1561,9 @@ function finalizarPreparacion() {
 
     resumenRatio.textContent =
         `1:${ratioActual}`;
+
+
+    actualizarIconoFinal();
 
 
     mostrarVista(
