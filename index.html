@@ -34,7 +34,7 @@
 
     <link
         rel="stylesheet"
-        href="style.css?v=9"
+        href="style.css?v=10"
     >
 
 </head>
@@ -784,6 +784,218 @@
 
         </section>
 
+
+        <!-- =====================================
+             DETALLE DEL REGISTRO
+        ====================================== -->
+
+        <section
+            id="vista-registro"
+            class="vista"
+        >
+
+            <div class="page registro-page">
+
+
+                <button
+                    id="btn-volver-journal"
+                    class="back-link"
+                    type="button"
+                >
+                    ‹ JOURNAL
+                </button>
+
+
+                <header class="registro-header">
+
+                    <p
+                        id="registro-fecha"
+                        class="micro"
+                    >
+                        16 AGO / 14:30
+                    </p>
+
+
+                    <h1 id="registro-metodo">
+                        V60
+                    </h1>
+
+
+                    <p
+                        id="registro-receta"
+                        class="registro-receta"
+                    >
+                        20 g / 320 ml / 1:16
+                    </p>
+
+                </header>
+
+
+                <!-- DATOS -->
+
+                <section class="registro-stats">
+
+                    <div>
+
+                        <span>
+                            TEMPERATURA /
+                        </span>
+
+                        <strong id="registro-temperatura">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            MOLIENDA /
+                        </span>
+
+                        <strong id="registro-molienda">
+                            —
+                        </strong>
+
+                    </div>
+
+                </section>
+
+
+                <!-- NOMBRE CAFÉ -->
+
+                <section class="registro-field">
+
+                    <label for="registro-cafe-nombre">
+                        CAFÉ /
+                    </label>
+
+
+                    <input
+                        id="registro-cafe-nombre"
+                        type="text"
+                        maxlength="80"
+                        placeholder="Ej. Colombia / Huila"
+                        autocomplete="off"
+                    >
+
+                </section>
+
+
+                <!-- RESULTADO -->
+
+                <section class="registro-field">
+
+                    <span class="field-label">
+                        RESULTADO /
+                    </span>
+
+
+                    <div
+                        id="registro-resultados"
+                        class="resultado-options"
+                    >
+
+                        <button
+                            class="resultado-option"
+                            data-resultado="flojo"
+                            type="button"
+                        >
+                            <span class="resultado-dot"></span>
+                            FLOJO
+                        </button>
+
+
+                        <button
+                            class="resultado-option"
+                            data-resultado="balanceado"
+                            type="button"
+                        >
+                            <span class="resultado-dot"></span>
+                            BALANCEADO
+                        </button>
+
+
+                        <button
+                            class="resultado-option"
+                            data-resultado="intenso"
+                            type="button"
+                        >
+                            <span class="resultado-dot"></span>
+                            INTENSO
+                        </button>
+
+                    </div>
+
+                </section>
+
+
+                <!-- NOTA -->
+
+                <section class="registro-field">
+
+                    <label for="registro-nota">
+                        NOTA /
+                    </label>
+
+
+                    <textarea
+                        id="registro-nota"
+                        maxlength="400"
+                        rows="5"
+                        placeholder="¿Cómo salió? ¿Qué cambiarías la próxima vez?"
+                    ></textarea>
+
+                </section>
+
+
+                <div
+                    id="registro-feedback"
+                    class="guardado-feedback"
+                    hidden
+                >
+                    CAMBIOS GUARDADOS /
+                </div>
+
+
+                <button
+                    id="btn-guardar-registro"
+                    class="guide-start"
+                    type="button"
+                >
+
+                    <span>
+                        GUARDAR CAMBIOS
+                    </span>
+
+                    <span>
+                        +
+                    </span>
+
+                </button>
+
+
+                <button
+                    id="btn-repetir-receta"
+                    class="repeat-action"
+                    type="button"
+                >
+
+                    <span>
+                        REPETIR RECETA
+                    </span>
+
+                    <span>
+                        →
+                    </span>
+
+                </button>
+
+            </div>
+
+        </section>
+
     </main>
 
 
@@ -848,8 +1060,8 @@
 </div>
 
 
-<script src="data.js?v=9"></script>
-<script src="app.js?v=9"></script>
+<script src="data.js?v=10"></script>
+<script src="app.js?v=10"></script>
 
 </body>
 
