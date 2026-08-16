@@ -1,1 +1,10 @@
-//
+{
+    "name": "UMBRA Barista",
+    "short_name": "UMBRA",
+    "description": "Café de verdad, en casa.",
+    "start_url": "./",
+    "display": "standalone",
+    "background_color": "#080909",
+    "theme_color": "#080909",
+    "orientation": "portrait"
+}
