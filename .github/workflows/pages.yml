@@ -46,13 +46,13 @@ jobs:
           if 'v4-companion.css' not in html:
               html = html.replace('</head>', '  <link rel="stylesheet" href="v4-companion.css?v=1">\n</head>')
           if 'v4-brand.css' not in html:
-              html = html.replace('</head>', '  <link rel="stylesheet" href="v4-brand.css?v=2">\n</head>')
+              html = html.replace('</head>', '  <link rel="stylesheet" href="v4-brand.css?v=3">\n</head>')
           if 'v4-care.js' not in html:
               html = html.replace('</body>', '  <script src="v4-care.js?v=2"></script>\n</body>')
           if 'v4-companion.js' not in html:
               html = html.replace('</body>', '  <script src="v4-companion.js?v=1"></script>\n</body>')
           if 'v4-brand.js' not in html:
-              html = html.replace('</body>', '  <script src="v4-brand.js?v=2"></script>\n</body>')
+              html = html.replace('</body>', '  <script src="v4-brand.js?v=3"></script>\n</body>')
           page.write_text(html)
           PY
 
