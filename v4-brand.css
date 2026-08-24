@@ -1,76 +1,26 @@
-/* UMBRA V4 / Brand system */
-.umbra-brand-mark{display:block;object-fit:contain}
+/* UMBRA V4 / Sistema de marca */
+.umbra-logo{display:block;max-width:100%;height:auto}
 
-/* HERO: una sola composición, centrada ópticamente */
-.brand-lockup--hero{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-  width:100%;
-  text-align:center;
-  margin:0 auto;
-}
-.brand-lockup--hero .umbra-brand-mark{
-  width:104px;
-  height:104px;
-  margin:0 auto;
-  transform:translateX(3px);
-  opacity:.94;
-}
-.brand-lockup--hero .wordmark{
-  margin:0;
-  font-size:1rem;
-  line-height:1;
-  letter-spacing:.42em;
-  font-weight:500;
-  color:var(--cream);
-  text-align:center;
-}
+.brand-lockup--hero{display:flex;align-items:center;justify-content:center;width:100%;margin:0 auto;text-align:center}
+.umbra-logo--hero{width:min(82vw,420px);margin:0 auto}
 
-/* Portada: más editorial, menos piezas sueltas */
-.vista-portada .portada-inner{
-  justify-content:center;
-  gap:0;
-}
-.vista-portada .portada-copy{
-  margin:34px 0 42px;
-  width:100%;
-}
+.vista-portada .portada-inner{justify-content:center;gap:0}
+.vista-portada .portada-copy{margin:22px 0 40px;width:100%}
 .vista-portada .portada-copy .eyebrow{display:none}
-.vista-portada .portada-copy h1{
-  margin:0 0 18px;
-  font-size:clamp(2.7rem,10vw,4.9rem);
-  line-height:.96;
-  letter-spacing:-.052em;
-  font-weight:500;
-}
-.vista-portada .portada-copy>p:last-child{
-  max-width:420px;
-  font-size:.9rem;
-  line-height:1.65;
-  color:var(--muted);
-}
-.vista-portada .portada-foot{
-  margin-top:18px;
-  color:var(--dim);
-}
+.vista-portada .portada-copy h1{display:none}
+.vista-portada .portada-copy>p:last-child{max-width:420px;margin:auto;color:var(--muted);font-size:.9rem;line-height:1.65}
+.vista-portada .portada-foot{margin-top:18px;color:var(--dim)}
 
-/* HEADER: isotipo pequeño, wordmark limpio */
-.brand-button .umbra-brand-mark{width:31px;height:31px;flex:0 0 31px;opacity:.9}
-.brand-button{gap:9px}
-.brand-button .wordmark{letter-spacing:.24em;margin-right:-.24em}
+.brand-button{display:flex;align-items:center;justify-content:flex-start;padding:0}
+.umbra-logo--header{width:150px;max-height:38px}
 
 @media(min-width:700px){
-  .brand-lockup--hero .umbra-brand-mark{width:124px;height:124px;transform:translateX(4px)}
-  .brand-lockup--hero .wordmark{font-size:1.08rem}
-  .vista-portada .portada-copy{margin:38px 0 46px}
+  .umbra-logo--hero{width:min(58vw,470px)}
+  .vista-portada .portada-copy{margin:26px 0 44px}
+  .umbra-logo--header{width:165px}
 }
 
 @media(min-width:980px){
-  .brand-lockup--hero{gap:14px}
-  .brand-lockup--hero .umbra-brand-mark{width:138px;height:138px;transform:translateX(5px)}
-  .brand-lockup--hero .wordmark{font-size:1.18rem}
-  .brand-button .umbra-brand-mark{width:34px;height:34px;flex-basis:34px}
+  .umbra-logo--hero{width:500px}
+  .umbra-logo--header{width:178px;max-height:42px}
 }
