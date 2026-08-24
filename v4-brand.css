@@ -1,8 +1,8 @@
 /* UMBRA V4 / Brand mark */
 .umbra-brand-mark{display:block;object-fit:contain;filter:drop-shadow(0 10px 28px rgba(0,0,0,.18))}
-.brand-lockup--hero{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
-.brand-lockup--hero .umbra-brand-mark{width:112px;height:112px}
-.brand-lockup--hero .wordmark{font-size:clamp(1.65rem,7vw,2.35rem);letter-spacing:.34em;font-weight:400;color:var(--cream-2)}
+.brand-lockup--hero{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:100%;text-align:center}
+.brand-lockup--hero .umbra-brand-mark{width:112px;height:112px;margin-inline:auto}
+.brand-lockup--hero .wordmark{font-size:clamp(1.65rem,7vw,2.35rem);letter-spacing:.34em;font-weight:400;color:var(--cream-2);text-align:center}
 .brand-button .umbra-brand-mark{width:34px;height:34px;flex:0 0 34px}
 .brand-button{gap:10px}
 .brand-button .wordmark{letter-spacing:.22em}
