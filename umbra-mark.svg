@@ -1,28 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
   <title id="title">UMBRA</title>
-  <desc id="desc">Anillo irregular inspirado en la huella de una taza de café y un eclipse.</desc>
+  <desc id="desc">Huella irregular de taza de café inspirada en una umbra.</desc>
   <defs>
-    <linearGradient id="coffee" x1="38" y1="38" x2="216" y2="218" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ead9be"/>
-      <stop offset=".42" stop-color="#c79a68"/>
-      <stop offset=".72" stop-color="#8b5e3c"/>
-      <stop offset="1" stop-color="#e7d6bb"/>
-    </linearGradient>
-    <filter id="rough" x="-25%" y="-25%" width="150%" height="150%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.025 0.08" numOctaves="2" seed="17" result="noise"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G"/>
+    <filter id="rough" x="-18%" y="-18%" width="136%" height="136%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.028 0.065" numOctaves="2" seed="23" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.4" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
   </defs>
   <g fill="none" stroke-linecap="round" filter="url(#rough)">
-    <circle cx="128" cy="128" r="91" stroke="url(#coffee)" stroke-width="8" stroke-dasharray="466 106" transform="rotate(-34 128 128)" opacity=".92"/>
-    <path d="M56 76 C30 111 31 157 55 193 C76 224 112 235 149 226" stroke="url(#coffee)" stroke-width="22" opacity=".95"/>
-    <path d="M148 226 C177 219 204 199 217 172" stroke="#d5b28a" stroke-width="11" opacity=".76"/>
-    <path d="M217 172 C227 150 230 126 226 105" stroke="#b98a5d" stroke-width="5" opacity=".72"/>
+    <circle cx="128" cy="128" r="88" stroke="#d7c6ad" stroke-width="10" stroke-dasharray="500 54" transform="rotate(-18 128 128)" opacity=".96"/>
+    <path d="M51 84 C38 112 38 151 53 181 C70 214 103 228 139 225" stroke="#b58a63" stroke-width="15" opacity=".72"/>
+    <path d="M139 225 C166 221 192 207 209 184" stroke="#c8ab87" stroke-width="9" opacity=".66"/>
+    <path d="M211 180 C221 161 226 140 225 121" stroke="#8e674a" stroke-width="4" opacity=".56"/>
   </g>
-  <g fill="#b98558" opacity=".78">
-    <circle cx="226" cy="113" r="3.3"/><circle cx="229" cy="121" r="2.1"/><circle cx="228" cy="129" r="1.6"/><circle cx="225" cy="137" r="1.25"/><circle cx="222" cy="145" r=".95"/>
-  </g>
-  <g fill="#ead9be" opacity=".46">
-    <circle cx="48" cy="91" r="1.4"/><circle cx="44" cy="101" r=".9"/><circle cx="62" cy="210" r="1.15"/>
+  <g fill="#9f7654" opacity=".58">
+    <circle cx="225" cy="117" r="2.6"/>
+    <circle cx="228" cy="125" r="1.7"/>
+    <circle cx="227" cy="133" r="1.2"/>
   </g>
 </svg>
