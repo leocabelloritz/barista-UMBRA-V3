@@ -1,6 +1,6 @@
 // UMBRA V4 / Marca visual + favicon
 (() => {
-  const MARK = 'umbra-mark.svg?v=1';
+  const MARK = 'umbra-mark.svg?v=2';
 
   function installFavicon(){
     let icon = document.querySelector('link[rel="icon"]');
