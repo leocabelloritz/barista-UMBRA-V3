@@ -1,0 +1,72 @@
+/* UMBRA V4 / Companion layer */
+
+.equipment-panel{
+  margin:18px 0 28px;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:rgba(17,18,18,.54);
+  padding:16px;
+}
+.equipment-panel.oculto{display:none}
+.equipment-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px}
+.equipment-head p{margin:5px 0 0;color:var(--muted);font-size:.76rem;line-height:1.55}
+.equipment-optional{font-family:var(--mono);font-size:.52rem;letter-spacing:.13em;color:var(--dim);white-space:nowrap;padding-top:2px}
+.equipment-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.equipment-grid button{
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid var(--line);
+  border-radius:var(--radius-control);
+  background:rgba(8,9,9,.5);
+  color:var(--muted);
+  padding:10px 12px;
+  text-align:left;
+}
+.equipment-grid button>span{width:25px;height:25px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;font-family:var(--mono);font-size:.72rem;color:var(--dim)}
+.equipment-grid button strong{font-family:var(--mono);font-size:.58rem;letter-spacing:.09em;font-weight:500}
+.equipment-grid button.activo{border-color:var(--cream-2);color:var(--cream-2);background:rgba(230,221,207,.06)}
+.equipment-grid button.activo>span{border-color:var(--cream-2);color:var(--cream-2)}
+.equipment-note{margin:13px 0 0;color:var(--dim);font-size:.68rem;line-height:1.55}
+
+.repeat-last{
+  width:100%;
+  margin-top:10px;
+  border:1px solid rgba(230,221,207,.28);
+  border-radius:var(--radius);
+  background:rgba(11,12,12,.58);
+  color:var(--cream-2);
+  padding:14px 15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  text-align:left;
+}
+.repeat-last.oculto{display:none}
+.repeat-last-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+.repeat-last-copy small{font-family:var(--mono);font-size:.5rem;letter-spacing:.13em;color:var(--dim)}
+.repeat-last-copy strong{font-size:.74rem;letter-spacing:.07em;font-weight:500}
+.repeat-last-copy em{font-family:var(--mono);font-size:.57rem;color:var(--muted);font-style:normal}
+.repeat-last-arrow{font-family:var(--mono);font-size:1rem;color:var(--cream-2)}
+
+/* La voz guiada respira un poco más; Directo conserva densidad técnica */
+#paso-instruccion{max-width:640px}
+#mensaje-modo{max-width:620px}
+
+@media(max-width:390px){
+  .equipment-grid{grid-template-columns:1fr 1fr;gap:6px}
+  .equipment-grid button{padding:9px;gap:7px}
+  .equipment-grid button strong{font-size:.52rem}
+}
+
+@media(min-width:700px){
+  .equipment-panel{padding:18px}
+  .equipment-grid{grid-template-columns:repeat(4,1fr)}
+}
+
+@media(min-width:980px){
+  .equipment-panel{max-width:760px}
+  .repeat-last{max-width:520px;margin-left:auto;margin-right:auto}
+}
