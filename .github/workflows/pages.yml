@@ -37,24 +37,6 @@ jobs:
           mkdir -p site/v4
           rsync -a --exclude '.git' --exclude '.github' main/ site/
           rsync -a --exclude '.git' --exclude '.github' v4/ site/v4/
-          python3 - <<'PY'
-          from pathlib import Path
-          page = Path('site/v4/index.html')
-          html = page.read_text()
-          if 'v4-refinement.css' not in html:
-              html = html.replace('</head>', '  <link rel="stylesheet" href="v4-refinement.css?v=2">\n</head>')
-          if 'v4-companion.css' not in html:
-              html = html.replace('</head>', '  <link rel="stylesheet" href="v4-companion.css?v=1">\n</head>')
-          if 'v4-brand.css' not in html:
-              html = html.replace('</head>', '  <link rel="stylesheet" href="v4-brand.css?v=3">\n</head>')
-          if 'v4-care.js' not in html:
-              html = html.replace('</body>', '  <script src="v4-care.js?v=2"></script>\n</body>')
-          if 'v4-companion.js' not in html:
-              html = html.replace('</body>', '  <script src="v4-companion.js?v=1"></script>\n</body>')
-          if 'v4-brand.js' not in html:
-              html = html.replace('</body>', '  <script src="v4-brand.js?v=3"></script>\n</body>')
-          page.write_text(html)
-          PY
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
