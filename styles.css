@@ -332,16 +332,16 @@ h1 { max-width: 560px; margin: 0 0 34px; font-family: var(--display); font-size:
 html, body { width: 100%; height: 100%; overflow: hidden; }
 
 .topbar {
-  min-height: 56px;
-  height: 56px;
-  padding: 8px clamp(16px, 3vw, 38px);
+  min-height: calc(56px + env(safe-area-inset-top));
+  height: calc(56px + env(safe-area-inset-top));
+  padding: calc(8px + env(safe-area-inset-top)) clamp(16px, 3vw, 38px) 8px;
 }
 .brand { padding: 0; border: 0; background: transparent; cursor: pointer; }
 .brand img { width: 34px; height: 34px; }
 .statusbar { display: none; }
 
 .setup-workspace {
-  height: calc(100dvh - 56px);
+  height: calc(100dvh - 56px - env(safe-area-inset-top));
   min-height: 0;
   display: grid;
   grid-template-columns: 1fr;
@@ -503,7 +503,11 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
 .help-dialog { max-height: 88dvh; overflow: auto; }
 .dialog-id, .help-dialog button { font-size: .78rem; }
 
-.ritual-header { min-height: 56px; height: 56px; padding-block: 7px; }
+.ritual-header {
+  min-height: calc(56px + env(safe-area-inset-top));
+  height: calc(56px + env(safe-area-inset-top));
+  padding: calc(7px + env(safe-area-inset-top)) clamp(18px, 4vw, 58px) 7px;
+}
 .ritual-content { min-height: 0; gap: clamp(20px, 4vw, 48px); padding: clamp(18px, 3vw, 42px); }
 .step-copy h2 { font-size: clamp(2.8rem, 6.2vw, 5.5rem); }
 .timer-ring { width: min(38vw, 50dvh, 440px); }
@@ -511,13 +515,50 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
 .ritual-controls { min-height: 68px; padding: 8px clamp(16px, 3vw, 38px); }
 .ritual-actions button { min-height: 48px; font-size: .78rem; }
 
+.install-prompt {
+  position: fixed;
+  z-index: 100;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  left: max(12px, env(safe-area-inset-left));
+  width: min(460px, calc(100% - 24px));
+  margin-left: auto;
+  padding: 15px;
+  border: 1px solid rgba(185,100,60,.72);
+  background: rgba(11,11,10,.97);
+  color: var(--bone);
+  box-shadow: 0 18px 54px rgba(0,0,0,.58);
+  backdrop-filter: blur(18px);
+  animation: install-prompt-in 280ms cubic-bezier(.2,.72,.25,1) both;
+}
+.install-prompt[hidden] { display: none; }
+.install-prompt-head { display: grid; grid-template-columns: 42px minmax(0, 1fr) 34px; align-items: center; gap: 11px; }
+.install-prompt-head img { width: 42px; height: 42px; }
+.install-prompt-head div { display: grid; gap: 4px; min-width: 0; }
+.install-prompt-head span { color: var(--action); font: .72rem/1 var(--mono); letter-spacing: .08em; }
+.install-prompt-head strong { font: 500 .92rem/1.05 var(--sans); letter-spacing: .12em; }
+.install-prompt-head > button { width: 34px; height: 34px; padding: 0; border: 0; background: transparent; color: var(--muted); font: 1.35rem/1 var(--sans); cursor: pointer; }
+.install-prompt p { margin: 13px 0 14px; color: #b4aea5; font-size: .88rem; line-height: 1.45; }
+.install-prompt-actions { display: flex; align-items: center; gap: 12px; }
+.install-prompt-actions button { min-height: 42px; cursor: pointer; }
+.install-prompt-primary { flex: 1; padding: 0 12px; border: 1px solid var(--action); background: rgba(185,100,60,.12); color: var(--bone); font: .72rem/1 var(--mono); }
+.install-prompt-later { padding: 0; border: 0; background: transparent; color: var(--muted); font: .68rem/1.2 var(--mono); letter-spacing: .04em; }
+.install-prompt-primary:active { background: var(--action); color: var(--ink); }
+@keyframes install-prompt-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
 @media (max-width: 680px) {
-  .topbar { min-height: 50px; height: 50px; grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 6px 12px; }
+  .topbar {
+    min-height: calc(50px + env(safe-area-inset-top));
+    height: calc(50px + env(safe-area-inset-top));
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: calc(6px + env(safe-area-inset-top)) 12px 6px;
+  }
   .system-status { display: none; }
   .brand { min-width: 0; }
   .brand img { width: 30px; height: 30px; }
   .brand span { overflow: hidden; font-size: 1rem; text-overflow: ellipsis; }
-  .setup-workspace { height: calc(100dvh - 50px); grid-template-rows: 42px minmax(0, 1fr); }
+  .setup-workspace { height: calc(100dvh - 50px - env(safe-area-inset-top)); grid-template-rows: 42px minmax(0, 1fr); }
   .flow-rail { height: 42px; display: grid; grid-template-columns: 1fr; gap: 0; padding: 0 8px; }
   .flow-rail > div:first-of-type { display: none; }
   .flow-progress { display: none; }
@@ -578,7 +619,13 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
   .start-button { width: auto; min-height: 48px; padding: 0 14px; }
   .start-button span:first-child { font-size: 0; }
   .start-button span:first-child::after { font-size: .78rem; content: "[ INICIAR ]"; }
-  .ritual-header { min-height: 52px; height: 52px; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding: 6px 14px 7px; }
+  .ritual-header {
+    min-height: calc(52px + env(safe-area-inset-top));
+    height: calc(52px + env(safe-area-inset-top));
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    padding: calc(6px + env(safe-area-inset-top)) 14px 7px;
+  }
   .ritual-brand { min-width: 0; gap: 9px; }
   .ritual-brand img { width: 28px; height: 28px; }
   .ritual-brand span { overflow: hidden; font-size: .95rem; letter-spacing: .25em; text-overflow: ellipsis; }
@@ -594,9 +641,13 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
   .selection-hint { display: none; }
 }
 
+@media (min-width: 681px), (hover: hover) and (pointer: fine) {
+  .install-prompt { display: none !important; }
+}
+
 @media (max-height: 720px) {
-  .topbar { min-height: 48px; height: 48px; }
-  .setup-workspace { height: calc(100dvh - 48px); grid-template-rows: 42px minmax(0, 1fr); }
+  .topbar { min-height: calc(48px + env(safe-area-inset-top)); height: calc(48px + env(safe-area-inset-top)); padding-top: calc(6px + env(safe-area-inset-top)); }
+  .setup-workspace { height: calc(100dvh - 48px - env(safe-area-inset-top)); grid-template-rows: 42px minmax(0, 1fr); }
   .flow-rail { height: 42px; }
   .setup-step { padding-top: 12px; padding-bottom: 12px; }
   .step-topline { margin-bottom: 10px; padding-bottom: 9px; }
@@ -607,7 +658,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
   .recipe-heading { margin: 7px 0 9px; }
   .recipe-heading h2 { font-size: clamp(1.5rem, 4.5vh, 1.85rem); }
   .recipe-bottom { margin-top: 8px; }
-  .ritual-header { min-height: 48px; height: 48px; }
+  .ritual-header { min-height: calc(48px + env(safe-area-inset-top)); height: calc(48px + env(safe-area-inset-top)); padding-top: calc(6px + env(safe-area-inset-top)); }
   .timer-ring { width: min(58vw, 42dvh, 310px); }
   .ritual-controls { min-height: 62px; }
 }

@@ -122,6 +122,8 @@ const grindModeNames = {
 };
 
 const STORAGE_KEY = "umbra:last-ritual";
+const INSTALL_PROMPT_KEY = "umbra:install-prompt";
+const INSTALL_REMINDER_DELAY = 7 * 24 * 60 * 60 * 1000;
 
 const helpContent = {
   scale: {
@@ -156,9 +158,85 @@ let isRunning = false;
 let ritualReady = false;
 let isCountingDown = false;
 let wakeLock = null;
+let deferredInstallPrompt = null;
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
+
+function isStandaloneApp() {
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+
+function isMobileDevice() {
+  const mobileAgent = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const touchIPad = navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+  return mobileAgent || touchIPad;
+}
+
+function readInstallPromptState() {
+  try { return JSON.parse(localStorage.getItem(INSTALL_PROMPT_KEY)) || {}; }
+  catch (_) { return {}; }
+}
+
+function saveInstallPromptState(state) {
+  try { localStorage.setItem(INSTALL_PROMPT_KEY, JSON.stringify(state)); }
+  catch (_) { /* La guía sigue funcionando aunque el navegador bloquee el almacenamiento. */ }
+}
+
+function hideInstallPrompt() {
+  $("#install-prompt").hidden = true;
+}
+
+function rememberInstallPrompt() {
+  saveInstallPromptState({ completed: true });
+  hideInstallPrompt();
+}
+
+function postponeInstallPrompt() {
+  saveInstallPromptState({ completed: false, nextReminderAt: Date.now() + INSTALL_REMINDER_DELAY });
+  hideInstallPrompt();
+}
+
+function updateInstallPromptCopy() {
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const copy = $("#install-prompt-copy");
+  const action = $("#install-prompt-action");
+
+  if (deferredInstallPrompt) {
+    copy.textContent = "Instala UMBRA para abrirla a pantalla completa y sin las barras del navegador.";
+    action.textContent = "[ INSTALAR UMBRA ]";
+  } else if (isIOS) {
+    copy.textContent = "En Safari toca Compartir y luego “Agregar a inicio”. Ábrela desde el nuevo ícono.";
+    action.textContent = "[ YA LA AGREGUÉ ]";
+  } else {
+    copy.textContent = "En Chrome abre el menú ⋮ y toca “Agregar a pantalla principal” o “Instalar app”.";
+    action.textContent = "[ YA LA AGREGUÉ ]";
+  }
+}
+
+function scheduleInstallPrompt() {
+  if (!isMobileDevice()) return;
+  if (isStandaloneApp()) {
+    rememberInstallPrompt();
+    return;
+  }
+  const state = readInstallPromptState();
+  if (state.completed || (state.nextReminderAt && Date.now() < state.nextReminderAt)) return;
+  updateInstallPromptCopy();
+  window.setTimeout(() => { $("#install-prompt").hidden = false; }, 900);
+}
+
+async function handleInstallPromptAction() {
+  if (!deferredInstallPrompt) {
+    rememberInstallPrompt();
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  const choice = await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  if (choice.outcome === "accepted") rememberInstallPrompt();
+  else postponeInstallPrompt();
+}
 
 function formatTime(totalSeconds) {
   const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
@@ -677,6 +755,17 @@ $("#start-button").addEventListener("click", startRitual);
 $("#exit-ritual").addEventListener("click", exitRitual);
 $("#pause-button").addEventListener("click", togglePause);
 $("#next-button").addEventListener("click", nextStep);
+$("#install-prompt-action").addEventListener("click", handleInstallPromptAction);
+$("#install-prompt-later").addEventListener("click", postponeInstallPrompt);
+$("#install-prompt-close").addEventListener("click", postponeInstallPrompt);
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  updateInstallPromptCopy();
+});
+
+window.addEventListener("appinstalled", rememberInstallPrompt);
 
 document.addEventListener("keydown", (event) => {
   if (!$("#ritual-screen").classList.contains("is-visible")) return;
@@ -693,3 +782,4 @@ lastRecipe = readSavedRecipe();
 preferredGrindMode = lastRecipe?.grindMode || null;
 updateRepeatCard();
 showSetupStep(0);
+scheduleInstallPrompt();
