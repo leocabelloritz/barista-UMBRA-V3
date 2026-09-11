@@ -1,197 +1,216 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#080909">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>UMBRA / Barista</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=4">
-</head>
-<body>
-<div id="app-shell">
-
-  <section id="vista-portada" class="vista vista-portada activa">
-    <div class="portada-glow" aria-hidden="true"></div>
-    <div class="portada-inner">
-      <div class="brand-lockup brand-lockup--hero">
-        <div class="eclipse-mark"><span></span></div>
-        <div class="wordmark">UMBRA</div>
-      </div>
-      <div class="portada-copy">
-        <p class="eyebrow">UMBRA / CASA</p>
-        <h1>CAFÉ DE VERDAD<br>EN CASA</h1>
-        <p>Sin reglas imposibles. Sin equipo de laboratorio. Solo una buena taza, paso a paso.</p>
-      </div>
-      <button id="btn-iniciar-ritual" class="btn-primary btn-primary--hero" type="button">
-        <span class="btn-icon">◐</span><span>INICIAR RITUAL</span><span class="btn-arrow">→</span>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0b0a" />
+    <meta name="description" content="UMBRA calcula café, agua y tiempo para una preparación simple y guiada." />
+    <title>UMBRA / Ritual de café</title>
+    <link rel="icon" href="assets/umbra-symbol.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <button class="brand" id="home-button" type="button" aria-label="Volver al inicio de UMBRA">
+        <img src="assets/umbra-symbol-bone.svg" alt="" />
+        <span>UMBRA</span>
       </button>
-      <p class="portada-foot">HECHO PARA USARLO / NO PARA COMPLICARLO</p>
-    </div>
-  </section>
-
-  <div id="app-principal" class="app-principal oculto">
-    <header class="app-header">
-      <button id="btn-home" class="brand-button" type="button" aria-label="Inicio">
-        <span class="eclipse-mark eclipse-mark--small"><span></span></span>
-        <span class="wordmark wordmark--small">UMBRA</span>
-      </button>
-      <button id="btn-menu" class="header-action" type="button" aria-label="Abrir journal"><span>RITUALES</span><span>↗</span></button>
+      <div class="system-status" aria-label="Estado del sistema">
+        <span class="status-pulse"></span>
+        <span>CAFÉ / AGUA / TIEMPO</span>
+      </div>
     </header>
 
-    <main id="app">
-      <section id="vista-metodos" class="vista activa">
-        <div class="page page--metodos">
-          <header class="page-heading">
-            <p class="eyebrow">RITUAL / 01</p>
-            <h1>Tu café.</h1>
-            <p class="lead">Elige cuánto quieres pensar hoy.</p>
-          </header>
-          <div class="mode-switch" role="group" aria-label="Nivel de guía">
-            <button id="modo-guiame" class="mode-option activo" type="button" data-mode="guiame"><span class="mode-dot"></span><span><strong>GUÍAME</strong><small>Solo lo necesario</small></span></button>
-            <button id="modo-directo" class="mode-option" type="button" data-mode="directo"><span class="mode-dot"></span><span><strong>DIRECTO</strong><small>Dame los datos</small></span></button>
-          </div>
-          <div class="section-line"><span>MÉTODO</span><span>ELIGE UNO</span></div>
-          <div id="lista-metodos" class="lista-metodos"></div>
-          <p id="mensaje-modo" class="quiet-note">Te diremos solo lo necesario. Si te falta algo, UMBRA se adapta.</p>
+    <main class="setup-workspace">
+      <aside class="flow-rail" aria-label="Progreso de configuración">
+        <img class="flow-watermark" src="assets/umbra-symbol.svg" alt="" />
+        <div>
+          <div class="section-id"><span id="flow-current">01</span><span>/</span><span>04</span></div>
+          <p class="flow-kicker">CONFIGURA TU RITUAL</p>
+          <div class="flow-progress" aria-hidden="true"><span id="flow-progress-bar"></span></div>
         </div>
-      </section>
 
-      <section id="vista-detalle" class="vista">
-        <div class="page">
-          <button id="btn-volver-metodos" class="back-link" type="button">‹ MÉTODOS</button>
-          <section class="method-hero">
-            <div class="method-copy">
-              <p id="detalle-tipo" class="eyebrow">FILTRADO / MÉTODO</p>
-              <h1 id="detalle-nombre">V60</h1>
-              <p id="detalle-descripcion" class="method-description"></p>
-            </div>
-            <div id="detalle-icono" class="method-illustration" aria-hidden="true"></div>
-          </section>
-          <section class="simple-need" id="bloque-necesitas">
-            <p class="eyebrow">VAS A NECESITAR</p>
-            <div id="lista-necesitas" class="need-list"></div>
-          </section>
-          <section class="recipe-panel">
-            <div class="recipe-panel-head"><span>RECETA BASE</span><span id="detalle-ratio">1:16</span></div>
-            <div class="recipe-values">
-              <button class="value-card help-trigger" type="button" data-help="cafe"><span class="value-symbol">●</span><strong id="detalle-cafe">20 g</strong><small>CAFÉ</small></button>
-              <button class="value-card help-trigger" type="button" data-help="agua"><span class="value-symbol">◒</span><strong id="detalle-agua">320 ml</strong><small>AGUA</small></button>
-              <button class="value-card help-trigger" type="button" data-help="temperatura"><span class="value-symbol">°</span><strong id="detalle-temperatura">92 °C</strong><small>TEMP.</small></button>
-              <button class="value-card help-trigger" type="button" data-help="molienda"><span class="value-symbol">⁙</span><strong id="detalle-molienda">MEDIA</strong><small>MOLIENDA</small></button>
-            </div>
-            <p class="tap-hint">Toca cualquier dato si no tienes el equipo o no sabes qué significa.</p>
-          </section>
-          <section class="adjust-panel">
-            <div class="adjust-row">
-              <div><span class="micro-label">CAFÉ</span><p>¿Cuánto vas a usar?</p></div>
-              <div class="stepper"><button id="btn-menos" type="button" aria-label="Menos café">−</button><strong><span id="cantidad-cafe">20</span><small> g</small></strong><button id="btn-mas" type="button" aria-label="Más café">+</button></div>
-            </div>
-            <div class="adjust-row adjust-row--stack">
-              <div><span class="micro-label">INTENSIDAD</span><p>Déjala como te guste.</p></div>
-              <div id="opciones-intensidad" class="intensity-options"></div>
-            </div>
-          </section>
-          <section class="preview-panel">
-            <div class="section-line"><span>LO QUE HARÁS</span><span id="preview-count">— PASOS</span></div>
-            <div id="lista-pasos-preview" class="pasos-preview"></div>
-          </section>
-          <button id="btn-iniciar-guia" class="btn-primary" type="button"><span>EMPEZAR RITUAL</span><span>→</span></button>
-        </div>
-      </section>
+        <nav class="flow-steps">
+          <button class="flow-step is-current" type="button" data-go-step="0">
+            <span>01</span><strong>MÉTODO</strong><small id="method-selection">POR ELEGIR</small>
+          </button>
+          <button class="flow-step" type="button" data-go-step="1" disabled>
+            <span>02</span><strong>DOSIS</strong><small id="volume-selection">POR ELEGIR</small>
+          </button>
+          <button class="flow-step" type="button" data-go-step="2" disabled>
+            <span>03</span><strong>MOLIENDA</strong><small id="grind-selection">POR ELEGIR</small>
+          </button>
+          <button class="flow-step" type="button" data-go-step="3" disabled>
+            <span>04</span><strong>RECETA</strong><small>LISTA PARA PREPARAR</small>
+          </button>
+        </nav>
 
-      <section id="vista-guia" class="vista">
-        <div class="page guide-page">
-          <header class="guide-header">
-            <button id="btn-salir-guia" class="back-link" type="button">‹ SALIR</button>
-            <div id="guia-icono" class="guide-method-icon"></div>
-            <span id="guia-metodo" class="guide-method">V60</span>
-          </header>
-          <section class="current-step current-step--top">
-            <div class="step-kicker"><span id="paso-indicador">PASO 01 / 05</span><span id="paso-tipo">TEMPORIZADO</span></div>
-            <h1 id="paso-nombre">Moja el café</h1>
-            <p id="paso-instruccion">Agrega un poco de agua hasta cubrirlo.</p>
-          </section>
-          <section class="timer-stage">
-            <button id="timer-circle-control" class="timer-circle" type="button" aria-label="Iniciar o pausar temporizador">
-              <svg class="timer-ring" viewBox="0 0 220 220" aria-hidden="true"><circle class="ring-track" cx="110" cy="110" r="101"></circle><circle id="timer-ring-progress" class="ring-progress" cx="110" cy="110" r="101"></circle></svg>
-              <div class="timer-center"><strong id="timer-guiado">00:45</strong><span id="timer-status">TOCA PARA INICIAR</span></div>
+        <p class="flow-caption">UNA DECISIÓN A LA VEZ.<br />SIN COMPLICACIONES.</p>
+      </aside>
+
+      <section class="selection-stage" aria-live="polite">
+        <article class="setup-step is-visible" data-step="0" aria-labelledby="method-heading">
+          <div class="step-topline"><span>01 / MÉTODO</span><span>ESCOGE UNO</span></div>
+          <h1 id="method-heading">¿Qué vas a preparar?</h1>
+          <button class="repeat-card" id="repeat-button" type="button" hidden>
+            <span>REPETIR ÚLTIMO RITUAL</span>
+            <strong id="repeat-title">PRENSA FRANCESA · 1 TAZA</strong>
+            <small id="repeat-detail">MOLINO MANUAL</small>
+            <b aria-hidden="true">→</b>
+          </button>
+          <div class="method-grid" role="group" aria-label="Selecciona un método">
+            <button class="method-card" type="button" data-method="prensa" aria-pressed="false">
+              <span class="method-number">01</span><span class="method-name">Prensa<br />francesa</span><span class="method-code">PF / 01</span>
             </button>
-            <div class="guide-progress"><span id="paso-porcentaje">20%</span><div><i id="barra-progreso-activa"></i></div></div>
-          </section>
-          <section class="guide-values">
-            <button class="guide-chip help-trigger" type="button" data-help="cafe"><small>CAFÉ</small><strong id="guia-cafe">20 g</strong></button>
-            <button class="guide-chip help-trigger" type="button" data-help="agua"><small>AGUA</small><strong id="guia-agua">320 ml</strong></button>
-            <button class="guide-chip help-trigger" type="button" data-help="temperatura"><small>TEMP.</small><strong id="guia-temp">92 °C</strong></button>
-            <button class="guide-chip help-trigger" type="button" data-help="molienda"><small>MOLIENDA</small><strong id="guia-molienda">MEDIA</strong></button>
-          </section>
-          <section class="step-objective" id="objetivo-paso"><span>EN ESTE PASO</span><strong id="objetivo-paso-valor">60 ml</strong><small id="objetivo-paso-etiqueta">Agua aproximada</small></section>
-          <button id="btn-siguiente-paso" class="btn-primary btn-next" type="button"><span id="next-label">SIGUIENTE PASO</span><span>→</span></button>
-        </div>
-      </section>
-
-      <section id="vista-final" class="vista">
-        <div class="page final-page">
-          <div class="final-symbol"><span>◐</span></div>
-          <p class="eyebrow">RITUAL COMPLETO</p>
-          <h1>¿Lo harías<br>de nuevo?</h1>
-          <p class="lead">No hay nota correcta. Solo importa si esta taza se parece a la que quieres volver a preparar.</p>
-          <section class="final-summary">
-            <div id="final-icono" class="final-method-icon"></div>
-            <div><strong id="resumen-metodo">V60</strong><p><span id="resumen-cafe">20 g</span><i>/</i><span id="resumen-agua">320 ml</span><i>/</i><span id="resumen-tiempo">2:45</span></p></div>
-          </section>
-          <div class="repeat-choices">
-            <button class="repeat-choice" type="button" data-result="tal-cual"><strong>TAL CUAL</strong><span>La repetiría igual.</span></button>
-            <button class="repeat-choice" type="button" data-result="cambiaria"><strong>CAMBIARÍA ALGO</strong><span>Quiero ajustarla la próxima vez.</span></button>
+            <button class="method-card" type="button" data-method="v60" aria-pressed="false">
+              <span class="method-number">02</span><span class="method-name">V60<br />Pour over</span><span class="method-code">PV / 02</span>
+            </button>
+            <button class="method-card" type="button" data-method="moka" aria-pressed="false">
+              <span class="method-number">03</span><span class="method-name">Moka<br />italiana</span><span class="method-code">MK / 03</span>
+            </button>
+            <button class="method-card" type="button" data-method="aeropress" aria-pressed="false">
+              <span class="method-number">04</span><span class="method-name">AeroPress</span><span class="method-code">AP / 04</span>
+            </button>
           </div>
-          <div id="ajustes-final" class="adjust-final oculto">
-            <p class="micro-label">¿QUÉ CAMBIARÍAS?</p>
-            <div class="change-chips"><button type="button" data-change="más suave">MÁS SUAVE</button><button type="button" data-change="más intenso">MÁS INTENSO</button><button type="button" data-change="menos amargo">MENOS AMARGO</button><button type="button" data-change="más dulce">MÁS DULCE</button></div>
-          </div>
-          <label class="notes-field"><span>NOTAS / OPCIONAL</span><textarea id="nota-final" rows="3" maxlength="180" placeholder="Ej: más dulce de lo esperado..."></textarea></label>
-          <button id="btn-guardar-ritual" class="btn-primary" type="button"><span>GUARDAR COMO RITUAL</span><span>⌑</span></button>
-          <p id="guardado-feedback" class="save-feedback" aria-live="polite"></p>
-          <button id="btn-nuevo-ritual" class="text-action" type="button">PREPARAR OTRO CAFÉ →</button>
-        </div>
-      </section>
+          <p class="selection-hint">TOCA UN MÉTODO PARA CONTINUAR →</p>
+        </article>
 
-      <section id="vista-journal" class="vista">
-        <div class="page journal-page">
-          <button id="btn-cerrar-journal" class="back-link" type="button">‹ VOLVER</button>
-          <header class="page-heading"><p class="eyebrow">UMBRA / MEMORIA</p><h1>Mis rituales.</h1><p class="lead">Las tazas que vale la pena recordar.</p></header>
-          <div id="journal-empty" class="journal-empty"><span>◐</span><strong>TODAVÍA NO HAY RITUALES.</strong><p>Cuando una taza te guste, guárdala. La próxima vez podrás volver a ella sin pensar demasiado.</p></div>
-          <div id="journal-list" class="journal-list"></div>
-          <button id="btn-borrar-journal" class="danger-link oculto" type="button">BORRAR MIS RITUALES</button>
-        </div>
+        <article class="setup-step" data-step="1" aria-labelledby="quantity-heading" hidden>
+          <div class="step-topline"><span>02 / DOSIS</span><button type="button" data-go-step="0">← CAMBIAR MÉTODO</button></div>
+          <div class="selected-context"><span id="selected-method-code">PF / 01</span><strong id="selected-method-name">PRENSA FRANCESA</strong></div>
+          <h1 id="quantity-heading">¿Cuánto café usarás?</h1>
+          <div class="dose-tabs" role="group" aria-label="Elige cómo definir la cantidad">
+            <button class="dose-tab is-active" type="button" data-dose-mode="preset" aria-pressed="true">POR TAZAS</button>
+            <button class="dose-tab" type="button" data-dose-mode="custom" aria-pressed="false">INGRESAR GRAMOS</button>
+          </div>
+          <div class="dose-panel" id="preset-dose-panel">
+            <div class="volume-grid" id="volume-grid" role="group" aria-label="Selecciona cuántas tazas preparar"></div>
+          </div>
+          <div class="dose-panel custom-dose-panel" id="custom-dose-panel" hidden>
+            <label class="custom-dose-input" for="custom-coffee-input">
+              <span>CAFÉ DISPONIBLE</span>
+              <span><input id="custom-coffee-input" type="number" inputmode="decimal" min="5" max="80" step="1" value="20" aria-describedby="custom-dose-range" /><b>G</b></span>
+              <small id="custom-dose-range">ENTRE 5 Y 80 G</small>
+            </label>
+            <div class="custom-calculation" aria-live="polite">
+              <span id="custom-calculation-label">UMBRA CALCULA</span>
+              <strong><b id="custom-water-value">300</b> ML</strong>
+              <small id="custom-ratio-label">AGUA TOTAL · RATIO 1:15</small>
+            </div>
+            <button class="custom-dose-confirm" id="custom-dose-confirm" type="button"><span>[ USAR ESTA DOSIS ]</span><b>→</b></button>
+          </div>
+          <p class="method-note" id="method-note"></p>
+          <p class="selection-hint">TOCA UNA OPCIÓN PARA CONTINUAR →</p>
+        </article>
+
+        <article class="setup-step" data-step="2" aria-labelledby="grind-heading" hidden>
+          <div class="step-topline"><span>03 / MOLIENDA</span><button type="button" data-go-step="1">← CAMBIAR DOSIS</button></div>
+          <div class="selected-context"><span>GUÍA RELATIVA</span><strong>1 FINO · 10 GRUESO</strong></div>
+          <h1 id="grind-heading">¿Cómo mueles tu café?</h1>
+          <div class="grind-mode-grid" role="group" aria-label="Selecciona cómo mueles el café">
+            <button class="grind-mode-card" type="button" data-grind-mode="electric" aria-pressed="false">
+              <span>01</span><strong>ELÉCTRICO</strong><small>DIAL O POSICIONES</small>
+            </button>
+            <button class="grind-mode-card" type="button" data-grind-mode="manual" aria-pressed="false">
+              <span>02</span><strong>MANUAL</strong><small>CLICS / VUELTAS</small>
+            </button>
+            <button class="grind-mode-card" type="button" data-grind-mode="ground" aria-pressed="false">
+              <span>03</span><strong>YA MOLIDO</strong><small>QUÉ BUSCAR</small>
+            </button>
+          </div>
+          <p class="grind-disclaimer"><span>NOTA /</span> Cada molino usa una escala distinta. UMBRA convierte la recomendación a diez posiciones relativas para darte un punto de partida honesto.</p>
+          <p class="selection-hint">TOCA CÓMO LO PREPARAS PARA CONTINUAR →</p>
+        </article>
+
+        <article class="setup-step recipe-panel" data-step="3" aria-labelledby="recipe-title" hidden>
+          <img class="watermark" src="assets/umbra-symbol-bone.svg" alt="" />
+          <div class="recipe-topline">
+            <span id="recipe-code">RITUAL / PF-01</span>
+            <button type="button" data-go-step="2">← AJUSTAR</button>
+          </div>
+          <div class="recipe-heading">
+            <span class="recipe-index" id="recipe-index">01 /</span>
+            <h2 id="recipe-title">PRENSA FRANCESA</h2>
+          </div>
+          <div class="metrics">
+            <div class="metric metric-primary"><span class="metric-label">CAFÉ</span><div><strong id="coffee-value">17</strong><span>G</span></div></div>
+            <div class="metric metric-primary"><span class="metric-label" id="water-label">AGUA / 1 TAZA</span><div><strong id="water-value">250</strong><span>ML</span></div></div>
+            <button class="metric metric-button" type="button" data-help="temperature" aria-label="Ver alternativa sin termómetro"><span class="metric-label">TEMPERATURA</span><div><strong id="temperature-value">94</strong><span>°C</span></div></button>
+            <div class="metric"><span class="metric-label">TIEMPO TOTAL</span><div><strong id="total-time">04:15</strong></div></div>
+            <div class="metric metric-wide grind-result">
+              <span class="metric-label" id="grind-mode-label">MOLIENDA / ELÉCTRICO</span>
+              <div><strong id="grind-value">MEDIA GRUESA</strong><span id="grind-hint">/ SAL GRUESA</span></div>
+              <div class="grind-summaryline">
+                <span id="grind-position-label">POSICIÓN / 8–9 DE 10</span>
+                <button type="button" data-help="grind">[ VER GUÍA ]</button>
+              </div>
+            </div>
+          </div>
+          <div class="water-plan"><span>AGUA POR ETAPA</span><strong id="water-plan">VERTIDO ÚNICO / 250 ML</strong></div>
+          <div class="recipe-bottom">
+            <div>
+              <p id="recipe-summary">Pesamos, vertemos y esperamos. Sin vueltas.</p>
+              <div class="help-row">
+                <button class="text-button" type="button" data-help="scale">SIN BALANZA /</button>
+                <button class="text-button" type="button" data-help="temperature">SIN TERMÓMETRO /</button>
+              </div>
+            </div>
+            <button class="start-button" id="start-button" type="button"><span>[ INICIAR RITUAL ]</span><span aria-hidden="true">↗</span></button>
+          </div>
+        </article>
       </section>
     </main>
 
-    <nav id="bottom-nav" class="bottom-nav">
-      <button id="nav-metodos" class="nav-item activo" type="button"><span>◐</span><small>MÉTODOS</small></button>
-      <button id="nav-journal" class="nav-item" type="button"><span>⌑</span><small>RITUALES</small></button>
-    </nav>
-  </div>
+    <footer class="statusbar">
+      <span>UMBRA / CAFÉ DE VERDAD, EN CASA</span>
+      <span id="footer-ratio">RATIO / 1:15</span>
+      <span>DATOS / SOLO EN ESTA PANTALLA</span>
+    </footer>
 
-  <div id="help-overlay" class="help-overlay" aria-hidden="true">
-    <button id="help-backdrop" class="help-backdrop" type="button" aria-label="Cerrar ayuda"></button>
-    <section class="help-sheet" role="dialog" aria-modal="true" aria-labelledby="help-title">
-      <div class="sheet-handle"></div>
-      <button id="help-close" class="sheet-close" type="button" aria-label="Cerrar">×</button>
-      <p id="help-kicker" class="eyebrow">SIN EQUIPO ESPECIAL</p>
-      <h2 id="help-title">¿No tienes termómetro?</h2>
-      <p id="help-copy"></p>
-      <div id="help-equivalent" class="help-equivalent"></div>
-      <p class="help-reassurance">Eso es suficientemente cerca.</p>
-      <button id="help-ok" class="btn-secondary" type="button">ENTENDIDO</button>
+    <section class="ritual-screen" id="ritual-screen" aria-hidden="true">
+      <img class="ritual-watermark" src="assets/umbra-symbol-bone.svg" alt="" />
+      <header class="ritual-header">
+        <div class="ritual-brand"><img src="assets/umbra-symbol-bone.svg" alt="" /><span>UMBRA</span></div>
+        <div class="ritual-progress-label" id="step-counter">PASO 01 / 04</div>
+        <button class="exit-button" id="exit-ritual" type="button">SALIR ×</button>
+      </header>
+
+      <div class="ritual-content">
+        <div class="step-copy">
+          <span class="step-code" id="step-code">PF / 01.1</span>
+          <h2 id="step-title">VIERTE</h2>
+          <p id="step-instruction">Agrega el agua de manera uniforme.</p>
+        </div>
+
+        <div class="timer-wrap">
+          <div class="timer-ring" id="timer-ring">
+            <div class="timer-inner">
+              <span>TIEMPO</span>
+              <strong id="timer-value" aria-live="polite">00:30</strong>
+              <span id="timer-state">EN CURSO</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="ritual-controls">
+        <div class="step-dots" id="step-dots" aria-label="Progreso de pasos"></div>
+        <div class="ritual-actions">
+          <button id="pause-button" type="button">[ PAUSAR ]</button>
+          <button id="next-button" class="next-button" type="button">[ COMENZAR ] →</button>
+        </div>
+      </footer>
     </section>
-  </div>
 
-</div>
-<script src="app.js?v=4"></script>
-</body>
+    <dialog id="help-dialog" class="help-dialog">
+      <form method="dialog">
+        <div class="dialog-id" id="dialog-id">AYUDA / 01</div>
+        <h2 id="dialog-title">SIN BALANZA</h2>
+        <p id="dialog-copy"></p>
+        <button type="submit">[ ENTENDIDO ]</button>
+      </form>
+    </dialog>
+
+    <script src="app.js" defer></script>
+  </body>
 </html>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Símbolo UMBRA claro</title>
+  <desc id="desc">Eclipse incompleto color hueso atravesado por un slash diagonal</desc>
+  <defs>
+    <mask id="disc-cut">
+      <rect width="512" height="512" fill="black"/>
+      <circle cx="256" cy="256" r="176" fill="white"/>
+      <rect x="241" y="-40" width="30" height="592" rx="1" fill="black" transform="rotate(38 256 256)"/>
+      <rect x="395" y="96" width="117" height="160" fill="black"/>
+    </mask>
+    <mask id="outside-disc">
+      <rect width="512" height="512" fill="white"/>
+      <circle cx="256" cy="256" r="176" fill="black"/>
+    </mask>
+  </defs>
+  <rect x="245" y="-46" width="22" height="604" rx="1" fill="#E9E0D2" transform="rotate(38 256 256)" mask="url(#outside-disc)"/>
+  <rect width="512" height="512" fill="#E9E0D2" mask="url(#disc-cut)"/>
+</svg>
