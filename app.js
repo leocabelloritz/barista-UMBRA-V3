@@ -156,6 +156,8 @@ let currentStep = 0;
 let remaining = 0;
 let stepDuration = 1;
 let timerId = null;
+let timerFrameId = null;
+let remainingPrecise = 0;
 let isRunning = false;
 let ritualReady = false;
 let isCountingDown = false;
@@ -616,6 +618,22 @@ async function releaseWakeLock() {
   wakeLock = null;
 }
 
+function updateTimerNumber(value) {
+  const timerValue = $("#timer-value");
+  if (timerValue.textContent === value) return;
+  timerValue.textContent = value;
+  timerValue.classList.remove("is-ticking");
+  void timerValue.offsetWidth;
+  timerValue.classList.add("is-ticking");
+}
+
+function updateTimerProgress(seconds) {
+  const progress = Math.max(0, Math.min(100, (seconds / stepDuration) * 100));
+  const timerRing = $("#timer-ring");
+  timerRing.style.setProperty("--progress", `${progress}%`);
+  timerRing.style.setProperty("--timer-angle", `${progress * 3.6}deg`);
+}
+
 function renderStep() {
   const method = methods[selectedMethod];
   const total = currentSteps.length;
@@ -625,14 +643,7 @@ function renderStep() {
   $("#step-code").textContent = `${method.code} / ${String(currentStep + 1).padStart(2, "0")}`;
   $("#step-title").textContent = step.title;
   $("#step-instruction").textContent = step.instruction;
-  const timerValue = $("#timer-value");
-  const nextTimerValue = formatTime(remaining);
-  if (timerValue.textContent !== nextTimerValue) {
-    timerValue.textContent = nextTimerValue;
-    timerValue.classList.remove("is-ticking");
-    void timerValue.offsetWidth;
-    timerValue.classList.add("is-ticking");
-  }
+  updateTimerNumber(formatTime(remaining));
   $("#pause-button").hidden = awaitingStepStart;
   $("#next-button").hidden = false;
   $("#next-button").disabled = false;
@@ -648,9 +659,10 @@ function renderStep() {
       ? "PASO LISTO"
       : isRunning ? "EN CURSO" : "EN PAUSA";
 
-  const progress = Math.max(0, Math.min(100, (remaining / stepDuration) * 100));
-  $("#timer-ring").classList.toggle("is-running", isRunning);
-  $("#timer-ring").style.setProperty("--progress", `${progress}%`);
+  const timerRing = $("#timer-ring");
+  timerRing.classList.toggle("is-running", isRunning);
+  timerRing.classList.toggle("is-ready", awaitingStepStart);
+  updateTimerProgress(remainingPrecise || remaining);
 
   $("#step-dots").innerHTML = currentSteps.map((_, index) => {
     const state = index < currentStep ? "is-done" : index === currentStep ? "is-current" : "";
@@ -664,14 +676,16 @@ function renderReady() {
   awaitingStepStart = false;
   currentStep = 0;
   remaining = 0;
+  remainingPrecise = 0;
   $("#step-counter").textContent = "RITUAL / PREPARADO";
   $("#step-code").textContent = method.code;
   $("#step-title").textContent = "TODO LISTO";
   $("#step-instruction").textContent = `Ten a mano ${coffee} g de café y ${water} ml de agua. El tiempo comenzará después de la cuenta regresiva.`;
   $("#timer-value").textContent = "00:03";
   $("#timer-state").textContent = "ESPERANDO";
-  $("#timer-ring").classList.remove("is-running");
+  $("#timer-ring").classList.remove("is-running", "is-ready");
   $("#timer-ring").style.setProperty("--progress", "100%");
+  $("#timer-ring").style.setProperty("--timer-angle", "360deg");
   $("#pause-button").hidden = true;
   $("#next-button").hidden = false;
   $("#next-button").disabled = false;
@@ -680,33 +694,53 @@ function renderReady() {
 }
 
 function beginCountdown() {
+  stopTimer();
   ritualReady = false;
   awaitingStepStart = false;
   isCountingDown = true;
-  let count = 3;
+  const countdownDuration = 3;
+  const startedAt = performance.now();
+  let displayedCount = countdownDuration;
   $("#step-title").textContent = "PREPÁRATE";
   $("#step-instruction").textContent = "Toma la tetera. Comenzamos en tres segundos.";
-  $("#timer-value").textContent = `00:0${count}`;
+  updateTimerNumber("00:03");
   $("#timer-state").textContent = "COMENZAMOS EN";
   $("#pause-button").hidden = true;
   $("#next-button").hidden = true;
-  timerId = window.setInterval(() => {
-    count -= 1;
-    $("#timer-ring").style.setProperty("--progress", `${(count / 3) * 100}%`);
-    if (count <= 0) {
-      window.clearInterval(timerId);
-      timerId = null;
+  $("#timer-ring").classList.add("is-running");
+  $("#timer-ring").classList.remove("is-ready");
+
+  const advanceCountdown = (now) => {
+    if (!isCountingDown) return;
+    const preciseCount = Math.max(0, countdownDuration - ((now - startedAt) / 1000));
+    const nextCount = Math.ceil(preciseCount);
+    const progress = (preciseCount / countdownDuration) * 100;
+    $("#timer-ring").style.setProperty("--progress", `${progress}%`);
+    $("#timer-ring").style.setProperty("--timer-angle", `${progress * 3.6}deg`);
+
+    if (nextCount !== displayedCount && nextCount > 0) {
+      displayedCount = nextCount;
+      updateTimerNumber(`00:0${nextCount}`);
+    }
+
+    if (preciseCount <= 0) {
+      timerFrameId = null;
       isCountingDown = false;
+      $("#timer-ring").classList.remove("is-running");
       loadStep(0);
       return;
     }
-    $("#timer-value").textContent = `00:0${count}`;
-  }, 1000);
+    timerFrameId = window.requestAnimationFrame(advanceCountdown);
+  };
+
+  timerFrameId = window.requestAnimationFrame(advanceCountdown);
 }
 
 function stopTimer() {
   window.clearInterval(timerId);
   timerId = null;
+  if (timerFrameId !== null) window.cancelAnimationFrame(timerFrameId);
+  timerFrameId = null;
   isRunning = false;
 }
 
@@ -714,19 +748,36 @@ function runTimer() {
   stopTimer();
   awaitingStepStart = false;
   isRunning = true;
+  const startedAt = performance.now();
+  const startingRemaining = remainingPrecise || remaining;
   renderStep();
-  timerId = window.setInterval(() => {
-    remaining -= 1;
-    if (remaining <= 0) {
+
+  const advanceTimer = (now) => {
+    if (!isRunning) return;
+    remainingPrecise = Math.max(0, startingRemaining - ((now - startedAt) / 1000));
+    const nextSecond = Math.ceil(remainingPrecise);
+
+    updateTimerProgress(remainingPrecise);
+    if (nextSecond !== remaining) {
+      remaining = nextSecond;
+      updateTimerNumber(formatTime(remaining));
+    }
+
+    if (remainingPrecise <= 0) {
       remaining = 0;
       stopTimer();
       if (currentStep < currentSteps.length - 1) {
         loadStep(currentStep + 1, false);
         return;
       }
+      renderStep();
+      return;
     }
-    renderStep();
-  }, 1000);
+
+    timerFrameId = window.requestAnimationFrame(advanceTimer);
+  };
+
+  timerFrameId = window.requestAnimationFrame(advanceTimer);
 }
 
 function loadStep(index, autoStart = true) {
@@ -734,6 +785,7 @@ function loadStep(index, autoStart = true) {
   const step = currentSteps[currentStep];
   stepDuration = step.seconds;
   remaining = step.seconds;
+  remainingPrecise = step.seconds;
   awaitingStepStart = !autoStart;
   if (autoStart) runTimer();
   else renderStep();
@@ -741,6 +793,7 @@ function loadStep(index, autoStart = true) {
 
 function completeRitual() {
   stopTimer();
+  remainingPrecise = 0;
   awaitingStepStart = false;
   $("#step-counter").textContent = "RITUAL / COMPLETO";
   $("#step-code").textContent = "UMBRA / FIN";
@@ -748,8 +801,9 @@ function completeRitual() {
   $("#step-instruction").textContent = "Prueba tu café antes de cambiar algo. La próxima taza puede ser distinta.";
   $("#timer-value").textContent = "LISTO";
   $("#timer-state").textContent = "CAFÉ DE VERDAD";
-  $("#timer-ring").classList.remove("is-running");
+  $("#timer-ring").classList.remove("is-running", "is-ready");
   $("#timer-ring").style.setProperty("--progress", "100%");
+  $("#timer-ring").style.setProperty("--timer-angle", "360deg");
   $("#pause-button").hidden = true;
   $("#next-button").textContent = "[ NUEVA TAZA ] →";
   $$(".step-dot").forEach((dot) => dot.className = "step-dot is-done");
@@ -793,6 +847,7 @@ function exitRitual() {
   ritualReady = false;
   isCountingDown = false;
   awaitingStepStart = false;
+  remainingPrecise = 0;
   releaseWakeLock();
   $("#ritual-screen").classList.remove("is-visible");
   $("#ritual-screen").setAttribute("aria-hidden", "true");
