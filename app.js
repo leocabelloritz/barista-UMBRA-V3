@@ -625,7 +625,14 @@ function renderStep() {
   $("#step-code").textContent = `${method.code} / ${String(currentStep + 1).padStart(2, "0")}`;
   $("#step-title").textContent = step.title;
   $("#step-instruction").textContent = step.instruction;
-  $("#timer-value").textContent = formatTime(remaining);
+  const timerValue = $("#timer-value");
+  const nextTimerValue = formatTime(remaining);
+  if (timerValue.textContent !== nextTimerValue) {
+    timerValue.textContent = nextTimerValue;
+    timerValue.classList.remove("is-ticking");
+    void timerValue.offsetWidth;
+    timerValue.classList.add("is-ticking");
+  }
   $("#pause-button").hidden = awaitingStepStart;
   $("#next-button").hidden = false;
   $("#next-button").disabled = false;
@@ -642,6 +649,7 @@ function renderStep() {
       : isRunning ? "EN CURSO" : "EN PAUSA";
 
   const progress = Math.max(0, Math.min(100, (remaining / stepDuration) * 100));
+  $("#timer-ring").classList.toggle("is-running", isRunning);
   $("#timer-ring").style.setProperty("--progress", `${progress}%`);
 
   $("#step-dots").innerHTML = currentSteps.map((_, index) => {
@@ -662,6 +670,7 @@ function renderReady() {
   $("#step-instruction").textContent = `Ten a mano ${coffee} g de café y ${water} ml de agua. El tiempo comenzará después de la cuenta regresiva.`;
   $("#timer-value").textContent = "00:03";
   $("#timer-state").textContent = "ESPERANDO";
+  $("#timer-ring").classList.remove("is-running");
   $("#timer-ring").style.setProperty("--progress", "100%");
   $("#pause-button").hidden = true;
   $("#next-button").hidden = false;
@@ -739,6 +748,7 @@ function completeRitual() {
   $("#step-instruction").textContent = "Prueba tu café antes de cambiar algo. La próxima taza puede ser distinta.";
   $("#timer-value").textContent = "LISTO";
   $("#timer-state").textContent = "CAFÉ DE VERDAD";
+  $("#timer-ring").classList.remove("is-running");
   $("#timer-ring").style.setProperty("--progress", "100%");
   $("#pause-button").hidden = true;
   $("#next-button").textContent = "[ NUEVA TAZA ] →";
