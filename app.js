@@ -159,6 +159,7 @@ let timerId = null;
 let isRunning = false;
 let ritualReady = false;
 let isCountingDown = false;
+let awaitingStepStart = false;
 let wakeLock = null;
 let deferredInstallPrompt = null;
 let splashWasShown = false;
@@ -625,12 +626,20 @@ function renderStep() {
   $("#step-title").textContent = step.title;
   $("#step-instruction").textContent = step.instruction;
   $("#timer-value").textContent = formatTime(remaining);
-  $("#pause-button").hidden = false;
+  $("#pause-button").hidden = awaitingStepStart;
   $("#next-button").hidden = false;
   $("#next-button").disabled = false;
   $("#pause-button").textContent = isRunning ? "[ PAUSAR ]" : "[ CONTINUAR ]";
-  $("#next-button").textContent = remaining === 0 ? "[ SIGUIENTE ] →" : "[ SALTAR PASO ] →";
-  $("#timer-state").textContent = remaining === 0 ? "PASO LISTO" : isRunning ? "EN CURSO" : "EN PAUSA";
+  $("#next-button").textContent = awaitingStepStart
+    ? "[ CONTINUAR ] →"
+    : remaining === 0
+      ? "[ TERMINAR ] →"
+      : "[ SALTAR PASO ] →";
+  $("#timer-state").textContent = awaitingStepStart
+    ? "LISTO PARA EMPEZAR"
+    : remaining === 0
+      ? "PASO LISTO"
+      : isRunning ? "EN CURSO" : "EN PAUSA";
 
   const progress = Math.max(0, Math.min(100, (remaining / stepDuration) * 100));
   $("#timer-ring").style.setProperty("--progress", `${progress}%`);
@@ -644,6 +653,7 @@ function renderStep() {
 function renderReady() {
   const { method, water, coffee } = getCurrentRecipe();
   ritualReady = true;
+  awaitingStepStart = false;
   currentStep = 0;
   remaining = 0;
   $("#step-counter").textContent = "RITUAL / PREPARADO";
@@ -662,6 +672,7 @@ function renderReady() {
 
 function beginCountdown() {
   ritualReady = false;
+  awaitingStepStart = false;
   isCountingDown = true;
   let count = 3;
   $("#step-title").textContent = "PREPÁRATE";
@@ -692,6 +703,7 @@ function stopTimer() {
 
 function runTimer() {
   stopTimer();
+  awaitingStepStart = false;
   isRunning = true;
   renderStep();
   timerId = window.setInterval(() => {
@@ -699,21 +711,28 @@ function runTimer() {
     if (remaining <= 0) {
       remaining = 0;
       stopTimer();
+      if (currentStep < currentSteps.length - 1) {
+        loadStep(currentStep + 1, false);
+        return;
+      }
     }
     renderStep();
   }, 1000);
 }
 
-function loadStep(index) {
+function loadStep(index, autoStart = true) {
   currentStep = index;
   const step = currentSteps[currentStep];
   stepDuration = step.seconds;
   remaining = step.seconds;
-  runTimer();
+  awaitingStepStart = !autoStart;
+  if (autoStart) runTimer();
+  else renderStep();
 }
 
 function completeRitual() {
   stopTimer();
+  awaitingStepStart = false;
   $("#step-counter").textContent = "RITUAL / COMPLETO";
   $("#step-code").textContent = "UMBRA / FIN";
   $("#step-title").textContent = "DISFRUTA";
@@ -736,8 +755,12 @@ function nextStep() {
     exitRitual();
     return;
   }
+  if (awaitingStepStart) {
+    runTimer();
+    return;
+  }
   stopTimer();
-  if (currentStep < currentSteps.length - 1) loadStep(currentStep + 1);
+  if (currentStep < currentSteps.length - 1) loadStep(currentStep + 1, false);
   else {
     currentStep = currentSteps.length;
     completeRitual();
@@ -759,6 +782,7 @@ function exitRitual() {
   stopTimer();
   ritualReady = false;
   isCountingDown = false;
+  awaitingStepStart = false;
   releaseWakeLock();
   $("#ritual-screen").classList.remove("is-visible");
   $("#ritual-screen").setAttribute("aria-hidden", "true");
@@ -767,7 +791,7 @@ function exitRitual() {
 }
 
 function togglePause() {
-  if (remaining === 0) return;
+  if (awaitingStepStart || remaining === 0) return;
   if (isRunning) {
     stopTimer();
     renderStep();
@@ -802,7 +826,12 @@ window.addEventListener("appinstalled", rememberInstallPrompt);
 
 document.addEventListener("keydown", (event) => {
   if (!$("#ritual-screen").classList.contains("is-visible")) return;
-  if (event.code === "Space") { event.preventDefault(); ritualReady ? beginCountdown() : togglePause(); }
+  if (event.code === "Space") {
+    event.preventDefault();
+    if (ritualReady) beginCountdown();
+    else if (awaitingStepStart) nextStep();
+    else togglePause();
+  }
   if (event.code === "ArrowRight") nextStep();
   if (event.code === "Escape") exitRitual();
 });

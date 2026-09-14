@@ -421,7 +421,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-rows: auto auto auto;
   gap: 3px 18px;
-  margin: -8px 0 16px;
+  margin: 0 0 16px;
   padding: 12px 18px;
   border: 1px solid var(--action);
   background: rgba(185,100,60,.08);
@@ -438,7 +438,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
 .repeat-card:hover span, .repeat-card:hover small { color: var(--ink); }
 
 .method-grid, .volume-grid, .grind-mode-grid { flex: 1 1 auto; min-height: 0; }
-.dose-tabs { display: flex; flex: 0 0 auto; gap: 0; margin: -7px 0 12px; border: 1px solid var(--line); }
+.dose-tabs { display: flex; flex: 0 0 auto; gap: 0; margin: 0 0 12px; border: 1px solid var(--line); }
 .dose-tab { flex: 1; min-height: 38px; border: 0; border-right: 1px solid var(--line); background: transparent; color: var(--muted); font: .75rem/1 var(--mono); letter-spacing: .1em; cursor: pointer; }
 .dose-tab:last-child { border-right: 0; }
 .dose-tab.is-active { background: var(--bone); color: var(--ink); }
@@ -626,13 +626,13 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
   .flow-step strong { overflow: hidden; font-size: .7rem; letter-spacing: .04em; text-overflow: ellipsis; }
   .flow-step:not(.is-current) strong { display: none; }
   .setup-step { min-height: 0; padding: 14px; }
-  .step-topline { margin-bottom: 10px; }
-  .selection-stage h1 { margin-bottom: 10px; font-size: clamp(1.7rem, 7.2vw, 2rem); }
+  .step-topline { margin-bottom: 14px; }
+  .selection-stage h1 { margin-bottom: 14px; font-size: clamp(1.7rem, 7.2vw, 2rem); }
   .method-card { min-height: 0; padding: 12px; }
   .method-name { font-size: clamp(1rem, 4.2vw, 1.18rem); }
   #preset-dose-panel { flex: 0 0 auto; }
   .volume-grid { flex: none; grid-template-columns: 1fr; }
-  .dose-tabs { margin-bottom: 8px; }
+  .dose-tabs { margin: 0 0 8px; }
   .custom-dose-panel { display: grid; grid-template-columns: 1fr 1fr; }
   .custom-dose-panel[hidden] { display: none; }
   .custom-dose-input, .custom-calculation { min-height: 0; padding: 14px; }
@@ -709,7 +709,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
   .flow-rail { height: 42px; }
   .setup-step { padding-top: 12px; padding-bottom: 12px; }
   .step-topline { margin-bottom: 10px; padding-bottom: 9px; }
-  .selection-stage h1 { margin-bottom: 8px; font-size: clamp(1.55rem, 5vh, 1.85rem); }
+  .selection-stage h1 { margin-bottom: 10px; font-size: clamp(1.55rem, 5vh, 1.85rem); }
   .selection-hint, .selection-stage .method-note { display: none; }
   .repeat-card { min-height: 58px; margin-bottom: 10px; padding: 8px 14px; }
   .grind-disclaimer { margin-top: 10px; font-size: .8rem; }
