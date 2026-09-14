@@ -515,6 +515,64 @@ html, body { width: 100%; height: 100%; overflow: hidden; }
 .ritual-controls { min-height: 68px; padding: 8px clamp(16px, 3vw, 38px); }
 .ritual-actions button { min-height: 48px; font-size: .78rem; }
 
+.app-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: calc(28px + env(safe-area-inset-top)) 24px calc(28px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(circle at 50% 42%, rgba(185,100,60,.07), transparent 34%),
+    repeating-linear-gradient(112deg, rgba(255,255,255,.008) 0 1px, transparent 1px 5px),
+    var(--ink);
+  color: var(--bone);
+}
+.app-splash[hidden] { display: none; }
+.app-splash-core { display: grid; justify-items: center; gap: 17px; }
+.app-splash-mark { position: relative; width: 92px; height: 92px; opacity: 0; animation: splash-mark-in 620ms cubic-bezier(.2,.75,.25,1) 40ms forwards; }
+.app-splash-mark img { display: block; width: 100%; height: 100%; }
+.app-splash-cut {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 136%;
+  background: var(--action);
+  box-shadow: 0 0 18px rgba(185,100,60,.34);
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(38deg) scaleY(0);
+  animation: splash-cut-through 560ms cubic-bezier(.3,.72,.25,1) 110ms forwards;
+}
+.app-splash-word {
+  margin-right: -.38em;
+  font: 500 1.05rem/1 var(--sans);
+  letter-spacing: .38em;
+  opacity: 0;
+  transform: translateY(7px);
+  animation: splash-word-in 380ms ease 260ms forwards;
+}
+.app-splash-signature { display: flex; align-items: center; gap: 7px; color: var(--muted); opacity: 0; animation: splash-signature-in 300ms ease 430ms forwards; }
+.app-splash-signature span { margin-right: 5px; font: .62rem/1 var(--mono); letter-spacing: .09em; }
+.app-splash-signature i { width: 16px; height: 1px; background: var(--action); transform-origin: left; animation: splash-meter 620ms ease-in-out infinite alternate; }
+.app-splash-signature i:nth-of-type(2) { animation-delay: 120ms; }
+.app-splash-signature i:nth-of-type(3) { animation-delay: 240ms; }
+.app-splash.is-leaving { pointer-events: none; animation: splash-leave 260ms ease forwards; }
+@keyframes splash-mark-in {
+  from { opacity: 0; transform: scale(.82) rotate(-5deg); }
+  to { opacity: 1; transform: scale(1) rotate(0); }
+}
+@keyframes splash-cut-through {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(38deg) scaleY(0); }
+  34%, 72% { opacity: 1; transform: translate(-50%, -50%) rotate(38deg) scaleY(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) rotate(38deg) scaleY(1); }
+}
+@keyframes splash-word-in { to { opacity: 1; transform: translateY(0); } }
+@keyframes splash-signature-in { to { opacity: 1; } }
+@keyframes splash-meter { from { opacity: .25; transform: scaleX(.45); } to { opacity: .95; transform: scaleX(1); } }
+@keyframes splash-leave { to { opacity: 0; transform: scale(1.015); } }
+
 .install-prompt {
   position: fixed;
   z-index: 100;

@@ -124,6 +124,8 @@ const grindModeNames = {
 const STORAGE_KEY = "umbra:last-ritual";
 const INSTALL_PROMPT_KEY = "umbra:install-prompt";
 const INSTALL_REMINDER_DELAY = 7 * 24 * 60 * 60 * 1000;
+const SPLASH_SESSION_KEY = "umbra:splash-seen";
+const SPLASH_DURATION = 820;
 
 const helpContent = {
   scale: {
@@ -159,9 +161,40 @@ let ritualReady = false;
 let isCountingDown = false;
 let wakeLock = null;
 let deferredInstallPrompt = null;
+let splashWasShown = false;
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
+
+function shouldShowAppSplash() {
+  if (isStandaloneApp()) return true;
+  try {
+    if (sessionStorage.getItem(SPLASH_SESSION_KEY)) return false;
+    sessionStorage.setItem(SPLASH_SESSION_KEY, "1");
+  } catch (_) { /* Si la sesión no está disponible, mostramos el arranque igualmente. */ }
+  return true;
+}
+
+function startAppSplash() {
+  const splash = $("#app-splash");
+  if (!shouldShowAppSplash()) {
+    splash.hidden = true;
+    return;
+  }
+
+  splashWasShown = true;
+  splash.hidden = false;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const closeSplash = () => {
+    window.setTimeout(() => {
+      splash.classList.add("is-leaving");
+      window.setTimeout(() => { splash.hidden = true; }, reducedMotion ? 20 : 270);
+    }, reducedMotion ? 120 : SPLASH_DURATION);
+  };
+
+  if (document.readyState === "complete") closeSplash();
+  else window.addEventListener("load", closeSplash, { once: true });
+}
 
 function isStandaloneApp() {
   return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
@@ -223,7 +256,7 @@ function scheduleInstallPrompt() {
   const state = readInstallPromptState();
   if (state.completed || (state.nextReminderAt && Date.now() < state.nextReminderAt)) return;
   updateInstallPromptCopy();
-  window.setTimeout(() => { $("#install-prompt").hidden = false; }, 900);
+  window.setTimeout(() => { $("#install-prompt").hidden = false; }, splashWasShown ? 1450 : 900);
 }
 
 async function handleInstallPromptAction() {
@@ -777,6 +810,8 @@ document.addEventListener("keydown", (event) => {
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible" && $("#ritual-screen").classList.contains("is-visible")) requestWakeLock();
 });
+
+startAppSplash();
 
 lastRecipe = readSavedRecipe();
 preferredGrindMode = lastRecipe?.grindMode || null;
