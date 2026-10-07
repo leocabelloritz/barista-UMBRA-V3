@@ -1,2930 +1,898 @@
-let metodoActual = null;
+const methods = {
+  prensa: {
+    index: "01",
+    code: "PF-01",
+    name: "PRENSA FRANCESA",
+    cups: [1, 2, 3],
+    volumes: [250, 500, 750],
+    ratio: 15,
+    maxCoffee: 80,
+    temperature: 94,
+    grind: "MEDIA GRUESA",
+    grindHint: "/ SAL GRUESA",
+    note: "Una preparación tranquila, con cuerpo y sin técnica complicada.",
+    summary: "Pesamos, vertemos y esperamos. Sin vueltas.",
+    steps: (water) => [
+      { title: "VIERTE", seconds: 30, instruction: `Agrega ${water} ml de agua y moja todo el café.` },
+      { title: "REPOSA", seconds: 210, instruction: "Déjala quieta. El café y el agua hacen el trabajo." },
+      { title: "PRESIONA", seconds: 15, instruction: "Baja el émbolo lentamente, sin hacer fuerza." }
+    ]
+  },
+  v60: {
+    index: "02",
+    code: "PV-02",
+    name: "V60 / POUR OVER",
+    cups: [1, 2, 3],
+    volumes: [250, 450, 600],
+    ratio: 16,
+    maxCoffee: 60,
+    temperature: 92,
+    grind: "MEDIA",
+    grindHint: "/ AZÚCAR",
+    note: "Más limpio y aromático. Solo vierte despacio y en círculos.",
+    summary: "Tres vertidos simples. No necesitas perseguir la perfección.",
+    steps: (water, coffee) => {
+      const bloom = Math.round(coffee * 2.5);
+      const second = Math.round(water * 0.6);
+      return [
+        { title: "BLOOM", seconds: 30, instruction: `Vierte ${bloom} ml y asegúrate de mojar todo el café.` },
+        { title: "VIERTE 01", seconds: 45, instruction: `Continúa lentamente hasta llegar a ${second} ml.` },
+        { title: "VIERTE 02", seconds: 45, instruction: `Completa los ${water} ml con movimientos circulares.` },
+        { title: "DRENA", seconds: water <= 250 ? 60 : water <= 450 ? 90 : 120, instruction: "Deja que termine de gotear. Retira el filtro y sirve." }
+      ];
+    }
+  },
+  moka: {
+    index: "03",
+    code: "MK-03",
+    name: "MOKA ITALIANA",
+    cups: [3, 6, 9],
+    volumes: [130, 270, 420],
+    coffeeDoses: [15, 28, 42],
+    ratio: 10,
+    maxCoffee: 45,
+    temperature: 90,
+    grind: "MEDIA FINA",
+    grindHint: "/ ARENA",
+    note: "En moka manda el tamaño del equipo: agua bajo la válvula y canasto lleno, sin prensar.",
+    summary: "El flujo manda; el tiempo es solo una guía. Retira antes del gorgoteo fuerte.",
+    steps: (water) => [
+      { title: "CARGA", seconds: 20, instruction: `Agua hasta la válvula —aprox. ${water} ml— y canasto lleno sin compactar.` },
+      { title: "CALIENTA", seconds: 240, instruction: "Fuego medio-bajo y tapa abierta. Avanza en cuanto aparezca el flujo; el tiempo es orientativo." },
+      { title: "RETIRA", seconds: 30, instruction: "Cuando el flujo aclare, retira del fuego y enfría la base con agua." }
+    ]
+  },
+  aeropress: {
+    index: "04",
+    code: "AP-04",
+    name: "AEROPRESS",
+    cups: [1, 2],
+    volumes: [220, 440],
+    coffeeDoses: [16, 32],
+    ratio: 14,
+    maxCoffee: 32,
+    temperature: 85,
+    grind: "MEDIA FINA",
+    grindHint: "/ ARENA",
+    groundGrind: "MEDIA",
+    groundGrindHint: "/ AZÚCAR",
+    note: "Rápida, consistente y fácil de ajustar a tu gusto.",
+    summary: "Mezcla, espera y presiona. Una taza lista en dos minutos.",
+    steps: (water, _coffee, mode) => {
+      const brewWater = Math.min(water, 220);
+      const restSeconds = mode === "ground" ? 60 : 30;
+      const steps = [
+        { title: "VIERTE", seconds: 30, instruction: `Agrega ${brewWater} ml de agua y mezcla durante unos segundos.` },
+        { title: "REPOSA", seconds: restSeconds, instruction: `Coloca el émbolo y deja reposar ${restSeconds} segundos sin presionar.` },
+        { title: "PRESIONA", seconds: 30, instruction: "Presiona suave y constantemente hasta escuchar aire." }
+      ];
+      if (water > brewWater) steps.push({ title: "DILUYE", seconds: 20, instruction: `Agrega ${water - brewWater} ml de agua caliente hasta completar ${water} ml.` });
+      return steps;
+    }
+  }
+};
 
-let gramosCafe = 20;
-let ratioActual = 16;
+const pressIntensities = {
+  soft: { label: "SUAVE", ratio: 16, doses: [16, 31, 47], note: "MÁS LIGERO" },
+  medium: { label: "MEDIO", ratio: 15, doses: [17, 33, 50], note: "EQUILIBRADO" },
+  loaded: { label: "CARGADO", ratio: 14, doses: [18, 36, 54], note: "MÁS CUERPO" },
+  veryStrong: { label: "MUY FUERTE", ratio: 12, doses: [21, 42, 63], note: "ALTO CUERPO" },
+  concentrate: { label: "CONCENTRADO", ratio: 10, doses: [25, 50, 75], note: "IDEAL PARA DILUIR" }
+};
 
-let pasoActual = 0;
+const grindGuides = {
+  prensa: {
+    electric: { position: "POSICIÓN / 7–8 DE 10", note: "Parte en la zona media-gruesa. Ajusta un punto más fino si el café queda débil o demasiado rápido de filtrar." },
+    manual: { position: "RECORRIDO / 7–8 DE 10", note: "Abre hacia la zona gruesa, sin llegar al extremo. Los clics cambian según el modelo, así que prioriza una textura uniforme." },
+    ground: { position: "BUSCA / PRENSA O MEDIA GRUESA", note: "Deben verse partículas definidas, parecidas a sal gruesa. Evita tanto el polvo de espresso como trozos excesivamente grandes." }
+  },
+  v60: {
+    electric: { position: "POSICIÓN / 5–6 DE 10", note: "Parte apenas hacia el lado grueso del centro. Si el agua pasa demasiado rápido, baja un punto." },
+    manual: { position: "RECORRIDO / 5–6 DE 10", note: "Comienza en la zona media. En muchos molinos ronda 1–1½ vueltas desde cero; úsalo solo como referencia." },
+    ground: { position: "BUSCA / FILTRO O MEDIA", note: "Textura similar al azúcar granulada. La molienda universal para filtro suele ser un buen comienzo." }
+  },
+  moka: {
+    electric: { position: "POSICIÓN / 3–4 DE 10", note: "Busca una molienda fina, pero no al extremo del dial. Si se atasca o amarga, sube un punto." },
+    manual: { position: "RECORRIDO / 3–4 DE 10", note: "Cierra hacia la zona fina. Suele rondar ¾–1 vuelta desde cero, dependiendo del molino." },
+    ground: { position: "BUSCA / MOKA O MEDIA FINA", note: "Debe parecer arena fina. Evita la molienda de espresso si se siente como polvo." }
+  },
+  aeropress: {
+    electric: { position: "POSICIÓN / 4–5 DE 10", note: "Empieza justo bajo la zona media. Si cuesta demasiado presionar, sube un punto." },
+    manual: { position: "RECORRIDO / 4–5 DE 10", note: "Parte entre fino y medio. En muchos molinos ronda ¾–1¼ vueltas desde cero." },
+    ground: { position: "BUSCA / MEDIA", note: "En café ya molido, busca una textura cercana al azúcar. UMBRA compensa esta molienda con un reposo algo más largo." }
+  }
+};
 
-let temporizador = null;
-let temporizadorCorriendo = false;
+const grindModeNames = {
+  electric: "ELÉCTRICO",
+  manual: "MANUAL",
+  ground: "YA MOLIDO"
+};
 
-let segundosRestantes = 0;
-let segundosInicialesPaso = 0;
+const STORAGE_KEY = "umbra:last-ritual";
+const INSTALL_PROMPT_KEY = "umbra:install-prompt";
+const INSTALL_REMINDER_DELAY = 7 * 24 * 60 * 60 * 1000;
 
+const helpContent = {
+  scale: {
+    id: "AYUDA / PESO",
+    title: "SIN BALANZA",
+    copy: "Como referencia rápida, una cucharada sopera rasa de café molido suele rondar los 8–10 g. No será exacto, pero es suficiente para comenzar y ajustar la próxima taza."
+  },
+  temperature: {
+    id: "AYUDA / AGUA",
+    title: "SIN TERMÓMETRO",
+    copy: "Hierve el agua y apaga el hervidor. Para 92–94 °C, espera unos 45 segundos antes de verter. Para AeroPress a 85 °C, espera cerca de 90 segundos."
+  }
+};
+
+let selectedMethod = "prensa";
+let volumeIndex = 0;
+let intensityKey = null;
+let doseMode = "preset";
+let customCoffee = 20;
+let currentSetupStep = 0;
+let methodSelected = false;
+let volumeSelected = false;
+let grindMode = null;
+let grinderSelected = false;
+let preferredGrindMode = null;
+let lastRecipe = null;
+let currentSteps = [];
+let currentStep = 0;
+let remaining = 0;
+let stepDuration = 1;
+let timerId = null;
+let isRunning = false;
+let ritualReady = false;
+let isCountingDown = false;
 let wakeLock = null;
-
-let preparacionGuardadaActual = false;
-
-let registroActualId = null;
-let resultadoActual = "";
-
-let filtroJournalActual = "todas";
-
-
-const STORAGE_JOURNAL =
-    "umbra_journal_v1";
-
-
-// =====================================================
-// DOM
-// =====================================================
-
-const vistaMetodos =
-    document.getElementById("vista-metodos");
-
-const vistaDetalle =
-    document.getElementById("vista-detalle");
-
-const vistaGuia =
-    document.getElementById("vista-guia");
-
-const vistaFinal =
-    document.getElementById("vista-final");
-
-const vistaJournal =
-    document.getElementById("vista-journal");
-
-const vistaRegistro =
-    document.getElementById("vista-registro");
-
-
-const listaMetodos =
-    document.getElementById("lista-metodos");
-
-const detalleTipo =
-    document.getElementById("detalle-tipo");
-
-const detalleNombre =
-    document.getElementById("detalle-nombre");
-
-const detalleDescripcion =
-    document.getElementById("detalle-descripcion");
-
-const detalleCafe =
-    document.getElementById("detalle-cafe");
-
-const detalleAgua =
-    document.getElementById("detalle-agua");
-
-const detalleRatio =
-    document.getElementById("detalle-ratio");
-
-const detalleTemperatura =
-    document.getElementById("detalle-temperatura");
-
-const detalleMolienda =
-    document.getElementById("detalle-molienda");
-
-const cantidadCafe =
-    document.getElementById("cantidad-cafe");
-
-const opcionesIntensidad =
-    document.getElementById("opciones-intensidad");
-
-const listaPasosPreview =
-    document.getElementById("lista-pasos-preview");
-
-
-const guiaMetodo =
-    document.getElementById("guia-metodo");
-
-const guideSummaryMain =
-    document.getElementById("guide-summary-main");
-
-const guideSummaryRatio =
-    document.getElementById("guide-summary-ratio");
-
-const pasoIndicador =
-    document.getElementById("paso-indicador");
-
-const pasoPorcentaje =
-    document.getElementById("paso-porcentaje");
-
-const barraProgresoActiva =
-    document.getElementById("barra-progreso-activa");
-
-const pasoNombre =
-    document.getElementById("paso-nombre");
-
-const pasoTipo =
-    document.getElementById("paso-tipo");
-
-const pasoInstruccion =
-    document.getElementById("paso-instruccion");
-
-const objetivoPaso =
-    document.getElementById("objetivo-paso");
-
-const objetivoPasoValor =
-    document.getElementById("objetivo-paso-valor");
-
-const objetivoPasoEtiqueta =
-    document.getElementById("objetivo-paso-etiqueta");
-
-
-const timerCircleControl =
-    document.getElementById("timer-circle-control");
-
-const timerGuiado =
-    document.getElementById("timer-guiado");
-
-const timerStatus =
-    document.getElementById("timer-status");
-
-const timerDisplay =
-    document.getElementById("timer-display");
-
-const timerAction =
-    document.getElementById("timer-action");
-
-const timerActionLabel =
-    document.getElementById("timer-action-label");
-
-const timerRingProgress =
-    document.getElementById("timer-ring-progress");
-
-
-const resumenMetodo =
-    document.getElementById("resumen-metodo");
-
-const resumenCafe =
-    document.getElementById("resumen-cafe");
-
-const resumenAgua =
-    document.getElementById("resumen-agua");
-
-const resumenRatio =
-    document.getElementById("resumen-ratio");
-
-const btnGuardarPreparacion =
-    document.getElementById("btn-guardar-preparacion");
-
-const guardadoFeedback =
-    document.getElementById("guardado-feedback");
-
-
-const journalEmpty =
-    document.getElementById("journal-empty");
-
-const journalFilterEmpty =
-    document.getElementById("journal-filter-empty");
-
-const journalList =
-    document.getElementById("journal-list");
-
-const journalCount =
-    document.getElementById("journal-count");
-
-const journalFilterCount =
-    document.getElementById("journal-filter-count");
-
-const journalStatTotal =
-    document.getElementById("journal-stat-total");
-
-const journalStatMetodo =
-    document.getElementById("journal-stat-metodo");
-
-const journalStatRatio =
-    document.getElementById("journal-stat-ratio");
-
-const journalStatUltima =
-    document.getElementById("journal-stat-ultima");
-
-const journalFilters =
-    document.querySelectorAll(".journal-filter");
-
-
-const registroFecha =
-    document.getElementById("registro-fecha");
-
-const registroMetodo =
-    document.getElementById("registro-metodo");
-
-const registroReceta =
-    document.getElementById("registro-receta");
-
-const registroTemperatura =
-    document.getElementById("registro-temperatura");
-
-const registroMolienda =
-    document.getElementById("registro-molienda");
-
-const registroCafeNombre =
-    document.getElementById("registro-cafe-nombre");
-
-const registroNota =
-    document.getElementById("registro-nota");
-
-const registroFeedback =
-    document.getElementById("registro-feedback");
-
-const resultadoOptions =
-    document.querySelectorAll(".resultado-option");
-
-
-const navMetodos =
-    document.getElementById("nav-metodos");
-
-const navGuia =
-    document.getElementById("nav-guia");
-
-const navJournal =
-    document.getElementById("nav-journal");
-
-
-// =====================================================
-// NAVEGACIÓN
-// =====================================================
-
-function mostrarVista(vista) {
-
-    document
-        .querySelectorAll(".vista")
-        .forEach(elemento => {
-
-            elemento.classList.remove("activa");
-
-        });
-
-
-    vista.classList.add("activa");
-
-
-    document.body.classList.toggle(
-
-        "modo-guia",
-
-        vista === vistaGuia
-
-    );
-
-
-    if (vista === vistaJournal) {
-
-        cargarJournal();
-
-    }
-
-
-    window.scrollTo({
-
-        top: 0,
-
-        behavior:
-            vista === vistaGuia
-                ? "auto"
-                : "smooth"
-
-    });
-
-}
-
-
-function actualizarNav(nombre) {
-
-    document
-        .querySelectorAll(".nav-item")
-        .forEach(item => {
-
-            item.classList.remove("activo");
-
-        });
-
-
-    if (nombre === "metodos") {
-        navMetodos.classList.add("activo");
-    }
-
-    if (nombre === "guia") {
-        navGuia.classList.add("activo");
-    }
-
-    if (nombre === "journal") {
-        navJournal.classList.add("activo");
-    }
-
-}
-
-
-// =====================================================
-// ICONOS DE MÉTODO
-// =====================================================
-
-function obtenerIconoMetodo(idMetodo, clase = "") {
-
-    const claseExtra = clase
-        ? ` ${clase}`
-        : "";
-
-    const iconos = {
-
-        v60: `
-            <svg class="method-icon${claseExtra}" viewBox="0 0 64 64" aria-hidden="true">
-                <path d="M13 15h38L39 43H25L13 15Z"></path>
-                <path d="M25 43v6h14v-6"></path>
-                <path d="M20 22h24"></path>
-                <path d="M28 49h8"></path>
-            </svg>
-        `,
-
-        francesa: `
-            <svg class="method-icon${claseExtra}" viewBox="0 0 64 64" aria-hidden="true">
-                <rect x="18" y="18" width="28" height="33" rx="2"></rect>
-                <path d="M15 15h34"></path>
-                <path d="M32 9v34"></path>
-                <path d="M27 9h10"></path>
-                <path d="M46 26h5v17h-5"></path>
-                <path d="M23 44h18"></path>
-            </svg>
-        `,
-
-        aeropress: `
-            <svg class="method-icon${claseExtra}" viewBox="0 0 64 64" aria-hidden="true">
-                <path d="M24 11h16"></path>
-                <path d="M27 11v11"></path>
-                <path d="M37 11v11"></path>
-                <rect x="22" y="22" width="20" height="27" rx="2"></rect>
-                <path d="M18 49h28"></path>
-                <path d="M25 54h14"></path>
-                <path d="M32 22v-7"></path>
-            </svg>
-        `,
-
-        moka: `
-            <svg class="method-icon${claseExtra}" viewBox="0 0 64 64" aria-hidden="true">
-                <path d="M22 12h20l3 8-5 8 5 20H19l5-20-5-8 3-8Z"></path>
-                <path d="M24 28h16"></path>
-                <path d="M20 20h24"></path>
-                <path d="M45 24h7l4 5-7 8h-6"></path>
-                <path d="M26 8h12"></path>
-            </svg>
-        `
-
-    };
-
-    return iconos[idMetodo] || iconos.francesa;
-
-}
-
-
-function actualizarIconografiaMetodo() {
-
-    if (!metodoActual) {
-        return;
-    }
-
-    const ilustracionDetalle =
-        document.querySelector(".method-illustration");
-
-    if (ilustracionDetalle) {
-        ilustracionDetalle.innerHTML =
-            obtenerIconoMetodo(
-                metodoActual.id,
-                "method-icon--hero"
-            );
-    }
-
-}
-
-
-function actualizarIconoFinal() {
-
-    if (!metodoActual) {
-        return;
-    }
-
-    const finalPage =
-        document.querySelector(".final-page");
-
-    if (!finalPage) {
-        return;
-    }
-
-    let contenedor =
-        finalPage.querySelector(".final-method-icon");
-
-    if (!contenedor) {
-        contenedor =
-            document.createElement("div");
-
-        contenedor.className =
-            "final-method-icon";
-
-        const finalSummary =
-            finalPage.querySelector(".final-summary");
-
-        finalPage.insertBefore(
-            contenedor,
-            finalSummary
-        );
-    }
-
-    contenedor.innerHTML =
-        obtenerIconoMetodo(
-            metodoActual.id,
-            "method-icon--final"
-        );
-
-}
-
-
-// =====================================================
-// MÉTODOS
-// =====================================================
-
-function cargarMetodos() {
-
-    listaMetodos.innerHTML = "";
-
-
-    Object
-        .values(METODOS)
-        .forEach(metodo => {
-
-
-            const agua =
-                Math.round(
-                    metodo.cafeDefault *
-                    metodo.ratioDefault
-                );
-
-
-            const boton =
-                document.createElement("button");
-
-
-            boton.type =
-                "button";
-
-
-            boton.className =
-                "tarjeta-metodo";
-
-
-            boton.innerHTML = `
-
-                <div class="metodo-grafico">
-                    ${obtenerIconoMetodo(metodo.id, "method-icon--card")}
-                </div>
-
-
-                <div class="metodo-info">
-
-                    <span class="metodo-meta">
-                        ${metodo.subtitulo} /
-                    </span>
-
-                    <strong>
-                        ${metodo.nombre}
-                    </strong>
-
-                    <p>
-                        ${metodo.descripcion}
-                    </p>
-
-                    <small>
-                        1:${metodo.ratioDefault}
-                        /
-                        ${metodo.cafeDefault} g
-                        /
-                        ${agua} ml
-                    </small>
-
-                </div>
-
-
-                <span class="metodo-flecha">
-                    →
-                </span>
-
-            `;
-
-
-            boton.addEventListener(
-
-                "click",
-
-                () => abrirMetodo(
-                    metodo.id
-                )
-
-            );
-
-
-            listaMetodos.appendChild(
-                boton
-            );
-
-        });
-
-}
-
-
-function abrirMetodo(idMetodo) {
-
-    metodoActual =
-        METODOS[idMetodo];
-
-
-    gramosCafe =
-        metodoActual.cafeDefault;
-
-
-    ratioActual =
-        metodoActual.ratioDefault;
-
-
-    actualizarDetalle();
-
-    cargarRatios();
-
-    cargarPreviewPasos();
-
-
-    mostrarVista(
-        vistaDetalle
-    );
-
-
-    actualizarNav(
-        "metodos"
-    );
-
-}
-
-
-// =====================================================
-// DETALLE
-// =====================================================
-
-function actualizarDetalle() {
-
-    if (!metodoActual) {
-        return;
-    }
-
-
-    detalleTipo.textContent =
-        `${metodoActual.subtitulo.toUpperCase()} / MÉTODO`;
-
-
-    detalleNombre.textContent =
-        metodoActual.nombre;
-
-
-    detalleDescripcion.textContent =
-        metodoActual.descripcion;
-
-
-    detalleCafe.textContent =
-        `${gramosCafe} g`;
-
-
-    detalleAgua.textContent =
-        `${obtenerAguaTotal()} ml`;
-
-
-    detalleRatio.textContent =
-        `1:${ratioActual}`;
-
-
-    detalleTemperatura.textContent =
-        metodoActual.temperatura;
-
-
-    detalleMolienda.textContent =
-        metodoActual.molienda;
-
-
-    cantidadCafe.textContent =
-        gramosCafe;
-
-
-    actualizarIconografiaMetodo();
-
-}
-
-
-// =====================================================
-// RATIOS
-// =====================================================
-
-function cargarRatios() {
-
-    opcionesIntensidad.innerHTML = "";
-
-
-    metodoActual.ratios.forEach(opcion => {
-
-
-        const boton =
-            document.createElement("button");
-
-
-        boton.type =
-            "button";
-
-
-        boton.className =
-            "boton-ratio";
-
-
-        boton.innerHTML = `
-
-            <strong>
-                ${opcion.nombre}
-            </strong>
-
-            <span>
-                1:${opcion.ratio}
-            </span>
-
-        `;
-
-
-        if (
-            opcion.ratio === ratioActual
-        ) {
-
-            boton.classList.add("activo");
-
-        }
-
-
-        boton.addEventListener(
-
-            "click",
-
-            () => {
-
-                ratioActual =
-                    opcion.ratio;
-
-
-                cargarRatios();
-
-                actualizarDetalle();
-
-                cargarPreviewPasos();
-
-            }
-
-        );
-
-
-        opcionesIntensidad.appendChild(
-            boton
-        );
-
-    });
-
-}
-
-
-// =====================================================
-// CAFÉ
-// =====================================================
-
-function cambiarCafe(cantidad) {
-
-    gramosCafe += cantidad;
-
-
-    gramosCafe =
-        Math.max(
-            5,
-            Math.min(
-                gramosCafe,
-                100
-            )
-        );
-
-
-    actualizarDetalle();
-
-    cargarPreviewPasos();
-
-}
-
-
-// =====================================================
-// CÁLCULOS
-// =====================================================
-
-function obtenerAguaTotal() {
-
-    return Math.round(
-        gramosCafe *
-        ratioActual
-    );
-
-}
-
-
-function obtenerAguaBloom() {
-
-    const multiplicador =
-        metodoActual
-            ?.parametros
-            ?.bloomMultiplicador
-        ?? 3;
-
-
-    return Math.min(
-
-        Math.round(
-            gramosCafe *
-            multiplicador
-        ),
-
-        obtenerAguaTotal()
-
-    );
-
-}
-
-
-function obtenerObjetivoAcumulado(
-    porcentaje
-) {
-
-    return Math.round(
-        obtenerAguaTotal() *
-        porcentaje
-    );
-
-}
-
-
-function obtenerAguaAnterior(
-    indicePaso
-) {
-
-    let aguaAnterior = 0;
-
-
-    for (
-        let i = 0;
-        i < indicePaso;
-        i++
-    ) {
-
-        const paso =
-            metodoActual.pasos[i];
-
-
-        if (paso.agua === "bloom") {
-
-            aguaAnterior =
-                obtenerAguaBloom();
-
-        }
-
-
-        if (paso.agua === "acumulado") {
-
-            aguaAnterior =
-                obtenerObjetivoAcumulado(
-                    paso.porcentaje
-                );
-
-        }
-
-
-        if (
-            paso.agua === "restante" ||
-            paso.agua === "total"
-        ) {
-
-            aguaAnterior =
-                obtenerAguaTotal();
-
-        }
-
-    }
-
-
-    return aguaAnterior;
-
-}
-
-
-// =====================================================
-// PASOS
-// =====================================================
-
-function obtenerDatosPaso(
-    paso,
-    indice
-) {
-
-    if (paso.agua === "bloom") {
-
-        const cantidad =
-            obtenerAguaBloom();
-
-
-        return {
-
-            valor:
-                `${cantidad} ml`,
-
-            etiqueta:
-                "Agua para este paso",
-
-            instruccion:
-                `Agrega ${cantidad} ml de agua y humedece todo el café de forma uniforme.`
-
-        };
-
-    }
-
-
-    if (paso.agua === "restante") {
-
-        const anterior =
-            obtenerAguaAnterior(
-                indice
-            );
-
-
-        const cantidad =
-            Math.max(
-                obtenerAguaTotal() -
-                anterior,
-                0
-            );
-
-
-        return {
-
-            valor:
-                `${cantidad} ml`,
-
-            etiqueta:
-                "Agua restante",
-
-            instruccion:
-                `Agrega lentamente los ${cantidad} ml restantes.`
-
-        };
-
-    }
-
-
-    if (paso.agua === "acumulado") {
-
-        const objetivo =
-            obtenerObjetivoAcumulado(
-                paso.porcentaje
-            );
-
-
-        const anterior =
-            obtenerAguaAnterior(
-                indice
-            );
-
-
-        const cantidad =
-            Math.max(
-                objetivo -
-                anterior,
-                0
-            );
-
-
-        return {
-
-            valor:
-                `${objetivo} ml`,
-
-            etiqueta:
-                "Objetivo en balanza",
-
-            instruccion:
-                `Agrega ${cantidad} ml lentamente hasta llegar a ${objetivo} ml.`
-
-        };
-
-    }
-
-
-    if (paso.agua === "total") {
-
-        const total =
-            obtenerAguaTotal();
-
-
-        return {
-
-            valor:
-                `${total} ml`,
-
-            etiqueta:
-                "Agua total",
-
-            instruccion:
-                `Agrega ${total} ml de agua.`
-
-        };
-
-    }
-
-
-    return {
-
-        valor:
-            null,
-
-        etiqueta:
-            null,
-
-        instruccion:
-            paso.instruccion || ""
-
-    };
-
-}
-
-
-function cargarPreviewPasos() {
-
-    listaPasosPreview.innerHTML = "";
-
-
-    metodoActual.pasos.forEach(
-        (paso, indice) => {
-
-
-            const datos =
-                obtenerDatosPaso(
-                    paso,
-                    indice
-                );
-
-
-            const item =
-                document.createElement("div");
-
-
-            item.className =
-                "paso-preview";
-
-
-            let meta = "";
-
-
-            if (paso.tipo === "timer") {
-
-                meta =
-                    formatearTiempo(
-                        paso.tiempo
-                    );
-
-            }
-
-
-            if (datos.valor) {
-
-                meta +=
-                    meta
-                        ? ` / ${datos.valor}`
-                        : datos.valor;
-
-            }
-
-
-            item.innerHTML = `
-
-                <span class="paso-numero">
-
-                    ${String(indice + 1).padStart(2,"0")}
-
-                </span>
-
-
-                <div>
-
-                    <strong>
-                        ${paso.nombre}
-                    </strong>
-
-                    <p>
-                        ${datos.instruccion}
-                    </p>
-
-                    <small>
-                        ${meta}
-                    </small>
-
-                </div>
-
-            `;
-
-
-            listaPasosPreview.appendChild(
-                item
-            );
-
-        }
-    );
-
-}
-
-
-// =====================================================
-// GUÍA
-// =====================================================
-
-function iniciarGuia() {
-
-    if (!metodoActual) {
-        return;
-    }
-
-
-    pasoActual = 0;
-
-
-    guiaMetodo.innerHTML =
-        `${obtenerIconoMetodo(metodoActual.id, "method-icon--guide")}<span>${metodoActual.nombre.toUpperCase()} / ${metodoActual.subtitulo.toUpperCase()}</span>`;
-
-
-    guideSummaryMain.textContent =
-        `${gramosCafe} g / ${obtenerAguaTotal()} ml`;
-
-
-    guideSummaryRatio.textContent =
-        `1:${ratioActual}`;
-
-
-    mostrarVista(
-        vistaGuia
-    );
-
-
-    cargarPaso();
-
-    solicitarWakeLock();
-
-}
-
-
-function cargarPaso() {
-
-    detenerTemporizador();
-
-
-    const paso =
-        metodoActual.pasos[
-            pasoActual
-        ];
-
-
-    const total =
-        metodoActual.pasos.length;
-
-
-    pasoIndicador.textContent =
-        `PASO ${String(pasoActual + 1).padStart(2,"0")} / ${String(total).padStart(2,"0")}`;
-
-
-    const porcentaje =
-        Math.round(
-            (
-                (pasoActual + 1) /
-                total
-            ) *
-            100
-        );
-
-
-    pasoPorcentaje.textContent =
-        `${porcentaje}%`;
-
-
-    barraProgresoActiva.style.width =
-        `${porcentaje}%`;
-
-
-    pasoNombre.textContent =
-        paso.nombre;
-
-
-    pasoTipo.textContent =
-        paso.tipo === "timer"
-            ? "TEMPORIZADO"
-            : "ACCIÓN";
-
-
-    const datos =
-        obtenerDatosPaso(
-            paso,
-            pasoActual
-        );
-
-
-    pasoInstruccion.textContent =
-        datos.instruccion;
-
-
-    if (datos.valor) {
-
-        objetivoPaso.style.display =
-            "flex";
-
-
-        objetivoPasoValor.textContent =
-            datos.valor;
-
-
-        objetivoPasoEtiqueta.textContent =
-            datos.etiqueta;
-
-    }
-
-    else {
-
-        objetivoPaso.style.display =
-            "none";
-
-    }
-
-
-    if (paso.tipo === "timer") {
-
-        prepararPasoTemporizado(
-            paso
-        );
-
-    }
-
-    else {
-
-        prepararPasoAccion();
-
-    }
-
-}
-
-
-// =====================================================
-// TIMER
-// =====================================================
-
-function prepararPasoTemporizado(
-    paso
-) {
-
-    segundosRestantes =
-        Number(
-            paso.tiempo
-        ) || 0;
-
-
-    segundosInicialesPaso =
-        segundosRestantes;
-
-
-    actualizarDisplayTimer();
-
-    resetearCirculoTimer();
-
-    mostrarAccionCentral("INICIAR");
-
-}
-
-
-function prepararPasoAccion() {
-
-    segundosRestantes = 0;
-
-    segundosInicialesPaso = 0;
-
-
-    resetearCirculoTimer();
-
-
-    mostrarAccionCentral(
-
-        pasoActual ===
-        metodoActual.pasos.length - 1
-            ? "TERMINAR"
-            : "CONTINUAR"
-
-    );
-
-}
-
-
-function manejarControlCircular() {
-
-    const paso =
-        metodoActual.pasos[
-            pasoActual
-        ];
-
-
-    if (paso.tipo !== "timer") {
-
-        avanzarPaso();
-
-        return;
-
-    }
-
-
-    if (segundosRestantes <= 0) {
-
-        avanzarPaso();
-
-        return;
-
-    }
-
-
-    if (temporizadorCorriendo) {
-
-        pausarTemporizador();
-
-        return;
-
-    }
-
-
-    iniciarTimerPaso();
-
-}
-
-
-function iniciarTimerPaso() {
-
-    if (
-        segundosRestantes <= 0 ||
-        temporizadorCorriendo
-    ) {
-
-        return;
-
-    }
-
-
-    temporizadorCorriendo = true;
-
-
-    mostrarTiempo();
-
-
-    timerStatus.textContent =
-        "TOCA PARA PAUSAR";
-
-
-    temporizador =
-        setInterval(
-
-            () => {
-
-
-                segundosRestantes--;
-
-
-                segundosRestantes =
-                    Math.max(
-                        0,
-                        segundosRestantes
-                    );
-
-
-                actualizarDisplayTimer();
-
-                actualizarCirculoTimer();
-
-
-                if (
-                    segundosRestantes <= 0
-                ) {
-
-                    finalizarPasoTimer();
-
-                }
-
-            },
-
-            1000
-
-        );
-
-}
-
-
-function pausarTemporizador() {
-
-    detenerTemporizador();
-
-    mostrarAccionCentral(
-        "REANUDAR"
-    );
-
-}
-
-
-function detenerTemporizador() {
-
-    if (temporizador) {
-
-        clearInterval(
-            temporizador
-        );
-
-        temporizador = null;
-
-    }
-
-
-    temporizadorCorriendo =
-        false;
-
-}
-
-
-function finalizarPasoTimer() {
-
-    detenerTemporizador();
-
-
-    segundosRestantes = 0;
-
-
-    actualizarDisplayTimer();
-
-    completarCirculoTimer();
-
-
-    if ("vibrate" in navigator) {
-
-        navigator.vibrate(
-            [300,150,300]
-        );
-
-    }
-
-
-    mostrarAccionCentral(
-
-        pasoActual ===
-        metodoActual.pasos.length - 1
-            ? "TERMINAR"
-            : "CONTINUAR"
-
-    );
-
-}
-
-
-function mostrarTiempo() {
-
-    timerAction.style.display =
-        "none";
-
-    timerDisplay.style.display =
-        "flex";
-
-}
-
-
-function mostrarAccionCentral(
-    texto
-) {
-
-    timerDisplay.style.display =
-        "none";
-
-    timerAction.style.display =
-        "flex";
-
-    timerActionLabel.textContent =
-        texto;
-
-}
-
-
-function actualizarDisplayTimer() {
-
-    timerGuiado.textContent =
-        formatearTiempo(
-            segundosRestantes
-        );
-
-}
-
-
-function formatearTiempo(
-    totalSegundos
-) {
-
-    const total =
-        Math.max(
-            0,
-            Math.round(
-                Number(totalSegundos) || 0
-            )
-        );
-
-
-    const minutos =
-        Math.floor(total / 60);
-
-
-    const segundos =
-        total % 60;
-
-
-    return `${String(minutos).padStart(2,"0")}:${String(segundos).padStart(2,"0")}`;
-
-}
-
-
-function actualizarCirculoTimer() {
-
-    if (
-        segundosInicialesPaso <= 0
-    ) {
-
-        return;
-
-    }
-
-
-    const longitud = 578;
-
-
-    const progreso =
-        1 -
-        segundosRestantes /
-        segundosInicialesPaso;
-
-
-    timerRingProgress
-        .style
-        .strokeDashoffset =
-            longitud -
-            longitud *
-            progreso;
-
-}
-
-
-function resetearCirculoTimer() {
-
-    timerRingProgress
-        .style
-        .strokeDashoffset =
-            578;
-
-}
-
-
-function completarCirculoTimer() {
-
-    timerRingProgress
-        .style
-        .strokeDashoffset =
-            0;
-
-}
-
-
-function avanzarPaso() {
-
-    detenerTemporizador();
-
-
-    if (
-        pasoActual <
-        metodoActual.pasos.length - 1
-    ) {
-
-        pasoActual++;
-
-        cargarPaso();
-
-    }
-
-    else {
-
-        finalizarPreparacion();
-
-    }
-
-}
-
-
-// =====================================================
-// FINAL
-// =====================================================
-
-function finalizarPreparacion() {
-
-    detenerTemporizador();
-
-    liberarWakeLock();
-
-
-    preparacionGuardadaActual =
-        false;
-
-
-    guardadoFeedback.hidden =
-        true;
-
-
-    btnGuardarPreparacion.disabled =
-        false;
-
-
-    btnGuardarPreparacion.style.opacity =
-        "1";
-
-
-    resumenMetodo.textContent =
-        metodoActual.nombre;
-
-
-    resumenCafe.textContent =
-        `${gramosCafe} g`;
-
-
-    resumenAgua.textContent =
-        `${obtenerAguaTotal()} ml`;
-
-
-    resumenRatio.textContent =
-        `1:${ratioActual}`;
-
-
-    actualizarIconoFinal();
-
-
-    mostrarVista(
-        vistaFinal
-    );
-
-}
-
-
-// =====================================================
-// STORAGE
-// =====================================================
-
-function obtenerRegistrosJournal() {
-
+let deferredInstallPrompt = null;
+
+function playOpeningSequence() {
+  const opening = $("#opening-sequence");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let alreadyShown = false;
+  if (!isStandaloneApp()) {
     try {
-
-        const datos =
-            localStorage.getItem(
-                STORAGE_JOURNAL
-            );
-
-
-        return datos
-            ? JSON.parse(datos)
-            : [];
-
-    }
-
-    catch {
-
-        return [];
-
-    }
-
+      alreadyShown = sessionStorage.getItem("umbra:intro-played") === "yes";
+      sessionStorage.setItem("umbra:intro-played", "yes");
+    } catch (_) { /* La secuencia puede mostrarse igual si el navegador bloquea el almacenamiento. */ }
+  }
+  if (reducedMotion || alreadyShown) {
+    opening.classList.add("is-finished");
+    return;
+  }
+  window.setTimeout(() => opening.classList.add("is-finished"), 3000);
 }
 
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => [...document.querySelectorAll(selector)];
 
-function escribirRegistrosJournal(
-    registros
-) {
-
-    localStorage.setItem(
-
-        STORAGE_JOURNAL,
-
-        JSON.stringify(
-            registros
-        )
-
-    );
-
+function isStandaloneApp() {
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 }
 
-
-// =====================================================
-// GUARDAR PREPARACIÓN
-// =====================================================
-
-function guardarPreparacion() {
-
-    if (
-        !metodoActual ||
-        preparacionGuardadaActual
-    ) {
-
-        return;
-
-    }
-
-
-    const registro = {
-
-        id:
-            `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-
-        timestamp:
-            new Date().toISOString(),
-
-        metodoId:
-            metodoActual.id,
-
-        metodo:
-            metodoActual.nombre,
-
-        subtitulo:
-            metodoActual.subtitulo,
-
-        cafe:
-            gramosCafe,
-
-        agua:
-            obtenerAguaTotal(),
-
-        ratio:
-            ratioActual,
-
-        temperatura:
-            metodoActual.temperatura,
-
-        molienda:
-            metodoActual.molienda,
-
-        cafeNombre:
-            "",
-
-        resultado:
-            "",
-
-        nota:
-            ""
-
-    };
-
-
-    const registros =
-        obtenerRegistrosJournal();
-
-
-    registros.unshift(
-        registro
-    );
-
-
-    escribirRegistrosJournal(
-        registros
-    );
-
-
-    preparacionGuardadaActual =
-        true;
-
-
-    guardadoFeedback.hidden =
-        false;
-
-
-    btnGuardarPreparacion.disabled =
-        true;
-
-
-    btnGuardarPreparacion.style.opacity =
-        "0.35";
-
+function isMobileDevice() {
+  const mobileAgent = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const touchIPad = navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+  return mobileAgent || touchIPad;
 }
 
-
-// =====================================================
-// JOURNAL STATS
-// =====================================================
-
-function calcularEstadisticas(
-    registros
-) {
-
-    if (
-        registros.length === 0
-    ) {
-
-        return {
-
-            total:
-                0,
-
-            metodo:
-                "—",
-
-            ratio:
-                "—",
-
-            ultima:
-                "—"
-
-        };
-
-    }
-
-
-    const metodos =
-        {};
-
-
-    const ratios =
-        {};
-
-
-    registros.forEach(
-        registro => {
-
-
-            const metodo =
-                registro.metodo || "—";
-
-
-            metodos[metodo] =
-                (metodos[metodo] || 0) + 1;
-
-
-            const ratio =
-                registro.ratio;
-
-
-            if (ratio) {
-
-                ratios[ratio] =
-                    (ratios[ratio] || 0) + 1;
-
-            }
-
-        }
-    );
-
-
-    const metodoMasUsado =
-        Object
-            .entries(metodos)
-            .sort(
-                (a,b) =>
-                    b[1] - a[1]
-            )[0]?.[0]
-        || "—";
-
-
-    const ratioMasUsado =
-        Object
-            .entries(ratios)
-            .sort(
-                (a,b) =>
-                    b[1] - a[1]
-            )[0]?.[0];
-
-
-    const ultima =
-        registros[0];
-
-
-    const ultimaTexto =
-        ultima.cafeNombre
-            ? ultima.cafeNombre
-            : ultima.metodo;
-
-
-    return {
-
-        total:
-            registros.length,
-
-        metodo:
-            metodoMasUsado,
-
-        ratio:
-            ratioMasUsado
-                ? `1:${ratioMasUsado}`
-                : "—",
-
-        ultima:
-            ultimaTexto || "—"
-
-    };
-
+function readInstallPromptState() {
+  try { return JSON.parse(localStorage.getItem(INSTALL_PROMPT_KEY)) || {}; }
+  catch (_) { return {}; }
 }
 
-
-// =====================================================
-// JOURNAL
-// =====================================================
-
-function cargarJournal() {
-
-    const registros =
-        obtenerRegistrosJournal();
-
-
-    const estadisticas =
-        calcularEstadisticas(
-            registros
-        );
-
-
-    journalStatTotal.textContent =
-        estadisticas.total;
-
-
-    journalStatMetodo.textContent =
-        estadisticas.metodo;
-
-
-    journalStatRatio.textContent =
-        estadisticas.ratio;
-
-
-    journalStatUltima.textContent =
-        estadisticas.ultima;
-
-
-    journalCount.textContent =
-        String(
-            registros.length
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    if (
-        registros.length === 0
-    ) {
-
-        journalEmpty.style.display =
-            "flex";
-
-
-        journalFilterEmpty.hidden =
-            true;
-
-
-        journalList.innerHTML =
-            "";
-
-
-        journalFilterCount.textContent =
-            "0 REGISTROS";
-
-
-        return;
-
-    }
-
-
-    journalEmpty.style.display =
-        "none";
-
-
-    let filtrados =
-        registros;
-
-
-    if (
-        filtroJournalActual !==
-        "todas"
-    ) {
-
-        filtrados =
-            registros.filter(
-
-                registro =>
-
-                    registro.metodoId ===
-                    filtroJournalActual
-
-            );
-
-    }
-
-
-    journalFilterCount.textContent =
-        `${filtrados.length} ${
-            filtrados.length === 1
-                ? "REGISTRO"
-                : "REGISTROS"
-        }`;
-
-
-    journalList.innerHTML =
-        "";
-
-
-    if (
-        filtrados.length === 0
-    ) {
-
-        journalFilterEmpty.hidden =
-            false;
-
-        return;
-
-    }
-
-
-    journalFilterEmpty.hidden =
-        true;
-
-
-    filtrados.forEach(
-        registro => {
-
-
-            const tarjeta =
-                document.createElement(
-                    "button"
-                );
-
-
-            tarjeta.type =
-                "button";
-
-
-            tarjeta.className =
-                "journal-card";
-
-
-            const resultado =
-                registro.resultado
-                    ? registro.resultado.toUpperCase()
-                    : "";
-
-
-            tarjeta.innerHTML = `
-
-                <div class="journal-card-date">
-
-                    ${formatearFechaRegistro(
-                        registro.timestamp
-                    )}
-
-                </div>
-
-
-                <div class="journal-card-main">
-
-                    <div>
-
-                        <h2 class="journal-card-title">
-
-                            ${escapeHTML(
-                                registro.metodo
-                            )}
-
-                        </h2>
-
-
-                        ${
-                            registro.cafeNombre
-
-                                ? `
-                                    <div class="journal-card-coffee">
-
-                                        ${escapeHTML(
-                                            registro.cafeNombre
-                                        )}
-
-                                    </div>
-                                `
-
-                                : ""
-                        }
-
-
-                        <div class="journal-card-recipe">
-
-                            ${registro.cafe} g
-                            /
-                            ${registro.agua} ml
-
-                        </div>
-
-                    </div>
-
-
-                    <span class="journal-arrow">
-                        →
-                    </span>
-
-                </div>
-
-
-                <div class="journal-card-data">
-
-                    <div class="journal-data-item">
-
-                        <span>
-                            RATIO /
-                        </span>
-
-                        <strong>
-                            1:${registro.ratio}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="journal-data-item">
-
-                        <span>
-                            TEMP /
-                        </span>
-
-                        <strong>
-
-                            ${escapeHTML(
-                                registro.temperatura || "—"
-                            )}
-
-                        </strong>
-
-                    </div>
-
-
-                    <div class="journal-data-item">
-
-                        <span>
-                            MOLIENDA /
-                        </span>
-
-                        <strong>
-
-                            ${escapeHTML(
-                                registro.molienda || "—"
-                            )}
-
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-                ${
-                    resultado
-
-                        ? `
-                            <div class="journal-result">
-
-                                RESULTADO / ${resultado}
-
-                            </div>
-                        `
-
-                        : ""
-                }
-
-            `;
-
-
-            tarjeta.addEventListener(
-
-                "click",
-
-                () => abrirRegistro(
-                    registro.id
-                )
-
-            );
-
-
-            journalList.appendChild(
-                tarjeta
-            );
-
-        }
-    );
-
+function saveInstallPromptState(state) {
+  try { localStorage.setItem(INSTALL_PROMPT_KEY, JSON.stringify(state)); }
+  catch (_) { /* La guía sigue funcionando aunque el navegador bloquee el almacenamiento. */ }
 }
 
-
-// =====================================================
-// FILTROS
-// =====================================================
-
-function seleccionarFiltroJournal(
-    filtro
-) {
-
-    filtroJournalActual =
-        filtro;
-
-
-    journalFilters.forEach(
-        boton => {
-
-
-            boton.classList.toggle(
-
-                "activo",
-
-                boton.dataset.filter ===
-                    filtro
-
-            );
-
-        }
-    );
-
-
-    cargarJournal();
-
+function hideInstallPrompt() {
+  $("#install-prompt").hidden = true;
 }
 
-
-// =====================================================
-// REGISTRO
-// =====================================================
-
-function abrirRegistro(
-    id
-) {
-
-    const registro =
-        obtenerRegistrosJournal()
-            .find(
-                item =>
-                    item.id === id
-            );
-
-
-    if (!registro) {
-        return;
-    }
-
-
-    registroActualId =
-        id;
-
-
-    resultadoActual =
-        registro.resultado || "";
-
-
-    registroFecha.textContent =
-        formatearFechaRegistro(
-            registro.timestamp
-        );
-
-
-    registroMetodo.textContent =
-        registro.metodo;
-
-
-    registroReceta.textContent =
-        `${registro.cafe} g / ${registro.agua} ml / 1:${registro.ratio}`;
-
-
-    registroTemperatura.textContent =
-        registro.temperatura || "—";
-
-
-    registroMolienda.textContent =
-        registro.molienda || "—";
-
-
-    registroCafeNombre.value =
-        registro.cafeNombre || "";
-
-
-    registroNota.value =
-        registro.nota || "";
-
-
-    actualizarResultadoUI();
-
-
-    registroFeedback.hidden =
-        true;
-
-
-    mostrarVista(
-        vistaRegistro
-    );
-
-
-    actualizarNav(
-        "journal"
-    );
-
+function rememberInstallPrompt() {
+  saveInstallPromptState({ completed: true });
+  hideInstallPrompt();
 }
 
-
-function seleccionarResultado(
-    valor
-) {
-
-    resultadoActual =
-        resultadoActual === valor
-            ? ""
-            : valor;
-
-
-    actualizarResultadoUI();
-
+function postponeInstallPrompt() {
+  saveInstallPromptState({ completed: false, nextReminderAt: Date.now() + INSTALL_REMINDER_DELAY });
+  hideInstallPrompt();
 }
 
+function updateInstallPromptCopy() {
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const copy = $("#install-prompt-copy");
+  const action = $("#install-prompt-action");
 
-function actualizarResultadoUI() {
-
-    resultadoOptions.forEach(
-        boton => {
-
-
-            boton.classList.toggle(
-
-                "activo",
-
-                boton.dataset.resultado ===
-                    resultadoActual
-
-            );
-
-        }
-    );
-
+  if (deferredInstallPrompt) {
+    copy.textContent = "Instala UMBRA para abrirla a pantalla completa y sin las barras del navegador.";
+    action.textContent = "[ INSTALAR UMBRA ]";
+  } else if (isIOS) {
+    copy.textContent = "En Safari toca Compartir y luego “Agregar a inicio”. Ábrela desde el nuevo ícono.";
+    action.textContent = "[ YA LA AGREGUÉ ]";
+  } else {
+    copy.textContent = "En Chrome abre el menú ⋮ y toca “Agregar a pantalla principal” o “Instalar app”.";
+    action.textContent = "[ YA LA AGREGUÉ ]";
+  }
 }
 
-
-function guardarCambiosRegistro() {
-
-    const registros =
-        obtenerRegistrosJournal();
-
-
-    const indice =
-        registros.findIndex(
-            registro =>
-                registro.id ===
-                registroActualId
-        );
-
-
-    if (
-        indice === -1
-    ) {
-
-        return;
-
-    }
-
-
-    registros[indice] = {
-
-        ...registros[indice],
-
-        cafeNombre:
-            registroCafeNombre
-                .value
-                .trim(),
-
-        resultado:
-            resultadoActual,
-
-        nota:
-            registroNota
-                .value
-                .trim()
-
-    };
-
-
-    escribirRegistrosJournal(
-        registros
-    );
-
-
-    registroFeedback.hidden =
-        false;
-
-
-    setTimeout(
-
-        () => {
-
-            registroFeedback.hidden =
-                true;
-
-        },
-
-        1700
-
-    );
-
+function scheduleInstallPrompt() {
+  if (!isMobileDevice()) return;
+  if (isStandaloneApp()) {
+    rememberInstallPrompt();
+    return;
+  }
+  const state = readInstallPromptState();
+  if (state.completed || (state.nextReminderAt && Date.now() < state.nextReminderAt)) return;
+  updateInstallPromptCopy();
+  window.setTimeout(() => { $("#install-prompt").hidden = false; }, 900);
 }
 
-
-// =====================================================
-// REPETIR
-// =====================================================
-
-function repetirReceta() {
-
-    const registro =
-        obtenerRegistrosJournal()
-            .find(
-                item =>
-                    item.id ===
-                    registroActualId
-            );
-
-
-    if (!registro) {
-        return;
-    }
-
-
-    const metodo =
-        METODOS[
-            registro.metodoId
-        ];
-
-
-    if (!metodo) {
-        return;
-    }
-
-
-    metodoActual =
-        metodo;
-
-
-    gramosCafe =
-        Number(
-            registro.cafe
-        ) ||
-        metodo.cafeDefault;
-
-
-    ratioActual =
-        Number(
-            registro.ratio
-        ) ||
-        metodo.ratioDefault;
-
-
-    actualizarDetalle();
-
-    cargarRatios();
-
-    cargarPreviewPasos();
-
-
-    mostrarVista(
-        vistaDetalle
-    );
-
-
-    actualizarNav(
-        "metodos"
-    );
-
+async function handleInstallPromptAction() {
+  if (!deferredInstallPrompt) {
+    rememberInstallPrompt();
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  const choice = await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  if (choice.outcome === "accepted") rememberInstallPrompt();
+  else postponeInstallPrompt();
 }
 
-
-// =====================================================
-// UTILIDADES
-// =====================================================
-
-function formatearFechaRegistro(
-    timestamp
-) {
-
-    const fecha =
-        new Date(
-            timestamp
-        );
-
-
-    if (
-        Number.isNaN(
-            fecha.getTime()
-        )
-    ) {
-
-        return "—";
-
-    }
-
-
-    const fechaTexto =
-        new Intl.DateTimeFormat(
-
-            "es-CL",
-
-            {
-                day:
-                    "2-digit",
-
-                month:
-                    "short"
-            }
-
-        )
-        .format(fecha)
-        .replace(".","")
-        .toUpperCase();
-
-
-    const hora =
-        new Intl.DateTimeFormat(
-
-            "es-CL",
-
-            {
-                hour:
-                    "2-digit",
-
-                minute:
-                    "2-digit",
-
-                hour12:
-                    false
-            }
-
-        )
-        .format(fecha);
-
-
-    return `${fechaTexto} / ${hora}`;
-
+function formatTime(totalSeconds) {
+  const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
+  const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+  return `${minutes}:${seconds}`;
 }
 
-
-function escapeHTML(
-    valor
-) {
-
-    return String(
-        valor ?? ""
-    )
-
-    .replaceAll(
-        "&",
-        "&amp;"
-    )
-
-    .replaceAll(
-        "<",
-        "&lt;"
-    )
-
-    .replaceAll(
-        ">",
-        "&gt;"
-    )
-
-    .replaceAll(
-        '"',
-        "&quot;"
-    )
-
-    .replaceAll(
-        "'",
-        "&#039;"
-    );
-
+function readSavedRecipe() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!saved || !methods[saved.method] || !grindModeNames[saved.grindMode]) return null;
+    const mode = saved.doseMode === "custom" ? "custom" : "preset";
+    if (mode === "preset" && (!Number.isInteger(saved.volumeIndex) || !methods[saved.method].volumes[saved.volumeIndex])) return null;
+    if (mode === "custom" && (!Number.isFinite(saved.customCoffee) || saved.customCoffee < 5 || saved.customCoffee > methods[saved.method].maxCoffee)) return null;
+    const savedIntensity = Object.prototype.hasOwnProperty.call(pressIntensities, saved.intensityKey)
+      ? saved.intensityKey
+      : saved.intensityKey === "strong" ? "loaded" : "medium";
+    return { ...saved, doseMode: mode, intensityKey: saved.method === "prensa" ? savedIntensity : null };
+  } catch (_) {
+    return null;
+  }
 }
 
-
-// =====================================================
-// WAKE LOCK
-// =====================================================
-
-async function solicitarWakeLock() {
-
-    try {
-
-        if (
-            "wakeLock" in navigator &&
-            !wakeLock
-        ) {
-
-            wakeLock =
-                await navigator
-                    .wakeLock
-                    .request(
-                        "screen"
-                    );
-
-        }
-
-    }
-
-    catch(error) {
-
-        console.log(
-            "Wake Lock:",
-            error
-        );
-
-    }
-
+function cupsText(methodKey, index) {
+  const cups = methods[methodKey].cups[index];
+  const moka = methodKey === "moka";
+  if (cups === 1) return moka ? "1 TAZA MOKA" : "1 TAZA";
+  return `${cups} ${moka ? "TAZAS MOKA" : "TAZAS"}`;
 }
 
-
-async function liberarWakeLock() {
-
-    try {
-
-        if (wakeLock) {
-
-            await wakeLock.release();
-
-            wakeLock = null;
-
-        }
-
-    }
-
-    catch(error) {
-
-        console.log(error);
-
-    }
-
+function updateRepeatCard() {
+  const button = $("#repeat-button");
+  if (!lastRecipe) {
+    button.hidden = true;
+    return;
+  }
+  const method = methods[lastRecipe.method];
+  button.hidden = false;
+  const custom = lastRecipe.doseMode === "custom";
+  const ratio = lastRecipe.method === "prensa" ? pressIntensities[lastRecipe.intensityKey || "medium"].ratio : method.ratio;
+  const water = custom ? Math.round(lastRecipe.customCoffee * ratio) : method.volumes[lastRecipe.volumeIndex];
+  $("#repeat-title").textContent = `${method.name} · ${custom ? `${lastRecipe.customCoffee} G` : cupsText(lastRecipe.method, lastRecipe.volumeIndex)}`;
+  const intensity = lastRecipe.method === "prensa" ? pressIntensities[lastRecipe.intensityKey || "medium"] : null;
+  const intensityCopy = intensity ? ` · ${intensity.label}${custom ? ` / 1:${intensity.ratio}` : ` ${intensity.doses[lastRecipe.volumeIndex]} G`}` : "";
+  $("#repeat-detail").textContent = `${grindModeNames[lastRecipe.grindMode]}${intensityCopy} · ${water} ML`;
 }
 
-
-// =====================================================
-// EVENTOS
-// =====================================================
-
-document
-    .getElementById(
-        "btn-volver-metodos"
-    )
-    .addEventListener(
-
-        "click",
-
-        () => {
-
-            mostrarVista(
-                vistaMetodos
-            );
-
-            actualizarNav(
-                "metodos"
-            );
-
-        }
-
-    );
-
-
-document
-    .getElementById(
-        "btn-menos"
-    )
-    .addEventListener(
-
-        "click",
-
-        () => cambiarCafe(-1)
-
-    );
-
-
-document
-    .getElementById(
-        "btn-mas"
-    )
-    .addEventListener(
-
-        "click",
-
-        () => cambiarCafe(1)
-
-    );
-
-
-document
-    .getElementById(
-        "btn-iniciar-guia"
-    )
-    .addEventListener(
-
-        "click",
-
-        iniciarGuia
-
-    );
-
-
-document
-    .getElementById(
-        "btn-salir-guia"
-    )
-    .addEventListener(
-
-        "click",
-
-        () => {
-
-            detenerTemporizador();
-
-            liberarWakeLock();
-
-            mostrarVista(
-                vistaDetalle
-            );
-
-        }
-
-    );
-
-
-timerCircleControl
-    .addEventListener(
-
-        "click",
-
-        manejarControlCircular
-
-    );
-
-
-btnGuardarPreparacion
-    .addEventListener(
-
-        "click",
-
-        guardarPreparacion
-
-    );
-
-
-document
-    .getElementById(
-        "btn-ir-journal"
-    )
-    .addEventListener(
-
-        "click",
-
-        () => {
-
-            mostrarVista(
-                vistaJournal
-            );
-
-            actualizarNav(
-                "journal"
-            );
-
-        }
-
-    );
-
-
-document
-    .getElementById(
-        "btn-volver-inicio"
-    )
-    .addEventListener(
-
-        "click",
-
-        () => {
-
-            mostrarVista(
-                vistaMetodos
-            );
-
-            actualizarNav(
-                "metodos"
-            );
-
-        }
-
-    );
-
-
-document
-    .getElementById(
-        "btn-volver-journal"
-    )
-    .addEventListener(
-
-        "click",
-
-        () => {
-
-            mostrarVista(
-                vistaJournal
-            );
-
-            actualizarNav(
-                "journal"
-            );
-
-        }
-
-    );
-
-
-document
-    .getElementById(
-        "btn-guardar-registro"
-    )
-    .addEventListener(
-
-        "click",
-
-        guardarCambiosRegistro
-
-    );
-
-
-document
-    .getElementById(
-        "btn-repetir-receta"
-    )
-    .addEventListener(
-
-        "click",
-
-        repetirReceta
-
-    );
-
-
-resultadoOptions.forEach(
-    boton => {
-
-        boton.addEventListener(
-
-            "click",
-
-            () => seleccionarResultado(
-                boton.dataset.resultado
-            )
-
-        );
-
+function saveCurrentRecipe() {
+  if (!methodSelected || !volumeSelected || !grinderSelected) return;
+  lastRecipe = { method: selectedMethod, doseMode, volumeIndex, customCoffee, grindMode, intensityKey };
+  preferredGrindMode = grindMode;
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(lastRecipe)); } catch (_) { /* Preferencia solo local. */ }
+  updateRepeatCard();
+}
+
+function syncGrindButtons() {
+  $$(".grind-mode-card").forEach((button) => {
+    const active = button.dataset.grindMode === grindMode;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+}
+
+function getCurrentRecipe() {
+  const method = methods[selectedMethod];
+  const ratio = selectedMethod === "prensa" ? pressIntensities[intensityKey || "medium"].ratio : method.ratio;
+  const coffee = doseMode === "custom"
+    ? customCoffee
+    : selectedMethod === "prensa"
+      ? pressIntensities[intensityKey || "medium"].doses[volumeIndex]
+      : method.coffeeDoses?.[volumeIndex] ?? Math.round(method.volumes[volumeIndex] / method.ratio);
+  const water = doseMode === "custom" ? Math.round(coffee * ratio) : method.volumes[volumeIndex];
+  const steps = method.steps(water, coffee, grindMode);
+  return { method, water, coffee, ratio, steps, totalSeconds: steps.reduce((total, step) => total + step.seconds, 0) };
+}
+
+function getWaterPlan(water, coffee) {
+  if (selectedMethod === "v60") return `${Math.round(coffee * 2.5)} ML BLOOM → HASTA ${Math.round(water * 0.6)} ML → HASTA ${water} ML`;
+  if (selectedMethod === "aeropress") {
+    const brewWater = Math.min(water, 220);
+    return water > brewWater ? `${brewWater} ML EN CÁMARA + ${water - brewWater} ML PARA DILUIR` : `${brewWater} ML EN CÁMARA`;
+  }
+  if (selectedMethod === "moka") return `REFERENCIA / ${water} ML · MANDA EL NIVEL BAJO LA VÁLVULA`;
+  return `VERTIDO ÚNICO / ${water} ML`;
+}
+
+function renderRecipe() {
+  const { method, water, coffee, ratio, totalSeconds } = getCurrentRecipe();
+  const grindGuide = grindGuides[selectedMethod][grindMode];
+
+  $$(".method-card").forEach((button) => {
+    const active = button.dataset.method === selectedMethod;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+
+  $("#method-note").textContent = method.note;
+  $("#recipe-code").textContent = `RITUAL / ${method.code}`;
+  $("#recipe-index").textContent = `${method.index} /`;
+  $("#recipe-title").textContent = method.name;
+  $("#coffee-value").textContent = coffee;
+  $("#water-value").textContent = water;
+  $("#water-label").textContent = doseMode === "custom"
+    ? selectedMethod === "moka" ? "AGUA / REFERENCIA" : "AGUA / DOSIS PERSONAL"
+    : `AGUA / ${cupsText(selectedMethod, volumeIndex)}`;
+  $("#water-plan").textContent = getWaterPlan(water, coffee);
+  $("#temperature-value").textContent = method.temperature;
+  $("#total-time").textContent = formatTime(totalSeconds);
+  const preGroundProfile = grindMode === "ground" && method.groundGrind;
+  $("#grind-value").textContent = preGroundProfile ? method.groundGrind : method.grind;
+  $("#grind-hint").textContent = preGroundProfile ? method.groundGrindHint : method.grindHint;
+  $("#grind-mode-label").textContent = `MOLIENDA / ${grindModeNames[grindMode]}`;
+  $("#grind-position-label").textContent = grindGuide.position;
+  $("#recipe-summary").textContent = method.summary;
+  $("#footer-ratio").textContent = `${selectedMethod === "moka" ? "REFERENCIA" : "RATIO"} / 1:${ratio}`;
+}
+
+function selectMethod(methodKey) {
+  selectedMethod = methodKey;
+  volumeIndex = 0;
+  intensityKey = null;
+  doseMode = "preset";
+  methodSelected = true;
+  volumeSelected = false;
+  grinderSelected = Boolean(preferredGrindMode);
+  grindMode = preferredGrindMode;
+  const method = methods[selectedMethod];
+
+  $$(".method-card").forEach((button) => {
+    const active = button.dataset.method === selectedMethod;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+
+  $("#method-selection").textContent = method.name;
+  $("#volume-selection").textContent = "POR ELEGIR";
+  $("#grind-selection").textContent = grinderSelected ? grindModeNames[grindMode] : "POR ELEGIR";
+  syncGrindButtons();
+  $("#selected-method-code").textContent = `${method.code.replace("-", " / ")}`;
+  $("#selected-method-name").textContent = method.name;
+  $("#method-note").textContent = method.note;
+  renderVolumeOptions();
+  setDoseMode("preset");
+  showSetupStep(1);
+}
+
+function setDoseMode(mode) {
+  doseMode = mode;
+  const custom = mode === "custom";
+  if (custom && selectedMethod === "prensa" && !intensityKey) intensityKey = "medium";
+  if (custom && selectedMethod !== "prensa") intensityKey = null;
+  $("#preset-dose-panel").hidden = custom;
+  $("#custom-dose-panel").hidden = !custom;
+  $$("[data-dose-mode]").forEach((button) => {
+    const active = button.dataset.doseMode === mode;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  if (custom) {
+    if (selectedMethod === "prensa") $("#custom-intensity-select").value = intensityKey;
+    updateCustomDose();
+    $("#custom-coffee-input").focus();
+  } else renderVolumeOptions();
+}
+
+function updateCustomDose() {
+  const method = methods[selectedMethod];
+  const input = $("#custom-coffee-input");
+  const ratio = selectedMethod === "prensa" ? pressIntensities[intensityKey || "medium"].ratio : method.ratio;
+  input.max = method.maxCoffee;
+  const parsed = Number(input.value);
+  const valid = Number.isFinite(parsed) && parsed >= 5 && parsed <= method.maxCoffee;
+  if (valid) customCoffee = Math.round(parsed * 10) / 10;
+  input.setAttribute("aria-invalid", String(!valid));
+  $("#custom-dose-range").textContent = `ENTRE 5 Y ${method.maxCoffee} G PARA ESTE MÉTODO`;
+  $("#custom-water-value").textContent = valid ? Math.round(customCoffee * ratio) : "—";
+  $("#custom-calculation-label").textContent = selectedMethod === "moka" ? "UMBRA ESTIMA" : "UMBRA CALCULA";
+  $("#custom-intensity-control").hidden = selectedMethod !== "prensa";
+  if (selectedMethod === "prensa") $("#custom-intensity-select").value = intensityKey || "medium";
+  $("#custom-ratio-label").textContent = selectedMethod === "moka"
+    ? "REFERENCIA · NO SUPERES LA VÁLVULA"
+    : `AGUA TOTAL · RATIO 1:${ratio}`;
+  $("#custom-dose-confirm").disabled = !valid;
+}
+
+function confirmCustomDose() {
+  updateCustomDose();
+  if ($("#custom-dose-confirm").disabled) return;
+  doseMode = "custom";
+  volumeSelected = true;
+  grinderSelected = Boolean(preferredGrindMode);
+  grindMode = preferredGrindMode;
+  $("#volume-selection").textContent = `${customCoffee} G`;
+  $("#grind-selection").textContent = grinderSelected ? grindModeNames[grindMode] : "POR ELEGIR";
+  if (grinderSelected) {
+    renderRecipe();
+    saveCurrentRecipe();
+    showSetupStep(3);
+  } else showSetupStep(2);
+}
+
+function renderVolumeOptions() {
+  const method = methods[selectedMethod];
+  $("#volume-grid").innerHTML = method.volumes.map((volume, index) => `
+    <button class="volume-card${volumeSelected && index === volumeIndex ? " is-active" : ""}" type="button" data-volume-index="${index}" aria-pressed="${volumeSelected && index === volumeIndex}">
+      <span>${String(index + 1).padStart(2, "0")}</span>
+      <strong>${method.cups[index]}</strong>
+      <small>${selectedMethod === "moka" ? (method.cups[index] === 1 ? "TAZA MOKA" : "TAZAS MOKA") : (method.cups[index] === 1 ? "TAZA" : "TAZAS")}</small>
+      <em>${selectedMethod === "prensa" ? `${volume} ML AGUA` : `${method.coffeeDoses?.[index] ?? Math.round(volume / method.ratio)} G CAFÉ · ${selectedMethod === "moka" ? "~" : ""}${volume} ML AGUA`}</em>
+    </button>
+  `).join("");
+
+  const intensityPicker = $("#intensity-picker");
+  intensityPicker.hidden = selectedMethod !== "prensa" || !volumeSelected || doseMode === "custom";
+  if (selectedMethod === "prensa" && volumeSelected && doseMode !== "custom") {
+    $("#intensity-cup-label").textContent = cupsText(selectedMethod, volumeIndex);
+    $("#intensity-grid").innerHTML = Object.entries(pressIntensities).map(([key, intensity]) => `
+      <button class="intensity-option${key === intensityKey ? " is-active" : ""}" type="button" data-intensity="${key}" aria-pressed="${key === intensityKey}">
+        <strong>${intensity.label}</strong><span>${intensity.doses[volumeIndex]} G</span><small>1:${intensity.ratio} · ${intensity.note}</small>
+      </button>
+    `).join("");
+    $$('[data-intensity]').forEach((button) => button.addEventListener("click", () => selectIntensity(button.dataset.intensity)));
+  }
+
+  $$("[data-volume-index]").forEach((button) => {
+    button.addEventListener("click", () => selectVolume(Number(button.dataset.volumeIndex)));
+  });
+}
+
+function selectVolume(index) {
+  volumeIndex = index;
+  doseMode = "preset";
+  volumeSelected = true;
+  if (selectedMethod === "prensa") intensityKey = null;
+  grinderSelected = Boolean(preferredGrindMode);
+  grindMode = preferredGrindMode;
+  $("#volume-selection").textContent = cupsText(selectedMethod, index);
+  $("#grind-selection").textContent = grinderSelected ? grindModeNames[grindMode] : "POR ELEGIR";
+  renderVolumeOptions();
+  if (selectedMethod === "prensa") return;
+  if (grinderSelected) {
+    renderRecipe();
+    saveCurrentRecipe();
+    showSetupStep(3);
+  } else {
+    showSetupStep(2);
+  }
+}
+
+function selectIntensity(key) {
+  if (!Object.prototype.hasOwnProperty.call(pressIntensities, key) || !volumeSelected) return;
+  intensityKey = key;
+  $("#volume-selection").textContent = `${cupsText(selectedMethod, volumeIndex)} · ${pressIntensities[key].label}`;
+  $("#grind-selection").textContent = grinderSelected ? grindModeNames[grindMode] : "POR ELEGIR";
+  renderVolumeOptions();
+  if (grinderSelected) {
+    renderRecipe();
+    saveCurrentRecipe();
+    showSetupStep(3);
+  } else showSetupStep(2);
+}
+
+function selectGrindMode(mode) {
+  grindMode = mode;
+  grinderSelected = true;
+  syncGrindButtons();
+  $("#grind-selection").textContent = grindModeNames[grindMode];
+  renderRecipe();
+  saveCurrentRecipe();
+  showSetupStep(3);
+}
+
+function repeatLastRitual() {
+  if (!lastRecipe) return;
+  selectedMethod = lastRecipe.method;
+  volumeIndex = lastRecipe.volumeIndex;
+  intensityKey = lastRecipe.intensityKey || "medium";
+  doseMode = lastRecipe.doseMode || "preset";
+  customCoffee = lastRecipe.customCoffee || 20;
+  grindMode = lastRecipe.grindMode;
+  preferredGrindMode = grindMode;
+  methodSelected = true;
+  volumeSelected = true;
+  grinderSelected = true;
+
+  const method = methods[selectedMethod];
+  $("#method-selection").textContent = method.name;
+  $("#volume-selection").textContent = doseMode === "custom" ? `${customCoffee} G` : cupsText(selectedMethod, volumeIndex);
+  $("#grind-selection").textContent = grindModeNames[grindMode];
+  $("#selected-method-code").textContent = method.code.replace("-", " / ");
+  $("#selected-method-name").textContent = method.name;
+  $("#method-note").textContent = method.note;
+  syncGrindButtons();
+  renderVolumeOptions();
+  $("#custom-coffee-input").value = customCoffee;
+  setDoseMode(doseMode);
+  renderRecipe();
+  showSetupStep(3);
+}
+
+function resetSetup() {
+  methodSelected = false;
+  volumeSelected = false;
+  grinderSelected = false;
+  grindMode = null;
+  doseMode = "preset";
+  intensityKey = null;
+  $("#method-selection").textContent = "POR ELEGIR";
+  $("#volume-selection").textContent = "POR ELEGIR";
+  $("#grind-selection").textContent = preferredGrindMode ? grindModeNames[preferredGrindMode] : "POR ELEGIR";
+  $$(".method-card, .grind-mode-card").forEach((button) => {
+    button.classList.remove("is-active");
+    button.setAttribute("aria-pressed", "false");
+  });
+  showSetupStep(0);
+}
+
+let setupTransitionTimer = null;
+
+function finishSetupTransition() {
+  if (setupTransitionTimer) clearTimeout(setupTransitionTimer);
+  setupTransitionTimer = null;
+  $$(".setup-step").forEach((panel) => {
+    const visible = Number(panel.dataset.step) === currentSetupStep;
+    panel.classList.remove("slide-forward", "slide-back", "slide-forward-out", "slide-back-out", "is-leaving");
+    panel.hidden = !visible;
+    panel.classList.toggle("is-visible", visible);
+  });
+}
+
+function showSetupStep(index) {
+  if (index === 1 && !methodSelected) return;
+  if (index === 2 && !volumeSelected) return;
+  if (index === 3 && !grinderSelected) return;
+  finishSetupTransition();
+  const previousStep = currentSetupStep;
+  const direction = index > previousStep ? "forward" : index < previousStep ? "back" : null;
+  const previousPanel = $(`.setup-step[data-step="${previousStep}"]`);
+  const nextPanel = $(`.setup-step[data-step="${index}"]`);
+  currentSetupStep = index;
+
+  $$(".setup-step").forEach((panel) => {
+    const visible = Number(panel.dataset.step) === index;
+    panel.classList.remove("slide-forward", "slide-back");
+    panel.hidden = !visible && panel !== previousPanel;
+    panel.classList.toggle("is-visible", visible);
+  });
+
+  if (direction && previousPanel !== nextPanel) {
+    previousPanel.classList.add("is-leaving", direction === "forward" ? "slide-forward-out" : "slide-back-out");
+    void nextPanel.offsetWidth;
+    nextPanel.classList.add(direction === "forward" ? "slide-forward" : "slide-back");
+    setupTransitionTimer = window.setTimeout(finishSetupTransition, 380);
+  } else {
+    finishSetupTransition();
+  }
+
+  $$(".flow-step").forEach((button, buttonIndex) => {
+    button.classList.toggle("is-current", buttonIndex === index);
+    button.classList.toggle("is-done", buttonIndex < index);
+    button.disabled = buttonIndex === 1 ? !methodSelected : buttonIndex === 2 ? !volumeSelected : buttonIndex === 3 ? !grinderSelected : false;
+  });
+
+  $("#flow-current").textContent = String(index + 1).padStart(2, "0");
+  $("#flow-progress-bar").style.width = `${((index + 1) / 4) * 100}%`;
+  const heading = $(".setup-step.is-visible h1, .setup-step.is-visible h2");
+  if (heading) heading.setAttribute("tabindex", "-1");
+}
+
+function showHelp(type) {
+  const content = type === "grind"
+    ? { id: `MOLIENDA / ${grindModeNames[grindMode]}`, title: grindGuides[selectedMethod][grindMode].position, copy: grindGuides[selectedMethod][grindMode].note }
+    : helpContent[type];
+  $("#dialog-id").textContent = content.id;
+  $("#dialog-title").textContent = content.title;
+  $("#dialog-copy").textContent = content.copy;
+  $("#help-dialog").showModal();
+}
+
+async function requestWakeLock() {
+  if (!("wakeLock" in navigator)) return;
+  try { wakeLock = await navigator.wakeLock.request("screen"); } catch (_) { wakeLock = null; }
+}
+
+async function releaseWakeLock() {
+  if (!wakeLock) return;
+  await wakeLock.release();
+  wakeLock = null;
+}
+
+function renderStep() {
+  const method = methods[selectedMethod];
+  const total = currentSteps.length;
+  const step = currentSteps[currentStep];
+
+  $("#step-counter").textContent = `PASO ${String(currentStep + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
+  $("#step-code").textContent = `${method.code} / ${String(currentStep + 1).padStart(2, "0")}`;
+  $("#step-title").textContent = step.title;
+  $("#step-instruction").textContent = step.instruction;
+  $("#timer-value").textContent = formatTime(remaining);
+  $("#pause-button").hidden = false;
+  $("#next-button").hidden = false;
+  $("#next-button").disabled = false;
+  $("#pause-button").textContent = isRunning ? "[ PAUSAR ]" : "[ CONTINUAR ]";
+  $("#next-button").textContent = remaining === 0 ? "[ SIGUIENTE PASO ] →" : "[ SALTAR PASO ] →";
+  $("#timer-state").textContent = remaining === 0 ? "PASO LISTO" : isRunning ? "EN CURSO" : remaining === stepDuration ? "PRESIONA CONTINUAR" : "EN PAUSA";
+
+  $("#step-dots").innerHTML = currentSteps.map((_, index) => {
+    const state = index < currentStep ? "is-done" : index === currentStep ? "is-current" : "";
+    return `<span class="step-dot ${state}" aria-label="Paso ${index + 1}${index === currentStep ? ", actual" : ""}"></span>`;
+  }).join("");
+}
+
+function renderReady() {
+  const { method, water, coffee } = getCurrentRecipe();
+  ritualReady = true;
+  currentStep = 0;
+  remaining = 0;
+  $("#step-counter").textContent = "RITUAL / PREPARADO";
+  $("#step-code").textContent = method.code;
+  $("#step-title").textContent = "TODO LISTO";
+  $("#step-instruction").textContent = `Ten a mano ${coffee} g de café y ${water} ml de agua. El tiempo comenzará después de la cuenta regresiva.`;
+  $("#timer-value").textContent = "00:03";
+  $("#timer-state").textContent = "ESPERANDO";
+  resetTimerProgress();
+  $("#pause-button").hidden = true;
+  $("#next-button").hidden = false;
+  $("#next-button").disabled = false;
+  $("#next-button").textContent = "[ COMENZAR ] →";
+  $("#step-dots").innerHTML = currentSteps.map((_, index) => `<span class="step-dot" aria-label="Paso ${index + 1}"></span>`).join("");
+}
+
+function beginCountdown() {
+  ritualReady = false;
+  isCountingDown = true;
+  let count = 3;
+  resetTimerProgress(3);
+  $("#step-title").textContent = "PREPÁRATE";
+  $("#step-instruction").textContent = "Toma la tetera. Comenzamos en tres segundos.";
+  $("#timer-value").textContent = `00:0${count}`;
+  $("#timer-state").textContent = "COMENZAMOS EN";
+  $("#pause-button").hidden = true;
+  $("#next-button").hidden = true;
+  timerId = window.setInterval(() => {
+    count -= 1;
+    if (count <= 0) {
+      window.clearInterval(timerId);
+      timerId = null;
+      isCountingDown = false;
+      loadStep(0);
+      return;
     }
-);
+    $("#timer-value").textContent = `00:0${count}`;
+  }, 1000);
+}
 
+function stopTimer() {
+  window.clearInterval(timerId);
+  timerId = null;
+  isRunning = false;
+}
 
-journalFilters.forEach(
-    boton => {
-
-        boton.addEventListener(
-
-            "click",
-
-            () => seleccionarFiltroJournal(
-                boton.dataset.filter
-            )
-
-        );
-
+function runTimer() {
+  stopTimer();
+  isRunning = true;
+  const ring = $("#timer-ring");
+  if (!ring.classList.contains("is-progress-animating")) resetTimerProgress(remaining);
+  ring.classList.remove("is-paused");
+  renderStep();
+  timerId = window.setInterval(() => {
+    remaining -= 1;
+    if (remaining <= 0) {
+      remaining = 0;
+      stopTimer();
     }
-);
+    renderStep();
+  }, 1000);
+}
 
+function loadStep(index, startImmediately = true) {
+  currentStep = index;
+  const step = currentSteps[currentStep];
+  stepDuration = step.seconds;
+  remaining = step.seconds;
+  if (startImmediately) {
+    resetTimerProgress(stepDuration);
+    runTimer();
+  } else {
+    stopTimer();
+    resetTimerProgress();
+    renderStep();
+  }
+}
 
-// NAV
+function resetTimerProgress(durationSeconds = null) {
+  const ring = $("#timer-ring");
+  ring.classList.remove("is-progress-animating", "is-paused");
+  ring.style.setProperty("--progress", "100%");
+  if (durationSeconds === null) return;
+  ring.style.setProperty("--timer-duration", `${durationSeconds}s`);
+  void ring.offsetWidth;
+  ring.classList.add("is-progress-animating");
+}
 
-navMetodos.addEventListener(
+function completeRitual() {
+  stopTimer();
+  $("#step-counter").textContent = "RITUAL / COMPLETO";
+  $("#step-code").textContent = "UMBRA / FIN";
+  $("#step-title").textContent = "DISFRUTA";
+  $("#step-instruction").textContent = "Prueba tu café antes de cambiar algo. La próxima taza puede ser distinta.";
+  $("#timer-value").textContent = "LISTO";
+  $("#timer-state").textContent = "CAFÉ DE VERDAD";
+  resetTimerProgress();
+  $("#pause-button").hidden = true;
+  $("#next-button").textContent = "[ NUEVA TAZA ] →";
+  $$(".step-dot").forEach((dot) => dot.className = "step-dot is-done");
+}
 
-    "click",
+function nextStep() {
+  if (isCountingDown) return;
+  if (ritualReady) {
+    beginCountdown();
+    return;
+  }
+  if (currentStep >= currentSteps.length) {
+    exitRitual();
+    return;
+  }
+  stopTimer();
+  if (currentStep < currentSteps.length - 1) loadStep(currentStep + 1, false);
+  else {
+    currentStep = currentSteps.length;
+    completeRitual();
+  }
+}
 
-    () => {
+function startRitual() {
+  const recipe = getCurrentRecipe();
+  currentSteps = recipe.steps;
+  saveCurrentRecipe();
+  $("#ritual-screen").classList.add("is-visible");
+  $("#ritual-screen").setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+  requestWakeLock();
+  renderReady();
+}
 
-        detenerTemporizador();
+function exitRitual() {
+  stopTimer();
+  ritualReady = false;
+  isCountingDown = false;
+  resetTimerProgress();
+  releaseWakeLock();
+  $("#ritual-screen").classList.remove("is-visible");
+  $("#ritual-screen").setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+  $("#start-button").focus();
+}
 
-        liberarWakeLock();
+function togglePause() {
+  if (remaining === 0) return;
+  if (isRunning) {
+    stopTimer();
+    $("#timer-ring").classList.add("is-paused");
+    renderStep();
+  } else runTimer();
+}
 
-        mostrarVista(
-            vistaMetodos
-        );
+$$(".method-card").forEach((button) => button.addEventListener("click", () => selectMethod(button.dataset.method)));
+$$("[data-dose-mode]").forEach((button) => button.addEventListener("click", () => setDoseMode(button.dataset.doseMode)));
+$("#custom-coffee-input").addEventListener("input", updateCustomDose);
+$("#custom-coffee-input").addEventListener("keydown", (event) => { if (event.key === "Enter") confirmCustomDose(); });
+$("#custom-intensity-select").addEventListener("change", (event) => {
+  intensityKey = event.target.value;
+  updateCustomDose();
+});
+$("#custom-dose-confirm").addEventListener("click", confirmCustomDose);
+$$(".grind-mode-card").forEach((button) => button.addEventListener("click", () => selectGrindMode(button.dataset.grindMode)));
+$$('[data-go-step]').forEach((button) => button.addEventListener("click", () => showSetupStep(Number(button.dataset.goStep))));
+$$('[data-help]').forEach((button) => button.addEventListener("click", () => showHelp(button.dataset.help)));
+$("#repeat-button").addEventListener("click", repeatLastRitual);
+$("#home-button").addEventListener("click", resetSetup);
+$("#start-button").addEventListener("click", startRitual);
+$("#exit-ritual").addEventListener("click", exitRitual);
+$("#pause-button").addEventListener("click", togglePause);
+$("#next-button").addEventListener("click", nextStep);
+$("#install-prompt-action").addEventListener("click", handleInstallPromptAction);
+$("#install-prompt-later").addEventListener("click", postponeInstallPrompt);
+$("#install-prompt-close").addEventListener("click", postponeInstallPrompt);
 
-        actualizarNav(
-            "metodos"
-        );
+const topbarMenu = $(".topbar-menu");
+const menuPanel = $("#menu-panel");
+const menuTrigger = $("#menu-trigger");
+function setMenuOpen(open) {
+  menuPanel.hidden = !open;
+  menuTrigger.setAttribute("aria-expanded", String(open));
+  menuTrigger.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
+}
+menuTrigger.addEventListener("click", () => setMenuOpen(menuPanel.hidden));
+document.addEventListener("click", (event) => {
+  if (!topbarMenu.contains(event.target)) setMenuOpen(false);
+});
 
-    }
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  updateInstallPromptCopy();
+});
 
-);
+window.addEventListener("appinstalled", rememberInstallPrompt);
 
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !menuPanel.hidden) {
+    setMenuOpen(false);
+    menuTrigger.focus();
+    return;
+  }
+  if (!$("#ritual-screen").classList.contains("is-visible")) return;
+  if (event.code === "Space") { event.preventDefault(); ritualReady ? beginCountdown() : togglePause(); }
+  if (event.code === "ArrowRight") nextStep();
+  if (event.code === "Escape") exitRitual();
+});
 
-navGuia.addEventListener(
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && $("#ritual-screen").classList.contains("is-visible")) requestWakeLock();
+});
 
-    "click",
-
-    () => {
-
-        detenerTemporizador();
-
-        liberarWakeLock();
-
-
-        if (metodoActual) {
-
-            mostrarVista(
-                vistaDetalle
-            );
-
-            actualizarNav(
-                "guia"
-            );
-
-        }
-
-        else {
-
-            mostrarVista(
-                vistaMetodos
-            );
-
-        }
-
-    }
-
-);
-
-
-navJournal.addEventListener(
-
-    "click",
-
-    () => {
-
-        detenerTemporizador();
-
-        liberarWakeLock();
-
-        mostrarVista(
-            vistaJournal
-        );
-
-        actualizarNav(
-            "journal"
-        );
-
-    }
-
-);
-
-
-// VISIBILITY
-
-document.addEventListener(
-
-    "visibilitychange",
-
-    async () => {
-
-        if (
-            document.visibilityState === "visible" &&
-            vistaGuia.classList.contains(
-                "activa"
-            )
-        ) {
-
-            await solicitarWakeLock();
-
-        }
-
-    }
-
-);
-
-
-// =====================================================
-// INICIO
-// =====================================================
-
-cargarMetodos();
-
-cargarJournal();
-
-mostrarVista(
-    vistaMetodos
-);
-
-actualizarNav(
-    "metodos"
-);
+lastRecipe = readSavedRecipe();
+preferredGrindMode = lastRecipe?.grindMode || null;
+playOpeningSequence();
+updateRepeatCard();
+showSetupStep(0);
+scheduleInstallPrompt();

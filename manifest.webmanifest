@@ -1,0 +1,25 @@
+{
+  "name": "UMBRA / Ritual de café",
+  "short_name": "UMBRA",
+  "description": "Guía de preparación de café, una decisión a la vez.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0b0a",
+  "theme_color": "#0b0b0a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/umbra-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/umbra-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
