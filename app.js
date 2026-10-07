@@ -92,6 +92,14 @@ const methods = {
   }
 };
 
+const pressIntensities = {
+  soft: { label: "SUAVE", ratio: 16, doses: [16, 31, 47], note: "MÁS LIGERO" },
+  medium: { label: "MEDIO", ratio: 15, doses: [17, 33, 50], note: "EQUILIBRADO" },
+  loaded: { label: "CARGADO", ratio: 14, doses: [18, 36, 54], note: "MÁS CUERPO" },
+  veryStrong: { label: "MUY FUERTE", ratio: 12, doses: [21, 42, 63], note: "ALTO CUERPO" },
+  concentrate: { label: "CONCENTRADO", ratio: 10, doses: [25, 50, 75], note: "IDEAL PARA DILUIR" }
+};
+
 const grindGuides = {
   prensa: {
     electric: { position: "POSICIÓN / 7–8 DE 10", note: "Parte en la zona media-gruesa. Ajusta un punto más fino si el café queda débil o demasiado rápido de filtrar." },
@@ -124,8 +132,6 @@ const grindModeNames = {
 const STORAGE_KEY = "umbra:last-ritual";
 const INSTALL_PROMPT_KEY = "umbra:install-prompt";
 const INSTALL_REMINDER_DELAY = 7 * 24 * 60 * 60 * 1000;
-const SPLASH_SESSION_KEY = "umbra:splash-seen";
-const SPLASH_DURATION = 820;
 
 const helpContent = {
   scale: {
@@ -142,6 +148,7 @@ const helpContent = {
 
 let selectedMethod = "prensa";
 let volumeIndex = 0;
+let intensityKey = null;
 let doseMode = "preset";
 let customCoffee = 20;
 let currentSetupStep = 0;
@@ -156,48 +163,31 @@ let currentStep = 0;
 let remaining = 0;
 let stepDuration = 1;
 let timerId = null;
-let timerFrameId = null;
-let remainingPrecise = 0;
 let isRunning = false;
 let ritualReady = false;
 let isCountingDown = false;
-let awaitingStepStart = false;
 let wakeLock = null;
 let deferredInstallPrompt = null;
-let splashWasShown = false;
+
+function playOpeningSequence() {
+  const opening = $("#opening-sequence");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let alreadyShown = false;
+  if (!isStandaloneApp()) {
+    try {
+      alreadyShown = sessionStorage.getItem("umbra:intro-played") === "yes";
+      sessionStorage.setItem("umbra:intro-played", "yes");
+    } catch (_) { /* La secuencia puede mostrarse igual si el navegador bloquea el almacenamiento. */ }
+  }
+  if (reducedMotion || alreadyShown) {
+    opening.classList.add("is-finished");
+    return;
+  }
+  window.setTimeout(() => opening.classList.add("is-finished"), 3000);
+}
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
-
-function shouldShowAppSplash() {
-  if (isStandaloneApp()) return true;
-  try {
-    if (sessionStorage.getItem(SPLASH_SESSION_KEY)) return false;
-    sessionStorage.setItem(SPLASH_SESSION_KEY, "1");
-  } catch (_) { /* Si la sesión no está disponible, mostramos el arranque igualmente. */ }
-  return true;
-}
-
-function startAppSplash() {
-  const splash = $("#app-splash");
-  if (!shouldShowAppSplash()) {
-    splash.hidden = true;
-    return;
-  }
-
-  splashWasShown = true;
-  splash.hidden = false;
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const closeSplash = () => {
-    window.setTimeout(() => {
-      splash.classList.add("is-leaving");
-      window.setTimeout(() => { splash.hidden = true; }, reducedMotion ? 20 : 270);
-    }, reducedMotion ? 120 : SPLASH_DURATION);
-  };
-
-  if (document.readyState === "complete") closeSplash();
-  else window.addEventListener("load", closeSplash, { once: true });
-}
 
 function isStandaloneApp() {
   return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
@@ -259,7 +249,7 @@ function scheduleInstallPrompt() {
   const state = readInstallPromptState();
   if (state.completed || (state.nextReminderAt && Date.now() < state.nextReminderAt)) return;
   updateInstallPromptCopy();
-  window.setTimeout(() => { $("#install-prompt").hidden = false; }, splashWasShown ? 1450 : 900);
+  window.setTimeout(() => { $("#install-prompt").hidden = false; }, 900);
 }
 
 async function handleInstallPromptAction() {
@@ -287,7 +277,10 @@ function readSavedRecipe() {
     const mode = saved.doseMode === "custom" ? "custom" : "preset";
     if (mode === "preset" && (!Number.isInteger(saved.volumeIndex) || !methods[saved.method].volumes[saved.volumeIndex])) return null;
     if (mode === "custom" && (!Number.isFinite(saved.customCoffee) || saved.customCoffee < 5 || saved.customCoffee > methods[saved.method].maxCoffee)) return null;
-    return { ...saved, doseMode: mode };
+    const savedIntensity = Object.prototype.hasOwnProperty.call(pressIntensities, saved.intensityKey)
+      ? saved.intensityKey
+      : saved.intensityKey === "strong" ? "loaded" : "medium";
+    return { ...saved, doseMode: mode, intensityKey: saved.method === "prensa" ? savedIntensity : null };
   } catch (_) {
     return null;
   }
@@ -309,14 +302,17 @@ function updateRepeatCard() {
   const method = methods[lastRecipe.method];
   button.hidden = false;
   const custom = lastRecipe.doseMode === "custom";
-  const water = custom ? Math.round(lastRecipe.customCoffee * method.ratio) : method.volumes[lastRecipe.volumeIndex];
+  const ratio = lastRecipe.method === "prensa" ? pressIntensities[lastRecipe.intensityKey || "medium"].ratio : method.ratio;
+  const water = custom ? Math.round(lastRecipe.customCoffee * ratio) : method.volumes[lastRecipe.volumeIndex];
   $("#repeat-title").textContent = `${method.name} · ${custom ? `${lastRecipe.customCoffee} G` : cupsText(lastRecipe.method, lastRecipe.volumeIndex)}`;
-  $("#repeat-detail").textContent = `${grindModeNames[lastRecipe.grindMode]} · ${water} ML`;
+  const intensity = lastRecipe.method === "prensa" ? pressIntensities[lastRecipe.intensityKey || "medium"] : null;
+  const intensityCopy = intensity ? ` · ${intensity.label}${custom ? ` / 1:${intensity.ratio}` : ` ${intensity.doses[lastRecipe.volumeIndex]} G`}` : "";
+  $("#repeat-detail").textContent = `${grindModeNames[lastRecipe.grindMode]}${intensityCopy} · ${water} ML`;
 }
 
 function saveCurrentRecipe() {
   if (!methodSelected || !volumeSelected || !grinderSelected) return;
-  lastRecipe = { method: selectedMethod, doseMode, volumeIndex, customCoffee, grindMode };
+  lastRecipe = { method: selectedMethod, doseMode, volumeIndex, customCoffee, grindMode, intensityKey };
   preferredGrindMode = grindMode;
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(lastRecipe)); } catch (_) { /* Preferencia solo local. */ }
   updateRepeatCard();
@@ -332,12 +328,15 @@ function syncGrindButtons() {
 
 function getCurrentRecipe() {
   const method = methods[selectedMethod];
+  const ratio = selectedMethod === "prensa" ? pressIntensities[intensityKey || "medium"].ratio : method.ratio;
   const coffee = doseMode === "custom"
     ? customCoffee
-    : method.coffeeDoses?.[volumeIndex] ?? Math.round(method.volumes[volumeIndex] / method.ratio);
-  const water = doseMode === "custom" ? Math.round(coffee * method.ratio) : method.volumes[volumeIndex];
+    : selectedMethod === "prensa"
+      ? pressIntensities[intensityKey || "medium"].doses[volumeIndex]
+      : method.coffeeDoses?.[volumeIndex] ?? Math.round(method.volumes[volumeIndex] / method.ratio);
+  const water = doseMode === "custom" ? Math.round(coffee * ratio) : method.volumes[volumeIndex];
   const steps = method.steps(water, coffee, grindMode);
-  return { method, water, coffee, steps, totalSeconds: steps.reduce((total, step) => total + step.seconds, 0) };
+  return { method, water, coffee, ratio, steps, totalSeconds: steps.reduce((total, step) => total + step.seconds, 0) };
 }
 
 function getWaterPlan(water, coffee) {
@@ -351,7 +350,7 @@ function getWaterPlan(water, coffee) {
 }
 
 function renderRecipe() {
-  const { method, water, coffee, totalSeconds } = getCurrentRecipe();
+  const { method, water, coffee, ratio, totalSeconds } = getCurrentRecipe();
   const grindGuide = grindGuides[selectedMethod][grindMode];
 
   $$(".method-card").forEach((button) => {
@@ -378,12 +377,13 @@ function renderRecipe() {
   $("#grind-mode-label").textContent = `MOLIENDA / ${grindModeNames[grindMode]}`;
   $("#grind-position-label").textContent = grindGuide.position;
   $("#recipe-summary").textContent = method.summary;
-  $("#footer-ratio").textContent = `${selectedMethod === "moka" ? "REFERENCIA" : "RATIO"} / 1:${method.ratio}`;
+  $("#footer-ratio").textContent = `${selectedMethod === "moka" ? "REFERENCIA" : "RATIO"} / 1:${ratio}`;
 }
 
 function selectMethod(methodKey) {
   selectedMethod = methodKey;
   volumeIndex = 0;
+  intensityKey = null;
   doseMode = "preset";
   methodSelected = true;
   volumeSelected = false;
@@ -412,6 +412,8 @@ function selectMethod(methodKey) {
 function setDoseMode(mode) {
   doseMode = mode;
   const custom = mode === "custom";
+  if (custom && selectedMethod === "prensa" && !intensityKey) intensityKey = "medium";
+  if (custom && selectedMethod !== "prensa") intensityKey = null;
   $("#preset-dose-panel").hidden = custom;
   $("#custom-dose-panel").hidden = !custom;
   $$("[data-dose-mode]").forEach((button) => {
@@ -420,25 +422,29 @@ function setDoseMode(mode) {
     button.setAttribute("aria-pressed", String(active));
   });
   if (custom) {
+    if (selectedMethod === "prensa") $("#custom-intensity-select").value = intensityKey;
     updateCustomDose();
     $("#custom-coffee-input").focus();
-  }
+  } else renderVolumeOptions();
 }
 
 function updateCustomDose() {
   const method = methods[selectedMethod];
   const input = $("#custom-coffee-input");
+  const ratio = selectedMethod === "prensa" ? pressIntensities[intensityKey || "medium"].ratio : method.ratio;
   input.max = method.maxCoffee;
   const parsed = Number(input.value);
   const valid = Number.isFinite(parsed) && parsed >= 5 && parsed <= method.maxCoffee;
   if (valid) customCoffee = Math.round(parsed * 10) / 10;
   input.setAttribute("aria-invalid", String(!valid));
   $("#custom-dose-range").textContent = `ENTRE 5 Y ${method.maxCoffee} G PARA ESTE MÉTODO`;
-  $("#custom-water-value").textContent = valid ? Math.round(customCoffee * method.ratio) : "—";
+  $("#custom-water-value").textContent = valid ? Math.round(customCoffee * ratio) : "—";
   $("#custom-calculation-label").textContent = selectedMethod === "moka" ? "UMBRA ESTIMA" : "UMBRA CALCULA";
+  $("#custom-intensity-control").hidden = selectedMethod !== "prensa";
+  if (selectedMethod === "prensa") $("#custom-intensity-select").value = intensityKey || "medium";
   $("#custom-ratio-label").textContent = selectedMethod === "moka"
     ? "REFERENCIA · NO SUPERES LA VÁLVULA"
-    : `AGUA TOTAL · RATIO 1:${method.ratio}`;
+    : `AGUA TOTAL · RATIO 1:${ratio}`;
   $("#custom-dose-confirm").disabled = !valid;
 }
 
@@ -465,9 +471,21 @@ function renderVolumeOptions() {
       <span>${String(index + 1).padStart(2, "0")}</span>
       <strong>${method.cups[index]}</strong>
       <small>${selectedMethod === "moka" ? (method.cups[index] === 1 ? "TAZA MOKA" : "TAZAS MOKA") : (method.cups[index] === 1 ? "TAZA" : "TAZAS")}</small>
-      <em>${method.coffeeDoses?.[index] ?? Math.round(volume / method.ratio)} G CAFÉ · ${selectedMethod === "moka" ? "~" : ""}${volume} ML AGUA</em>
+      <em>${selectedMethod === "prensa" ? `${volume} ML AGUA` : `${method.coffeeDoses?.[index] ?? Math.round(volume / method.ratio)} G CAFÉ · ${selectedMethod === "moka" ? "~" : ""}${volume} ML AGUA`}</em>
     </button>
   `).join("");
+
+  const intensityPicker = $("#intensity-picker");
+  intensityPicker.hidden = selectedMethod !== "prensa" || !volumeSelected || doseMode === "custom";
+  if (selectedMethod === "prensa" && volumeSelected && doseMode !== "custom") {
+    $("#intensity-cup-label").textContent = cupsText(selectedMethod, volumeIndex);
+    $("#intensity-grid").innerHTML = Object.entries(pressIntensities).map(([key, intensity]) => `
+      <button class="intensity-option${key === intensityKey ? " is-active" : ""}" type="button" data-intensity="${key}" aria-pressed="${key === intensityKey}">
+        <strong>${intensity.label}</strong><span>${intensity.doses[volumeIndex]} G</span><small>1:${intensity.ratio} · ${intensity.note}</small>
+      </button>
+    `).join("");
+    $$('[data-intensity]').forEach((button) => button.addEventListener("click", () => selectIntensity(button.dataset.intensity)));
+  }
 
   $$("[data-volume-index]").forEach((button) => {
     button.addEventListener("click", () => selectVolume(Number(button.dataset.volumeIndex)));
@@ -478,11 +496,13 @@ function selectVolume(index) {
   volumeIndex = index;
   doseMode = "preset";
   volumeSelected = true;
+  if (selectedMethod === "prensa") intensityKey = null;
   grinderSelected = Boolean(preferredGrindMode);
   grindMode = preferredGrindMode;
   $("#volume-selection").textContent = cupsText(selectedMethod, index);
   $("#grind-selection").textContent = grinderSelected ? grindModeNames[grindMode] : "POR ELEGIR";
   renderVolumeOptions();
+  if (selectedMethod === "prensa") return;
   if (grinderSelected) {
     renderRecipe();
     saveCurrentRecipe();
@@ -490,6 +510,19 @@ function selectVolume(index) {
   } else {
     showSetupStep(2);
   }
+}
+
+function selectIntensity(key) {
+  if (!Object.prototype.hasOwnProperty.call(pressIntensities, key) || !volumeSelected) return;
+  intensityKey = key;
+  $("#volume-selection").textContent = `${cupsText(selectedMethod, volumeIndex)} · ${pressIntensities[key].label}`;
+  $("#grind-selection").textContent = grinderSelected ? grindModeNames[grindMode] : "POR ELEGIR";
+  renderVolumeOptions();
+  if (grinderSelected) {
+    renderRecipe();
+    saveCurrentRecipe();
+    showSetupStep(3);
+  } else showSetupStep(2);
 }
 
 function selectGrindMode(mode) {
@@ -506,6 +539,7 @@ function repeatLastRitual() {
   if (!lastRecipe) return;
   selectedMethod = lastRecipe.method;
   volumeIndex = lastRecipe.volumeIndex;
+  intensityKey = lastRecipe.intensityKey || "medium";
   doseMode = lastRecipe.doseMode || "preset";
   customCoffee = lastRecipe.customCoffee || 20;
   grindMode = lastRecipe.grindMode;
@@ -535,6 +569,7 @@ function resetSetup() {
   grinderSelected = false;
   grindMode = null;
   doseMode = "preset";
+  intensityKey = null;
   $("#method-selection").textContent = "POR ELEGIR";
   $("#volume-selection").textContent = "POR ELEGIR";
   $("#grind-selection").textContent = preferredGrindMode ? grindModeNames[preferredGrindMode] : "POR ELEGIR";
@@ -580,7 +615,7 @@ function showSetupStep(index) {
     previousPanel.classList.add("is-leaving", direction === "forward" ? "slide-forward-out" : "slide-back-out");
     void nextPanel.offsetWidth;
     nextPanel.classList.add(direction === "forward" ? "slide-forward" : "slide-back");
-    setupTransitionTimer = window.setTimeout(finishSetupTransition, 270);
+    setupTransitionTimer = window.setTimeout(finishSetupTransition, 380);
   } else {
     finishSetupTransition();
   }
@@ -618,22 +653,6 @@ async function releaseWakeLock() {
   wakeLock = null;
 }
 
-function updateTimerNumber(value) {
-  const timerValue = $("#timer-value");
-  if (timerValue.textContent === value) return;
-  timerValue.textContent = value;
-  timerValue.classList.remove("is-ticking");
-  void timerValue.offsetWidth;
-  timerValue.classList.add("is-ticking");
-}
-
-function updateTimerProgress(seconds) {
-  const progress = Math.max(0, Math.min(100, (seconds / stepDuration) * 100));
-  const timerRing = $("#timer-ring");
-  timerRing.style.setProperty("--progress", `${progress}%`);
-  timerRing.style.setProperty("--timer-angle", `${progress * 3.6}deg`);
-}
-
 function renderStep() {
   const method = methods[selectedMethod];
   const total = currentSteps.length;
@@ -643,26 +662,13 @@ function renderStep() {
   $("#step-code").textContent = `${method.code} / ${String(currentStep + 1).padStart(2, "0")}`;
   $("#step-title").textContent = step.title;
   $("#step-instruction").textContent = step.instruction;
-  updateTimerNumber(formatTime(remaining));
-  $("#pause-button").hidden = awaitingStepStart;
+  $("#timer-value").textContent = formatTime(remaining);
+  $("#pause-button").hidden = false;
   $("#next-button").hidden = false;
   $("#next-button").disabled = false;
   $("#pause-button").textContent = isRunning ? "[ PAUSAR ]" : "[ CONTINUAR ]";
-  $("#next-button").textContent = awaitingStepStart
-    ? "[ CONTINUAR ] →"
-    : remaining === 0
-      ? "[ TERMINAR ] →"
-      : "[ SALTAR PASO ] →";
-  $("#timer-state").textContent = awaitingStepStart
-    ? "LISTO PARA EMPEZAR"
-    : remaining === 0
-      ? "PASO LISTO"
-      : isRunning ? "EN CURSO" : "EN PAUSA";
-
-  const timerRing = $("#timer-ring");
-  timerRing.classList.toggle("is-running", isRunning);
-  timerRing.classList.toggle("is-ready", awaitingStepStart);
-  updateTimerProgress(remainingPrecise || remaining);
+  $("#next-button").textContent = remaining === 0 ? "[ SIGUIENTE PASO ] →" : "[ SALTAR PASO ] →";
+  $("#timer-state").textContent = remaining === 0 ? "PASO LISTO" : isRunning ? "EN CURSO" : remaining === stepDuration ? "PRESIONA CONTINUAR" : "EN PAUSA";
 
   $("#step-dots").innerHTML = currentSteps.map((_, index) => {
     const state = index < currentStep ? "is-done" : index === currentStep ? "is-current" : "";
@@ -673,19 +679,15 @@ function renderStep() {
 function renderReady() {
   const { method, water, coffee } = getCurrentRecipe();
   ritualReady = true;
-  awaitingStepStart = false;
   currentStep = 0;
   remaining = 0;
-  remainingPrecise = 0;
   $("#step-counter").textContent = "RITUAL / PREPARADO";
   $("#step-code").textContent = method.code;
   $("#step-title").textContent = "TODO LISTO";
   $("#step-instruction").textContent = `Ten a mano ${coffee} g de café y ${water} ml de agua. El tiempo comenzará después de la cuenta regresiva.`;
   $("#timer-value").textContent = "00:03";
   $("#timer-state").textContent = "ESPERANDO";
-  $("#timer-ring").classList.remove("is-running", "is-ready");
-  $("#timer-ring").style.setProperty("--progress", "100%");
-  $("#timer-ring").style.setProperty("--timer-angle", "360deg");
+  resetTimerProgress();
   $("#pause-button").hidden = true;
   $("#next-button").hidden = false;
   $("#next-button").disabled = false;
@@ -694,116 +696,86 @@ function renderReady() {
 }
 
 function beginCountdown() {
-  stopTimer();
   ritualReady = false;
-  awaitingStepStart = false;
   isCountingDown = true;
-  const countdownDuration = 3;
-  const startedAt = performance.now();
-  let displayedCount = countdownDuration;
+  let count = 3;
+  resetTimerProgress(3);
   $("#step-title").textContent = "PREPÁRATE";
   $("#step-instruction").textContent = "Toma la tetera. Comenzamos en tres segundos.";
-  updateTimerNumber("00:03");
+  $("#timer-value").textContent = `00:0${count}`;
   $("#timer-state").textContent = "COMENZAMOS EN";
   $("#pause-button").hidden = true;
   $("#next-button").hidden = true;
-  $("#timer-ring").classList.add("is-running");
-  $("#timer-ring").classList.remove("is-ready");
-
-  const advanceCountdown = (now) => {
-    if (!isCountingDown) return;
-    const preciseCount = Math.max(0, countdownDuration - ((now - startedAt) / 1000));
-    const nextCount = Math.ceil(preciseCount);
-    const progress = (preciseCount / countdownDuration) * 100;
-    $("#timer-ring").style.setProperty("--progress", `${progress}%`);
-    $("#timer-ring").style.setProperty("--timer-angle", `${progress * 3.6}deg`);
-
-    if (nextCount !== displayedCount && nextCount > 0) {
-      displayedCount = nextCount;
-      updateTimerNumber(`00:0${nextCount}`);
-    }
-
-    if (preciseCount <= 0) {
-      timerFrameId = null;
+  timerId = window.setInterval(() => {
+    count -= 1;
+    if (count <= 0) {
+      window.clearInterval(timerId);
+      timerId = null;
       isCountingDown = false;
-      $("#timer-ring").classList.remove("is-running");
       loadStep(0);
       return;
     }
-    timerFrameId = window.requestAnimationFrame(advanceCountdown);
-  };
-
-  timerFrameId = window.requestAnimationFrame(advanceCountdown);
+    $("#timer-value").textContent = `00:0${count}`;
+  }, 1000);
 }
 
 function stopTimer() {
   window.clearInterval(timerId);
   timerId = null;
-  if (timerFrameId !== null) window.cancelAnimationFrame(timerFrameId);
-  timerFrameId = null;
   isRunning = false;
 }
 
 function runTimer() {
   stopTimer();
-  awaitingStepStart = false;
   isRunning = true;
-  const startedAt = performance.now();
-  const startingRemaining = remainingPrecise || remaining;
+  const ring = $("#timer-ring");
+  if (!ring.classList.contains("is-progress-animating")) resetTimerProgress(remaining);
+  ring.classList.remove("is-paused");
   renderStep();
-
-  const advanceTimer = (now) => {
-    if (!isRunning) return;
-    remainingPrecise = Math.max(0, startingRemaining - ((now - startedAt) / 1000));
-    const nextSecond = Math.ceil(remainingPrecise);
-
-    updateTimerProgress(remainingPrecise);
-    if (nextSecond !== remaining) {
-      remaining = nextSecond;
-      updateTimerNumber(formatTime(remaining));
-    }
-
-    if (remainingPrecise <= 0) {
+  timerId = window.setInterval(() => {
+    remaining -= 1;
+    if (remaining <= 0) {
       remaining = 0;
       stopTimer();
-      if (currentStep < currentSteps.length - 1) {
-        loadStep(currentStep + 1, false);
-        return;
-      }
-      renderStep();
-      return;
     }
-
-    timerFrameId = window.requestAnimationFrame(advanceTimer);
-  };
-
-  timerFrameId = window.requestAnimationFrame(advanceTimer);
+    renderStep();
+  }, 1000);
 }
 
-function loadStep(index, autoStart = true) {
+function loadStep(index, startImmediately = true) {
   currentStep = index;
   const step = currentSteps[currentStep];
   stepDuration = step.seconds;
   remaining = step.seconds;
-  remainingPrecise = step.seconds;
-  awaitingStepStart = !autoStart;
-  if (autoStart) runTimer();
-  else renderStep();
+  if (startImmediately) {
+    resetTimerProgress(stepDuration);
+    runTimer();
+  } else {
+    stopTimer();
+    resetTimerProgress();
+    renderStep();
+  }
+}
+
+function resetTimerProgress(durationSeconds = null) {
+  const ring = $("#timer-ring");
+  ring.classList.remove("is-progress-animating", "is-paused");
+  ring.style.setProperty("--progress", "100%");
+  if (durationSeconds === null) return;
+  ring.style.setProperty("--timer-duration", `${durationSeconds}s`);
+  void ring.offsetWidth;
+  ring.classList.add("is-progress-animating");
 }
 
 function completeRitual() {
   stopTimer();
-  remainingPrecise = 0;
-  awaitingStepStart = false;
   $("#step-counter").textContent = "RITUAL / COMPLETO";
   $("#step-code").textContent = "UMBRA / FIN";
   $("#step-title").textContent = "DISFRUTA";
   $("#step-instruction").textContent = "Prueba tu café antes de cambiar algo. La próxima taza puede ser distinta.";
   $("#timer-value").textContent = "LISTO";
   $("#timer-state").textContent = "CAFÉ DE VERDAD";
-  $("#timer-ring").classList.remove("is-running", "is-ready");
-  $("#timer-ring").style.setProperty("--progress", "100%");
-  $("#timer-ring").style.setProperty("--timer-angle", "360deg");
+  resetTimerProgress();
   $("#pause-button").hidden = true;
   $("#next-button").textContent = "[ NUEVA TAZA ] →";
   $$(".step-dot").forEach((dot) => dot.className = "step-dot is-done");
@@ -817,10 +789,6 @@ function nextStep() {
   }
   if (currentStep >= currentSteps.length) {
     exitRitual();
-    return;
-  }
-  if (awaitingStepStart) {
-    runTimer();
     return;
   }
   stopTimer();
@@ -846,8 +814,7 @@ function exitRitual() {
   stopTimer();
   ritualReady = false;
   isCountingDown = false;
-  awaitingStepStart = false;
-  remainingPrecise = 0;
+  resetTimerProgress();
   releaseWakeLock();
   $("#ritual-screen").classList.remove("is-visible");
   $("#ritual-screen").setAttribute("aria-hidden", "true");
@@ -856,9 +823,10 @@ function exitRitual() {
 }
 
 function togglePause() {
-  if (awaitingStepStart || remaining === 0) return;
+  if (remaining === 0) return;
   if (isRunning) {
     stopTimer();
+    $("#timer-ring").classList.add("is-paused");
     renderStep();
   } else runTimer();
 }
@@ -867,6 +835,10 @@ $$(".method-card").forEach((button) => button.addEventListener("click", () => se
 $$("[data-dose-mode]").forEach((button) => button.addEventListener("click", () => setDoseMode(button.dataset.doseMode)));
 $("#custom-coffee-input").addEventListener("input", updateCustomDose);
 $("#custom-coffee-input").addEventListener("keydown", (event) => { if (event.key === "Enter") confirmCustomDose(); });
+$("#custom-intensity-select").addEventListener("change", (event) => {
+  intensityKey = event.target.value;
+  updateCustomDose();
+});
 $("#custom-dose-confirm").addEventListener("click", confirmCustomDose);
 $$(".grind-mode-card").forEach((button) => button.addEventListener("click", () => selectGrindMode(button.dataset.grindMode)));
 $$('[data-go-step]').forEach((button) => button.addEventListener("click", () => showSetupStep(Number(button.dataset.goStep))));
@@ -881,6 +853,19 @@ $("#install-prompt-action").addEventListener("click", handleInstallPromptAction)
 $("#install-prompt-later").addEventListener("click", postponeInstallPrompt);
 $("#install-prompt-close").addEventListener("click", postponeInstallPrompt);
 
+const topbarMenu = $(".topbar-menu");
+const menuPanel = $("#menu-panel");
+const menuTrigger = $("#menu-trigger");
+function setMenuOpen(open) {
+  menuPanel.hidden = !open;
+  menuTrigger.setAttribute("aria-expanded", String(open));
+  menuTrigger.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
+}
+menuTrigger.addEventListener("click", () => setMenuOpen(menuPanel.hidden));
+document.addEventListener("click", (event) => {
+  if (!topbarMenu.contains(event.target)) setMenuOpen(false);
+});
+
 window.addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault();
   deferredInstallPrompt = event;
@@ -890,13 +875,13 @@ window.addEventListener("beforeinstallprompt", (event) => {
 window.addEventListener("appinstalled", rememberInstallPrompt);
 
 document.addEventListener("keydown", (event) => {
-  if (!$("#ritual-screen").classList.contains("is-visible")) return;
-  if (event.code === "Space") {
-    event.preventDefault();
-    if (ritualReady) beginCountdown();
-    else if (awaitingStepStart) nextStep();
-    else togglePause();
+  if (event.key === "Escape" && !menuPanel.hidden) {
+    setMenuOpen(false);
+    menuTrigger.focus();
+    return;
   }
+  if (!$("#ritual-screen").classList.contains("is-visible")) return;
+  if (event.code === "Space") { event.preventDefault(); ritualReady ? beginCountdown() : togglePause(); }
   if (event.code === "ArrowRight") nextStep();
   if (event.code === "Escape") exitRitual();
 });
@@ -905,10 +890,9 @@ document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible" && $("#ritual-screen").classList.contains("is-visible")) requestWakeLock();
 });
 
-startAppSplash();
-
 lastRecipe = readSavedRecipe();
 preferredGrindMode = lastRecipe?.grindMode || null;
+playOpeningSequence();
 updateRepeatCard();
 showSetupStep(0);
 scheduleInstallPrompt();

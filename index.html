@@ -16,17 +16,11 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="app-splash" id="app-splash" aria-hidden="true">
-      <div class="app-splash-core">
-        <div class="app-splash-mark">
-          <img src="assets/umbra-symbol-bone.svg" alt="" />
-          <span class="app-splash-cut"></span>
-        </div>
-        <strong class="app-splash-word">UMBRA</strong>
-        <div class="app-splash-signature">
-          <span>CAFÉ / AGUA / TIEMPO</span>
-          <i></i><i></i><i></i>
-        </div>
+    <div class="opening-sequence" id="opening-sequence" aria-hidden="true">
+      <div class="opening-mark">
+        <img src="assets/umbra-symbol-bone.svg" alt="" />
+        <span class="opening-wordmark">UMBRA</span>
+        <span class="opening-caption">CAFÉ <i>/</i> AGUA <i>/</i> TIEMPO</span>
       </div>
     </div>
 
@@ -38,6 +32,31 @@
       <div class="system-status" aria-label="Estado del sistema">
         <span class="status-pulse"></span>
         <span>CAFÉ / AGUA / TIEMPO</span>
+      </div>
+      <div class="topbar-menu">
+        <button class="menu-trigger" id="menu-trigger" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu-panel">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 8h14l-7 9z" /></svg>
+        </button>
+        <section class="menu-panel" id="menu-panel" aria-label="Menú de UMBRA" hidden>
+          <div class="menu-panel-heading"><span>UMBRA / EXPLORAR</span><small>01 OPCIÓN</small></div>
+          <h2>RECETAS</h2>
+          <p class="menu-intro">Ideas simples para probar tu próxima taza.</p>
+          <div class="menu-recipe-list">
+            <details class="menu-recipe">
+              <summary><span class="menu-recipe-number">01</span><span class="menu-recipe-copy"><strong>Francesa equilibrada</strong><small>PRENSA / 1:15 · 4 MIN</small></span><span class="menu-recipe-arrow">＋</span></summary>
+              <p>Una taza redonda y dulce, con cuerpo medio. Buena para empezar y disfrutar notas de cacao y caramelo.</p>
+            </details>
+            <details class="menu-recipe">
+              <summary><span class="menu-recipe-number">02</span><span class="menu-recipe-copy"><strong>Francesa suave</strong><small>PRENSA / 1:16 · 4 MIN</small></span><span class="menu-recipe-arrow">＋</span></summary>
+              <p>Más ligera y delicada, ideal para cafés de tueste medio con notas frutales o florales.</p>
+            </details>
+            <details class="menu-recipe">
+              <summary><span class="menu-recipe-number">03</span><span class="menu-recipe-copy"><strong>V60 dulce</strong><small>POUR OVER / 1:16 · 3 MIN</small></span><span class="menu-recipe-arrow">＋</span></summary>
+              <p>Una preparación limpia y aromática. Vierte despacio y busca una taza brillante, con dulzor y notas cítricas.</p>
+            </details>
+          </div>
+          <div class="menu-panel-foot">RECETAS DE EJEMPLO <span>CAFÉ / AGUA / TIEMPO</span></div>
+        </section>
       </div>
     </header>
 
@@ -105,6 +124,10 @@
           </div>
           <div class="dose-panel" id="preset-dose-panel">
             <div class="volume-grid" id="volume-grid" role="group" aria-label="Selecciona cuántas tazas preparar"></div>
+            <section class="intensity-picker" id="intensity-picker" aria-labelledby="intensity-heading" hidden>
+              <div class="intensity-heading"><span id="intensity-heading">INTENSIDAD / GRAMOS DE CAFÉ</span><small id="intensity-cup-label"></small></div>
+              <div class="intensity-grid" id="intensity-grid" role="group" aria-label="Selecciona la intensidad del café"></div>
+            </section>
           </div>
           <div class="dose-panel custom-dose-panel" id="custom-dose-panel" hidden>
             <label class="custom-dose-input" for="custom-coffee-input">
@@ -114,6 +137,16 @@
             </label>
             <div class="custom-calculation" aria-live="polite">
               <span id="custom-calculation-label">UMBRA CALCULA</span>
+              <label class="custom-intensity-control" id="custom-intensity-control" for="custom-intensity-select" hidden>
+                <span>INTENSIDAD</span>
+                <select id="custom-intensity-select" aria-label="Elige la intensidad para calcular el agua">
+                  <option value="soft">SUAVE · 1:16</option>
+                  <option value="medium" selected>MEDIO · 1:15</option>
+                  <option value="loaded">CARGADO · 1:14</option>
+                  <option value="veryStrong">MUY FUERTE · 1:12</option>
+                  <option value="concentrate">CONCENTRADO · 1:10</option>
+                </select>
+              </label>
               <strong><b id="custom-water-value">300</b> ML</strong>
               <small id="custom-ratio-label">AGUA TOTAL · RATIO 1:15</small>
             </div>
